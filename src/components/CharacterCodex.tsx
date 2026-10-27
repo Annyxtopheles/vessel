@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import type { CharacterProfile, SkillNode, AttributeType } from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
-import { Cpu, Users, Flame, Check, Lock, Sun, Target } from 'lucide-react';
+import { Cpu, Users, Flame, Check, Lock, Sun, Target, Edit3 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface CharacterCodexProps {
   profile: CharacterProfile;
   skills: SkillNode[];
   onUnlockSkill: (skillId: string) => void;
+  onUpdateProfile?: (updated: Partial<CharacterProfile>) => void;
 }
 
 const ATTRIBUTE_ICONS: Record<AttributeType, React.ComponentType<{ className?: string }>> = {
@@ -48,8 +49,20 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   profile,
   skills,
   onUnlockSkill,
+  onUpdateProfile,
 }) => {
   const [selectedAttr, setSelectedAttr] = useState<AttributeType | 'ALL'>('ALL');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [nameVal, setNameVal] = useState(profile.name);
+  const [titleVal, setTitleVal] = useState(profile.title);
+
+  const handleSaveProfile = () => {
+    sfx.playClick();
+    if (onUpdateProfile && nameVal.trim()) {
+      onUpdateProfile({ name: nameVal.trim(), title: titleVal.trim() || 'Wanderer' });
+    }
+    setIsEditingProfile(false);
+  };
 
   const filteredSkills = skills.filter(
     (skill) => selectedAttr === 'ALL' || skill.attribute === selectedAttr
@@ -69,14 +82,56 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
       <div className="ui-card p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#23262f]">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-bold text-white tracking-tight">
-                {profile.name} — {profile.title}
-              </h2>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#e5b869]/10 text-[#e5b869] border border-[#e5b869]/20">
-                Level {profile.level}
-              </span>
-            </div>
+            {isEditingProfile ? (
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  value={nameVal}
+                  onChange={(e) => setNameVal(e.target.value)}
+                  placeholder="Your Name"
+                  className="px-2.5 py-1 bg-[#101216] border border-[#2b2e38] rounded-md text-sm font-bold text-white focus:outline-none focus:border-[#d8b46b]"
+                />
+                <input
+                  type="text"
+                  value={titleVal}
+                  onChange={(e) => setTitleVal(e.target.value)}
+                  placeholder="Character Title"
+                  className="px-2.5 py-1 bg-[#101216] border border-[#2b2e38] rounded-md text-xs text-neutral-300 focus:outline-none focus:border-[#d8b46b]"
+                />
+                <button
+                  onClick={handleSaveProfile}
+                  className="px-3 py-1 bg-[#d8b46b] text-[#0f1115] text-xs font-semibold rounded-md hover:bg-[#c5a059]"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditingProfile(false)}
+                  className="px-2.5 py-1 bg-[#181a20] text-neutral-400 text-xs rounded-md hover:text-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  {profile.name} — {profile.title}
+                </h2>
+                <button
+                  onClick={() => {
+                    setNameVal(profile.name);
+                    setTitleVal(profile.title);
+                    setIsEditingProfile(true);
+                  }}
+                  className="p-1 text-neutral-500 hover:text-neutral-300 rounded hover:bg-[#181a20] transition-colors"
+                  title="Edit character name & title"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#d8b46b]/10 text-[#d8b46b] border border-[#d8b46b]/20">
+                  Level {profile.level}
+                </span>
+              </div>
+            )}
             <p className="text-xs text-neutral-400 mt-1">
               Overall character progression calculated across physical, professional, spiritual, and social habits.
             </p>

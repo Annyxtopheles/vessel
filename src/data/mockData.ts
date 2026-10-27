@@ -490,7 +490,7 @@ export const INITIAL_SKILLS: SkillNode[] = [
 ];
 
 export const INITIAL_PROFILE: CharacterProfile = {
-  name: 'Mehedi',
+  name: 'Sadman Zaman Khan',
   title: 'Artificer Wanderer',
   level: 8,
   currentXp: 1840,

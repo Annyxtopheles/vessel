@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-xs text-neutral-400 hidden sm:block">
-              {profile.title}
+              {profile.name} • {profile.title}
             </p>
           </div>
         </div>

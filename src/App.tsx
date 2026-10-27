@@ -319,6 +319,7 @@ export const App: React.FC = () => {
             profile={profile}
             skills={skills}
             onUnlockSkill={handleUnlockSkill}
+            onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
           />
         )}
 

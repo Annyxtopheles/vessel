@@ -59,7 +59,15 @@ export function saveItems(items: InventoryItem[]): void {
 export function loadProfile(): CharacterProfile {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PROFILE);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed: CharacterProfile = JSON.parse(raw);
+      // Auto-migrate if old default name was saved
+      if (parsed.name === 'Mehedi') {
+        parsed.name = 'Sadman Zaman Khan';
+        saveProfile(parsed);
+      }
+      return parsed;
+    }
   } catch (err) {
     console.error('Failed to load profile', err);
   }
