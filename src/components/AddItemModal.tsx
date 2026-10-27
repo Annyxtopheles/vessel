@@ -138,11 +138,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'owned'
-                    ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200 shadow-sm'
+                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4 mb-1 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 mb-1 text-neutral-300" />
                 <span>Currently Own</span>
                 <span className="text-[10px] text-neutral-500">In my wardrobe</span>
               </button>
@@ -155,11 +155,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'wishlist'
-                    ? 'bg-amber-950/40 border-amber-500/50 text-amber-200 shadow-sm'
+                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <Lock className="w-4 h-4 mb-1 text-amber-400" />
+                <Lock className="w-4 h-4 mb-1 text-neutral-300" />
                 <span>Wish to Own</span>
                 <span className="text-[10px] text-neutral-500">Milestone goal</span>
               </button>
@@ -172,11 +172,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'past'
-                    ? 'bg-purple-950/40 border-purple-500/50 text-purple-200 shadow-sm'
+                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <Archive className="w-4 h-4 mb-1 text-purple-400" />
+                <Archive className="w-4 h-4 mb-1 text-neutral-300" />
                 <span>Used to Own</span>
                 <span className="text-[10px] text-neutral-500">Parted with</span>
               </button>
@@ -185,8 +185,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
 
           {/* Conditional: Wishlist Goal */}
           {ownershipStatus === 'wishlist' && (
-            <div className="p-3 bg-amber-950/20 border border-amber-800/40 rounded-lg space-y-1.5 animate-in fade-in">
-              <label className="block text-xs font-medium text-amber-300">
+            <div className="p-3 bg-[#16181f] border border-[#2b2e38] rounded-lg space-y-1.5 animate-in fade-in">
+              <label className="block text-xs font-medium text-neutral-300">
                 Goal or Habit Required to Unlock
               </label>
               <input
@@ -194,23 +194,23 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 value={lockRequirement}
                 onChange={(e) => setLockRequirement(e.target.value)}
                 placeholder="e.g. 30-day Salah streak, Ship client MVP, Reach Level 10..."
-                className="w-full px-3 py-2 bg-[#101216] border border-amber-800/60 rounded-md text-xs text-amber-200 placeholder-neutral-500 focus:outline-none"
+                className="w-full px-3 py-2 bg-[#101216] border border-[#272a34] rounded-md text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-neutral-400"
               />
             </div>
           )}
 
           {/* Conditional: Used to Own (Past Reason) */}
           {ownershipStatus === 'past' && (
-            <div className="p-3 bg-purple-950/20 border border-purple-800/40 rounded-lg space-y-3 animate-in fade-in">
+            <div className="p-3 bg-[#16181f] border border-[#2b2e38] rounded-lg space-y-3 animate-in fade-in">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-purple-300 mb-1">
+                  <label className="block text-xs font-medium text-neutral-300 mb-1">
                     How did you part with it?
                   </label>
                   <select
                     value={pastReason}
                     onChange={(e) => setPastReason(e.target.value as PastReason)}
-                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-purple-800/60 rounded text-xs text-purple-200"
+                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-[#272a34] rounded text-xs text-neutral-200"
                   >
                     <option value="sold">Sold</option>
                     <option value="gifted">Gifted away</option>
@@ -220,14 +220,14 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-purple-300 mb-1">
+                  <label className="block text-xs font-medium text-neutral-300 mb-1">
                     Date / Year Parted With
                   </label>
                   <input
                     type="date"
                     value={pastDate}
                     onChange={(e) => setPastDate(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-purple-800/60 rounded text-xs text-purple-200"
+                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-[#272a34] rounded text-xs text-neutral-200"
                   />
                 </div>
               </div>

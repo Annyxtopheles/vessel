@@ -12,10 +12,10 @@ interface ItemInspectModalProps {
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
-  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-emerald-500' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#e5b869]' },
-  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-amber-600' },
-  needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-rose-500' },
+  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-neutral-300' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-neutral-400' },
+  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-neutral-500' },
+  needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-rose-400' },
 };
 
 const FULL_MODIFIER_NAMES: Record<string, string> = {
@@ -96,13 +96,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               </span>
 
               {/* Ownership Status Badge */}
-              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                currentStatus === 'owned'
-                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
-                  : currentStatus === 'wishlist'
-                  ? 'bg-amber-950/60 text-amber-300 border-amber-800/40'
-                  : 'bg-sky-950/60 text-sky-300 border-sky-800/40'
-              }`}>
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border bg-[#181a20] text-neutral-300 border-[#2b2e38]">
                 {currentStatus === 'owned' && 'Currently Owned'}
                 {currentStatus === 'wishlist' && 'Wish to Own'}
                 {currentStatus === 'past' && `Used to Own (${item.pastReason || 'archived'})`}

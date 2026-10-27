@@ -113,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="w-10 h-1.5 bg-[#262933] rounded-full overflow-hidden ml-1">
                 <div
                   className={`h-full rounded-full ${
-                    isOverburdened ? 'bg-rose-500' : encumbrancePercent > 75 ? 'bg-amber-400' : 'bg-emerald-500'
+                    isOverburdened ? 'bg-rose-400' : 'bg-neutral-400'
                   }`}
                   style={{ width: `${Math.min(100, encumbrancePercent)}%` }}
                 />
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Total Value Pill */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#16181e] border border-[#23262f] text-neutral-300">
               <span className="text-neutral-500">Value:</span>
-              <span className="font-medium text-[#e5b869]">${totalGoldValue.toLocaleString()}</span>
+              <span className="font-medium text-neutral-200">${totalGoldValue.toLocaleString()}</span>
             </div>
           </div>
 

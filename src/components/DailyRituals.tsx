@@ -223,8 +223,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <span className="font-bold text-sm my-0.5 text-white">{day.dayNum}</span>
 
                 <div className="flex items-center gap-0.5 mt-0.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${prayerCount === 5 ? 'bg-emerald-400' : prayerCount > 0 ? 'bg-amber-400' : 'bg-neutral-700'}`} />
-                  {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />}
+                  <span className={`w-1.5 h-1.5 rounded-full ${prayerCount === 5 ? 'bg-neutral-300' : prayerCount > 0 ? 'bg-neutral-500' : 'bg-neutral-700'}`} />
+                  {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />}
                 </div>
               </button>
             );
@@ -261,8 +261,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               {completedSalahCount} of 5 completed
             </span>
             {isAllSalahCompleted && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-950/40 text-emerald-300 border border-emerald-800/40">
-                All Prayers Completed
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#181a20] text-neutral-200 border border-[#2b2e38] flex items-center gap-1">
+                <Check className="w-3 h-3 text-[#c5a059]" /> All Prayers Completed
               </span>
             )}
           </div>
@@ -432,7 +432,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-rose-400" />
+              <Dumbbell className="w-4 h-4 text-neutral-400" />
               <h3 className="text-sm font-bold text-white tracking-tight">
                 Bodyweight Movement (Strength)
               </h3>
@@ -442,7 +442,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 type="checkbox"
                 checked={currentRecord.workoutCompleted}
                 onChange={handleToggleWorkout}
-                className="rounded border-[#2b2e38] bg-[#14161a] text-rose-500 focus:ring-0"
+                className="rounded border-[#2b2e38] bg-[#14161a] text-neutral-300 focus:ring-0"
               />
               <span>Full Workout (+120 XP)</span>
             </label>
@@ -477,14 +477,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleAdjustPushups(-10)}
-                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                     title="Reduce 10"
                   >
                     -10
                   </button>
                   <button
                     onClick={() => handleAdjustPushups(-5)}
-                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                     title="Reduce 5"
                   >
                     -5
@@ -542,14 +542,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleAdjustSquats(-10)}
-                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                     title="Reduce 10"
                   >
                     -10
                   </button>
                   <button
                     onClick={() => handleAdjustSquats(-5)}
-                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                     title="Reduce 5"
                   >
                     -5
@@ -585,12 +585,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-sky-400" />
+              <Clock className="w-4 h-4 text-neutral-400" />
               <h3 className="text-sm font-bold text-white tracking-tight">
                 Deep Work Focus (Intellect)
               </h3>
             </div>
-            <span className="text-xs font-mono font-medium text-sky-400">
+            <span className="text-xs font-mono font-medium text-neutral-400">
               +{Math.round(currentRecord.deepWorkMinutes * 1.5)} Intellect XP
             </span>
           </div>
@@ -606,14 +606,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 border-t border-[#1d2027]">
               <button
                 onClick={() => handleAdjustDeepWork(-30)}
-                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                 title="Subtract 30 minutes"
               >
                 -30m
               </button>
               <button
                 onClick={() => handleAdjustDeepWork(-15)}
-                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#20222a] text-xs font-mono text-neutral-400 hover:text-neutral-200 border border-[#272a34] transition-colors"
                 title="Subtract 15 minutes"
               >
                 -15m

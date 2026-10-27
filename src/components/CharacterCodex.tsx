@@ -18,10 +18,10 @@ const ATTRIBUTE_ICONS: Record<AttributeType, React.ComponentType<{ className?: s
 };
 
 const ATTRIBUTE_ACCENTS: Record<AttributeType, { badge: string; text: string; bar: string }> = {
-  STR: { badge: 'bg-rose-950/60 text-rose-300 border-rose-800/40', text: 'text-rose-400', bar: 'bg-rose-500' },
-  INT: { badge: 'bg-sky-950/60 text-sky-300 border-sky-800/40', text: 'text-sky-400', bar: 'bg-sky-500' },
-  WIS: { badge: 'bg-amber-950/60 text-amber-300 border-amber-800/40', text: 'text-amber-400', bar: 'bg-[#e5b869]' },
-  CHA: { badge: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40', text: 'text-emerald-400', bar: 'bg-emerald-500' },
+  STR: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
+  INT: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
+  WIS: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
+  CHA: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
 };
 
 export const CharacterCodex: React.FC<CharacterCodexProps> = ({
@@ -63,20 +63,20 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           </div>
 
           {/* Streaks Banner */}
-          <div className="flex items-center gap-3">
-            <div className="px-3 py-2 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-semibold text-neutral-500">Salah Streak</span>
-              <span className="text-sm font-bold text-amber-300 font-mono">{profile.streaks.salahStreak} Days</span>
+          <div className="flex items-center gap-2.5">
+            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-500">Salah Streak</span>
+              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.salahStreak} Days</span>
             </div>
 
-            <div className="px-3 py-2 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-semibold text-neutral-500">Workout Streak</span>
-              <span className="text-sm font-bold text-rose-300 font-mono">{profile.streaks.workoutStreak} Days</span>
+            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-500">Workout Streak</span>
+              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.workoutStreak} Days</span>
             </div>
 
-            <div className="px-3 py-2 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-semibold text-neutral-500">Craft Streak</span>
-              <span className="text-sm font-bold text-sky-300 font-mono">{profile.streaks.craftStreak} Days</span>
+            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-500">Craft Streak</span>
+              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.craftStreak} Days</span>
             </div>
           </div>
         </div>
@@ -98,39 +98,39 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 }}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-[#181b22] border-[#e5b869]/50 ring-1 ring-[#e5b869]/30 shadow-md'
+                    ? 'bg-[#181b22] border-neutral-500 shadow-sm'
                     : 'bg-[#111317] border-[#20232b] hover:border-[#2f333f]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className={`p-1.5 rounded-md ${accent.badge}`}>
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4 text-neutral-400" />
                     </div>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <span className="text-xs font-semibold text-white uppercase tracking-wider">
                       {ATTRIBUTE_NAMES[key]}
                     </span>
                   </div>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#181a20] text-neutral-300 border border-[#262933]">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#181a20] text-neutral-400 border border-[#262933]">
                     Lvl {attr.level}
                   </span>
                 </div>
 
-                <h4 className="text-sm font-bold text-white mb-0.5">{name}</h4>
-                <div className="text-xs font-medium text-neutral-400 mb-2">{subtitle}</div>
+                <h4 className="text-sm font-semibold text-white mb-0.5">{name}</h4>
+                <div className="text-xs text-neutral-400 mb-2">{subtitle}</div>
                 <p className="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3">
                   {desc}
                 </p>
 
                 {/* Progress bar */}
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-mono text-neutral-400">
+                  <div className="flex justify-between text-[11px] font-mono text-neutral-500">
                     <span>XP</span>
                     <span>{attr.xp % 1000} / 1000</span>
                   </div>
-                  <div className="h-1.5 w-full bg-[#1c1f26] rounded-full overflow-hidden">
+                  <div className="h-1 w-full bg-[#181a20] rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${accent.bar} rounded-full transition-all`}
+                      className="h-full bg-neutral-400 rounded-full transition-all"
                       style={{ width: `${(attr.xp % 1000) / 10}%` }}
                     />
                   </div>
@@ -208,11 +208,11 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     </span>
 
                     {skill.unlocked ? (
-                      <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-800/30">
-                        <Check className="w-3 h-3" /> Attuned
+                      <span className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-300 bg-[#16181f] px-2.5 py-0.5 rounded-full border border-[#262933]">
+                        <Check className="w-3 h-3 text-neutral-400" /> Attuned
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-[11px] font-medium text-neutral-400 bg-[#181a20] px-2 py-0.5 rounded-full border border-[#272a34]">
+                      <span className="flex items-center gap-1 text-[11px] font-medium text-neutral-400 bg-[#16181f] px-2.5 py-0.5 rounded-full border border-[#262933]">
                         <Lock className="w-3 h-3" /> Locked
                       </span>
                     )}
@@ -227,7 +227,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
                   <div className="p-2.5 rounded-lg bg-[#0e1014] border border-[#1d2027] mb-3 text-xs">
                     <span className="text-neutral-500 font-semibold block text-[10px] uppercase mb-0.5">Bonus Modifier:</span>
-                    <span className="font-medium text-[#e5b869]">{skill.bonus}</span>
+                    <span className="font-medium text-neutral-200">{skill.bonus}</span>
                   </div>
                 </div>
 
@@ -237,10 +237,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     <span className="font-mono text-neutral-300">{skill.progressPercent}%</span>
                   </div>
 
-                  <div className="h-1.5 w-full bg-[#1c1f26] rounded-full overflow-hidden mb-3">
+                  <div className="h-1 w-full bg-[#181a20] rounded-full overflow-hidden mb-3">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
-                        skill.unlocked ? 'bg-emerald-500' : 'bg-[#e5b869]'
+                        skill.unlocked ? 'bg-neutral-400' : 'bg-neutral-600'
                       }`}
                       style={{ width: `${skill.progressPercent}%` }}
                     />
