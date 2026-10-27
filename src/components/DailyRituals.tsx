@@ -23,6 +23,13 @@ const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] 
   { key: 'isha', name: 'Isha', timeOfDay: 'Night' },
 ];
 
+const HABIT_ATTR_BADGES: Record<AttributeType, string> = {
+  STR: 'text-[#df8276] bg-[#271a1c] border-[#44282c]',
+  INT: 'text-[#86a6cf] bg-[#15202c] border-[#253549]',
+  WIS: 'text-[#d8b46b] bg-[#272115] border-[#463821]',
+  CHA: 'text-[#93bfa0] bg-[#1a251e] border-[#2a3e30]',
+};
+
 export const DailyRituals: React.FC<DailyRitualsProps> = ({
   dayRecords,
   habits,
@@ -223,8 +230,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <span className="font-bold text-sm my-0.5 text-white">{day.dayNum}</span>
 
                 <div className="flex items-center gap-0.5 mt-0.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${prayerCount === 5 ? 'bg-neutral-300' : prayerCount > 0 ? 'bg-neutral-500' : 'bg-neutral-700'}`} />
-                  {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />}
+                  <span className={`w-1.5 h-1.5 rounded-full ${prayerCount === 5 ? 'bg-[#d8b46b]' : prayerCount > 0 ? 'bg-[#b8944d]/60' : 'bg-neutral-700'}`} />
+                  {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-[#86a6cf]" />}
                 </div>
               </button>
             );
@@ -261,8 +268,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               {completedSalahCount} of 5 completed
             </span>
             {isAllSalahCompleted && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#181a20] text-neutral-200 border border-[#2b2e38] flex items-center gap-1">
-                <Check className="w-3 h-3 text-[#c5a059]" /> All Prayers Completed
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#1a251e] text-[#93bfa0] border border-[#2a3e30] flex items-center gap-1">
+                <Check className="w-3 h-3 text-[#93bfa0]" /> All Prayers Completed
               </span>
             )}
           </div>
@@ -279,7 +286,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 onClick={() => handleToggleSalah(key)}
                 className={`p-4 rounded-xl border flex flex-col items-center justify-center text-center transition-all ${
                   isDone
-                    ? 'bg-[#181d26] border-[#e5b869]/50 shadow-sm'
+                    ? 'bg-[#1c1a14] border-[#d8b46b]/40 shadow-sm'
                     : 'bg-[#111317] border-[#20232b] hover:border-[#2f333f]'
                 }`}
               >
@@ -289,7 +296,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${
                     isDone
-                      ? 'bg-[#e5b869] border-[#e5b869] text-[#0f1115]'
+                      ? 'bg-[#d8b46b] border-[#d8b46b] text-[#0f1115]'
                       : 'bg-[#181a20] border-[#2b2e38] text-transparent hover:border-neutral-500'
                   }`}
                 >
@@ -403,7 +410,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#181a20] text-neutral-300 border border-[#272a34]">
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded border ${HABIT_ATTR_BADGES[habit.attribute]}`}>
                     {ATTRIBUTE_NAMES[habit.attribute]}
                   </span>
                   <button
@@ -432,7 +439,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-neutral-400" />
+              <Dumbbell className="w-4 h-4 text-[#df8276]" />
               <h3 className="text-sm font-bold text-white tracking-tight">
                 Bodyweight Movement (Strength)
               </h3>
@@ -442,9 +449,9 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 type="checkbox"
                 checked={currentRecord.workoutCompleted}
                 onChange={handleToggleWorkout}
-                className="rounded border-[#2b2e38] bg-[#14161a] text-neutral-300 focus:ring-0"
+                className="rounded border-[#2b2e38] bg-[#14161a] text-[#df8276] focus:ring-0"
               />
-              <span>Full Workout (+120 XP)</span>
+              <span>Full Workout (<span className="text-[#df8276] font-mono">+120 XP</span>)</span>
             </label>
           </div>
 
@@ -453,7 +460,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-neutral-400 font-medium">Pushups Completed</span>
-                <span className="text-[11px] text-neutral-500">+{currentRecord.pushups * 2} Strength XP</span>
+                <span className="text-[11px] text-[#df8276] font-mono">+{currentRecord.pushups * 2} Strength XP</span>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -518,7 +525,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-neutral-400 font-medium">Bodyweight Squats</span>
-                <span className="text-[11px] text-neutral-500">+{currentRecord.squats * 2} Strength XP</span>
+                <span className="text-[11px] text-[#df8276] font-mono">+{currentRecord.squats * 2} Strength XP</span>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -585,12 +592,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-neutral-400" />
+              <Clock className="w-4 h-4 text-[#86a6cf]" />
               <h3 className="text-sm font-bold text-white tracking-tight">
                 Deep Work Focus (Intellect)
               </h3>
             </div>
-            <span className="text-xs font-mono font-medium text-neutral-400">
+            <span className="text-xs font-mono font-medium text-[#86a6cf]">
               +{Math.round(currentRecord.deepWorkMinutes * 1.5)} Intellect XP
             </span>
           </div>
@@ -598,7 +605,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
           <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b] mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-neutral-400 font-medium">Logged Focus Duration</span>
-              <span className="text-xl font-bold font-mono text-white">
+              <span className="text-xl font-bold font-mono text-[#86a6cf]">
                 {Math.floor(currentRecord.deepWorkMinutes / 60)}h {currentRecord.deepWorkMinutes % 60}m
               </span>
             </div>

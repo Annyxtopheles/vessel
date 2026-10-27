@@ -17,11 +17,31 @@ const ATTRIBUTE_ICONS: Record<AttributeType, React.ComponentType<{ className?: s
   CHA: Users,
 };
 
-const ATTRIBUTE_ACCENTS: Record<AttributeType, { badge: string; text: string; bar: string }> = {
-  STR: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
-  INT: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
-  WIS: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
-  CHA: { badge: 'bg-[#181a20] text-neutral-300 border-[#272a34]', text: 'text-neutral-300', bar: 'bg-[#c5a059]' },
+const ATTRIBUTE_ACCENTS: Record<AttributeType, { badge: string; text: string; bar: string; iconColor: string }> = {
+  STR: {
+    badge: 'bg-[#271a1c] text-[#df8276] border-[#44282c]',
+    text: 'text-[#df8276]',
+    bar: 'bg-[#b85d52]',
+    iconColor: 'text-[#df8276]',
+  },
+  INT: {
+    badge: 'bg-[#15202c] text-[#86a6cf] border-[#253549]',
+    text: 'text-[#86a6cf]',
+    bar: 'bg-[#5b7fa8]',
+    iconColor: 'text-[#86a6cf]',
+  },
+  WIS: {
+    badge: 'bg-[#272115] text-[#d8b46b] border-[#463821]',
+    text: 'text-[#d8b46b]',
+    bar: 'bg-[#b8944d]',
+    iconColor: 'text-[#d8b46b]',
+  },
+  CHA: {
+    badge: 'bg-[#1a251e] text-[#93bfa0] border-[#2a3e30]',
+    text: 'text-[#93bfa0]',
+    bar: 'bg-[#679976]',
+    iconColor: 'text-[#93bfa0]',
+  },
 };
 
 export const CharacterCodex: React.FC<CharacterCodexProps> = ({
@@ -64,19 +84,19 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
           {/* Streaks Banner */}
           <div className="flex items-center gap-2.5">
-            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-medium text-neutral-500">Salah Streak</span>
-              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.salahStreak} Days</span>
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#14161c] border border-[#232733] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-400">Salah Streak</span>
+              <span className="text-sm font-semibold text-[#d8b46b] font-mono">{profile.streaks.salahStreak} Days</span>
             </div>
 
-            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-medium text-neutral-500">Workout Streak</span>
-              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.workoutStreak} Days</span>
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#14161c] border border-[#232733] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-400">Workout Streak</span>
+              <span className="text-sm font-semibold text-[#df8276] font-mono">{profile.streaks.workoutStreak} Days</span>
             </div>
 
-            <div className="px-3 py-1.5 rounded-lg bg-[#101216] border border-[#20232b] text-center">
-              <span className="block text-[10px] uppercase font-medium text-neutral-500">Craft Streak</span>
-              <span className="text-sm font-semibold text-neutral-200 font-mono">{profile.streaks.craftStreak} Days</span>
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#14161c] border border-[#232733] text-center">
+              <span className="block text-[10px] uppercase font-medium text-neutral-400">Craft Streak</span>
+              <span className="text-sm font-semibold text-[#86a6cf] font-mono">{profile.streaks.craftStreak} Days</span>
             </div>
           </div>
         </div>
@@ -98,16 +118,16 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 }}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-[#181b22] border-neutral-500 shadow-sm'
+                    ? 'bg-[#181b22] border-[#c5a059]/60 shadow-md ring-1 ring-[#c5a059]/30'
                     : 'bg-[#111317] border-[#20232b] hover:border-[#2f333f]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className={`p-1.5 rounded-md ${accent.badge}`}>
-                      <Icon className="w-4 h-4 text-neutral-400" />
+                      <Icon className={`w-4 h-4 ${accent.iconColor}`} />
                     </div>
-                    <span className="text-xs font-semibold text-white uppercase tracking-wider">
+                    <span className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>
                       {ATTRIBUTE_NAMES[key]}
                     </span>
                   </div>
@@ -128,9 +148,9 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     <span>XP</span>
                     <span>{attr.xp % 1000} / 1000</span>
                   </div>
-                  <div className="h-1 w-full bg-[#181a20] rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-[#181a20] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-neutral-400 rounded-full transition-all"
+                      className={`h-full ${accent.bar} rounded-full transition-all`}
                       style={{ width: `${(attr.xp % 1000) / 10}%` }}
                     />
                   </div>
@@ -208,8 +228,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     </span>
 
                     {skill.unlocked ? (
-                      <span className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-300 bg-[#16181f] px-2.5 py-0.5 rounded-full border border-[#262933]">
-                        <Check className="w-3 h-3 text-neutral-400" /> Attuned
+                      <span className="flex items-center gap-1.5 text-[11px] font-medium text-[#93bfa0] bg-[#1a251e] px-2.5 py-0.5 rounded-full border border-[#2a3e30]">
+                        <Check className="w-3 h-3 text-[#93bfa0]" /> Attuned
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-[11px] font-medium text-neutral-400 bg-[#16181f] px-2.5 py-0.5 rounded-full border border-[#262933]">
@@ -227,7 +247,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
                   <div className="p-2.5 rounded-lg bg-[#0e1014] border border-[#1d2027] mb-3 text-xs">
                     <span className="text-neutral-500 font-semibold block text-[10px] uppercase mb-0.5">Bonus Modifier:</span>
-                    <span className="font-medium text-neutral-200">{skill.bonus}</span>
+                    <span className="font-medium text-[#d8b46b]">{skill.bonus}</span>
                   </div>
                 </div>
 
@@ -237,10 +257,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     <span className="font-mono text-neutral-300">{skill.progressPercent}%</span>
                   </div>
 
-                  <div className="h-1 w-full bg-[#181a20] rounded-full overflow-hidden mb-3">
+                  <div className="h-1.5 w-full bg-[#181a20] rounded-full overflow-hidden mb-3">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
-                        skill.unlocked ? 'bg-neutral-400' : 'bg-neutral-600'
+                        skill.unlocked ? accent.bar : 'bg-neutral-600'
                       }`}
                       style={{ width: `${skill.progressPercent}%` }}
                     />

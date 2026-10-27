@@ -11,11 +11,11 @@ interface InventoryGridProps {
 }
 
 const RARITY_BADGES: Record<ItemRarity, { label: string; badge: string }> = {
-  common: { label: 'Common', badge: 'bg-[#181a20] text-neutral-400 border-[#262933]' },
-  rare: { label: 'Rare', badge: 'bg-[#181a20] text-neutral-300 border-[#2a2e3a]' },
-  epic: { label: 'Epic', badge: 'bg-[#181a20] text-neutral-200 border-[#323644]' },
-  masterwork: { label: 'Masterwork', badge: 'bg-[#1a1c22] text-[#d4af37] border-[#38332a]' },
-  legendary: { label: 'Legendary', badge: 'bg-[#1c1a16] text-[#dfb86c] border-[#4a3e28]' },
+  common: { label: 'Common', badge: 'bg-[#16181e] text-neutral-400 border-[#282c37]' },
+  rare: { label: 'Rare', badge: 'bg-[#131d2a] text-[#86a6cf] border-[#223348]' },
+  epic: { label: 'Epic', badge: 'bg-[#221829] text-[#b895c2] border-[#3d2948]' },
+  masterwork: { label: 'Masterwork', badge: 'bg-[#251f15] text-[#d8b46b] border-[#443722]' },
+  legendary: { label: 'Legendary', badge: 'bg-[#291b17] text-[#e08c72] border-[#4a2e26]' },
 };
 
 function formatBuffName(stat: string, value: number): string {
@@ -129,7 +129,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             }`}
           >
             <span>Currently Owned</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-neutral-300 border border-[#272a34]">
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#16221a] text-[#93bfa0] border border-[#27382c]">
               {ownedCount}
             </span>
           </button>
@@ -145,9 +145,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <Lock className="w-3 h-3 text-neutral-400" />
+            <Lock className="w-3 h-3 text-[#d8b46b]" />
             <span>Wish to Own</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-neutral-300 border border-[#272a34]">
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#221c13] text-[#d8b46b] border border-[#3d311f]">
               {wishCount}
             </span>
           </button>
@@ -163,9 +163,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
-            <History className="w-3 h-3 text-neutral-400" />
+            <History className="w-3 h-3 text-[#86a6cf]" />
             <span>Used to Own (Parted With)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-neutral-300 border border-[#272a34]">
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#151e29] text-[#86a6cf] border border-[#243345]">
               {pastCount}
             </span>
           </button>
@@ -296,16 +296,16 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       </span>
 
                       {status === 'wishlist' ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-neutral-300 bg-[#0f1115]/90 px-2 py-0.5 rounded-full border border-[#262933] backdrop-blur-sm">
-                          <Lock className="w-2.5 h-2.5 text-neutral-400" /> Wish to Own
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#d8b46b] bg-[#1a1610]/90 px-2 py-0.5 rounded-full border border-[#3d311f] backdrop-blur-sm">
+                          <Lock className="w-2.5 h-2.5 text-[#d8b46b]" /> Wish to Own
                         </span>
                       ) : status === 'past' ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-neutral-300 bg-[#0f1115]/90 px-2 py-0.5 rounded-full border border-[#262933] backdrop-blur-sm capitalize">
-                          <History className="w-2.5 h-2.5 text-neutral-400" /> {item.pastReason || 'Used to Own'}
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#86a6cf] bg-[#121924]/90 px-2 py-0.5 rounded-full border border-[#243345] backdrop-blur-sm capitalize">
+                          <History className="w-2.5 h-2.5 text-[#86a6cf]" /> {item.pastReason || 'Used to Own'}
                         </span>
                       ) : item.isEquipped ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-neutral-200 bg-[#0f1115]/90 px-2 py-0.5 rounded-full border border-[#383d4c] backdrop-blur-sm">
-                          <Check className="w-2.5 h-2.5 text-neutral-300" /> Equipped
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#d8b46b] bg-[#1a1712]/90 px-2 py-0.5 rounded-full border border-[#443722] backdrop-blur-sm">
+                          <Check className="w-2.5 h-2.5 text-[#d8b46b]" /> Equipped
                         </span>
                       ) : null}
                     </div>

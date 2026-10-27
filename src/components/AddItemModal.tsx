@@ -138,11 +138,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'owned'
-                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
+                    ? 'bg-[#16221a] border-[#27382c] text-[#93bfa0] shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4 mb-1 text-neutral-300" />
+                <CheckCircle2 className="w-4 h-4 mb-1 text-[#93bfa0]" />
                 <span>Currently Own</span>
                 <span className="text-[10px] text-neutral-500">In my wardrobe</span>
               </button>
@@ -155,11 +155,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'wishlist'
-                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
+                    ? 'bg-[#221c13] border-[#3d311f] text-[#d8b46b] shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <Lock className="w-4 h-4 mb-1 text-neutral-300" />
+                <Lock className="w-4 h-4 mb-1 text-[#d8b46b]" />
                 <span>Wish to Own</span>
                 <span className="text-[10px] text-neutral-500">Milestone goal</span>
               </button>
@@ -172,11 +172,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
                   ownershipStatus === 'past'
-                    ? 'bg-[#22252e] border-neutral-400 text-white shadow-sm'
+                    ? 'bg-[#151e29] border-[#243345] text-[#86a6cf] shadow-sm'
                     : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                <Archive className="w-4 h-4 mb-1 text-neutral-300" />
+                <Archive className="w-4 h-4 mb-1 text-[#86a6cf]" />
                 <span>Used to Own</span>
                 <span className="text-[10px] text-neutral-500">Parted with</span>
               </button>
