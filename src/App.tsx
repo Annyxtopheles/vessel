@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from './types';
 import { loadItems, saveItems, loadProfile, saveProfile, loadSkills, saveSkills, loadDayRecords, saveDayRecords, loadHabits, saveHabits, exportSaveFile, importSaveFile } from './utils/storage';
+import { getTodayLocalDateStr } from './utils/date';
 import { Header } from './components/Header';
 import { PaperdollView } from './components/PaperdollView';
 import { InventoryGrid } from './components/InventoryGrid';
@@ -16,7 +17,7 @@ export const App: React.FC = () => {
   const [skills, setSkills] = useState<SkillNode[]>(() => loadSkills());
   const [habits, setHabits] = useState<CustomHabit[]>(() => loadHabits());
   const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
-  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
   const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
@@ -24,6 +25,18 @@ export const App: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setInspectedItem(null);
+        setIsAddItemOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Sync state to local storage
   useEffect(() => {
@@ -208,7 +221,7 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `vessel-data-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `vessel-data-${getTodayLocalDateStr()}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -3,6 +3,7 @@ import type { DayRecord, SalahStatus, CustomHabit, AttributeType } from '../type
 import { ATTRIBUTE_NAMES } from '../types';
 import { ChevronLeft, ChevronRight, Check, Plus, Dumbbell, Clock, Trash2, RotateCcw } from 'lucide-react';
 import { sfx } from '../utils/audio';
+import { getTodayLocalDateStr, shiftDate, formatHumanDate, getRelativeDayStrip } from '../utils/date';
 
 interface DailyRitualsProps {
   dayRecords: Record<string, DayRecord>;
@@ -35,7 +36,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitAttr, setNewHabitAttr] = useState<AttributeType>('WIS');
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayLocalDateStr();
 
   const currentRecord: DayRecord = dayRecords[selectedDate] || {
     date: selectedDate,
@@ -51,33 +52,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   const completedSalahCount = Object.values(currentRecord.salah).filter(Boolean).length;
   const isAllSalahCompleted = completedSalahCount === 5;
 
-  // 7-day strip
-  const getRecentDays = () => {
-    const days = [];
-    const base = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(base);
-      d.setDate(d.getDate() - i);
-      const str = d.toISOString().split('T')[0];
-      days.push({
-        dateStr: str,
-        dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        dayNum: d.getDate(),
-        isToday: str === todayStr,
-      });
-    }
-    return days;
-  };
-
-  const recentDays = getRecentDays();
+  // Dynamic 7-day strip centered on selected date
+  const dayStrip = getRelativeDayStrip(selectedDate, todayStr);
 
   const handleShiftDay = (offsetDays: number) => {
     sfx.playClick();
-    const parts = selectedDate.split('-');
-    const current = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    current.setDate(current.getDate() + offsetDays);
-    const newStr = current.toISOString().split('T')[0];
-    setSelectedDate(newStr);
+    const nextDate = shiftDate(selectedDate, offsetDays);
+    setSelectedDate(nextDate);
   };
 
   const handleToggleSalah = (key: keyof SalahStatus) => {
@@ -175,12 +156,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     sfx.playClick();
   };
 
-  const dateFormatted = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const dateFormatted = formatHumanDate(selectedDate);
 
   return (
     <div className="space-y-6">
@@ -224,7 +200,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
         {/* 7-Day Quick Strip */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {recentDays.map((day) => {
+          {dayStrip.map((day) => {
             const isSelected = day.dateStr === selectedDate;
             const record = dayRecords[day.dateStr];
             const prayerCount = record ? Object.values(record.salah).filter(Boolean).length : 0;
@@ -485,8 +461,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    value={currentRecord.pushups}
-                    onChange={(e) => handleSetPushupsDirect(parseInt(e.target.value) || 0)}
+                    min="0"
+                    placeholder="0"
+                    value={currentRecord.pushups === 0 ? '' : currentRecord.pushups}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                      handleSetPushupsDirect(isNaN(val) ? 0 : val);
+                    }}
                     className="w-20 px-2.5 py-1.5 bg-[#181a20] border border-[#272a34] rounded-lg text-lg font-bold font-mono text-white text-center focus:outline-none focus:border-[#e5b869]"
                   />
                   <span className="text-xs text-neutral-400 font-medium">reps</span>
@@ -545,8 +526,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    value={currentRecord.squats}
-                    onChange={(e) => handleSetSquatsDirect(parseInt(e.target.value) || 0)}
+                    min="0"
+                    placeholder="0"
+                    value={currentRecord.squats === 0 ? '' : currentRecord.squats}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                      handleSetSquatsDirect(isNaN(val) ? 0 : val);
+                    }}
                     className="w-20 px-2.5 py-1.5 bg-[#181a20] border border-[#272a34] rounded-lg text-lg font-bold font-mono text-white text-center focus:outline-none focus:border-[#e5b869]"
                   />
                   <span className="text-xs text-neutral-400 font-medium">reps</span>
