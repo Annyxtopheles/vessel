@@ -11,25 +11,35 @@ const STORAGE_KEYS = {
 
 export function loadItems(): InventoryItem[] {
   try {
-    // Check v3 first
     let raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
-    // If not in v3, check legacy v2
     if (!raw) {
       raw = localStorage.getItem('vessel_inventory_items_v2');
     }
 
     if (raw) {
       const parsed: InventoryItem[] = JSON.parse(raw);
-      // Auto-heal / backfill: inject image URLs from initial dataset if missing
-      const healed = parsed.map(item => {
-        if (!item.imageUrl) {
-          const match = INITIAL_ITEMS.find(init => init.id === item.id);
-          if (match?.imageUrl) {
-            return { ...item, imageUrl: match.imageUrl };
-          }
-        }
-        return item;
+      // Auto-heal / backfill: inject ownershipStatus and image URLs from initial dataset if missing
+      const healed: InventoryItem[] = parsed.map((item: InventoryItem) => {
+        const match = INITIAL_ITEMS.find(init => init.id === item.id);
+        const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : match?.ownershipStatus || 'owned');
+        const img = item.imageUrl || match?.imageUrl;
+        return {
+          ...item,
+          ownershipStatus: status,
+          imageUrl: img,
+          pastReason: item.pastReason || match?.pastReason,
+          pastDate: item.pastDate || match?.pastDate,
+        };
       });
+
+      // Merge any new default items (e.g. past relics) if missing
+      const existingIds = new Set(healed.map(i => i.id));
+      INITIAL_ITEMS.forEach(init => {
+        if (!existingIds.has(init.id)) {
+          healed.push(init);
+        }
+      });
+
       return healed;
     }
   } catch (err) {

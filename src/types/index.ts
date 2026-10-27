@@ -9,6 +9,10 @@ export const ATTRIBUTE_NAMES: Record<AttributeType, string> = {
 
 export type ItemCategory = 'apparel' | 'tech' | 'tomes' | 'edc';
 
+export type OwnershipStatus = 'owned' | 'wishlist' | 'past';
+
+export type PastReason = 'sold' | 'gifted' | 'donated' | 'retired' | 'lost';
+
 export type EquipSlot = 
   | 'head'
   | 'outerwear'
@@ -36,6 +40,9 @@ export interface InventoryItem {
   name: string;
   category: ItemCategory;
   subCategory: string;
+  ownershipStatus: OwnershipStatus; // 'owned' | 'wishlist' | 'past'
+  pastReason?: PastReason; // If used to own
+  pastDate?: string;
   equipSlot?: EquipSlot;
   rarity: ItemRarity;
   colorName: string;
@@ -44,13 +51,14 @@ export interface InventoryItem {
   season: ItemSeason;
   weightKg: number;
   goldValue: number;
-  isLocked: boolean; // Wishlist
-  lockRequirement?: string;
+  lockRequirement?: string; // If wishlist
   buffs: ItemBuff[];
   lore: string;
   isEquipped?: boolean;
   dateAcquired?: string;
   imageUrl?: string;
+  // Backward compatibility helper
+  isLocked?: boolean;
 }
 
 export interface SalahStatus {

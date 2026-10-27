@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { InventoryItem, ItemCategory, EquipSlot, ItemRarity, ItemCondition, ItemSeason, ItemBuff } from '../types';
-import { X, Trash2, Lock } from 'lucide-react';
+import type { InventoryItem, ItemCategory, EquipSlot, ItemRarity, ItemCondition, ItemSeason, ItemBuff, OwnershipStatus, PastReason } from '../types';
+import { X, Trash2, Lock, CheckCircle2, Archive } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface AddItemModalProps {
@@ -22,6 +22,9 @@ const COLOR_PRESETS = [
 
 export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onAddItem }) => {
   const [name, setName] = useState('');
+  const [ownershipStatus, setOwnershipStatus] = useState<OwnershipStatus>('owned');
+  const [pastReason, setPastReason] = useState<PastReason>('sold');
+  const [pastDate, setPastDate] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState<ItemCategory>('apparel');
   const [subCategory, setSubCategory] = useState('Outerwear');
   const [equipSlot, setEquipSlot] = useState<EquipSlot | ''>('outerwear');
@@ -33,7 +36,6 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
   const [weightKg, setWeightKg] = useState('0.5');
   const [goldValue, setGoldValue] = useState('100');
   const [imageUrl, setImageUrl] = useState('');
-  const [isLocked, setIsLocked] = useState(false);
   const [lockRequirement, setLockRequirement] = useState('');
   const [lore, setLore] = useState('');
   const [buffs, setBuffs] = useState<ItemBuff[]>([
@@ -65,6 +67,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
       name: name.trim(),
       category,
       subCategory: subCategory.trim() || 'General',
+      ownershipStatus,
+      pastReason: ownershipStatus === 'past' ? pastReason : undefined,
+      pastDate: ownershipStatus === 'past' ? pastDate : undefined,
       equipSlot: equipSlot ? (equipSlot as EquipSlot) : undefined,
       rarity,
       colorName,
@@ -74,8 +79,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
       weightKg: Math.max(0.01, parseFloat(weightKg) || 0.1),
       goldValue: Math.max(0, parseInt(goldValue, 10) || 0),
       imageUrl: imageUrl.trim() || undefined,
-      isLocked,
-      lockRequirement: isLocked ? lockRequirement.trim() || 'Milestone goal' : undefined,
+      isLocked: ownershipStatus === 'wishlist',
+      lockRequirement: ownershipStatus === 'wishlist' ? lockRequirement.trim() || 'Milestone goal' : undefined,
       lore: lore.trim() || 'Personal item in inventory.',
       buffs,
       isEquipped: false,
@@ -103,9 +108,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
         <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
           <div>
             <h2 className="text-base font-bold text-white tracking-tight">
-              Add Item to Inventory
+              Add Item to Life Inventory
             </h2>
-            <p className="text-xs text-neutral-400">Register a real piece of clothing, hardware, book, or wishlist goal</p>
+            <p className="text-xs text-neutral-400">Register things you currently own, wish to own, or used to own</p>
           </div>
           <button
             onClick={() => {
@@ -119,6 +124,116 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Ownership Status Selector */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+              Possession Lifecycle
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.playClick();
+                  setOwnershipStatus('owned');
+                }}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
+                  ownershipStatus === 'owned'
+                    ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200 shadow-sm'
+                    : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <CheckCircle2 className="w-4 h-4 mb-1 text-emerald-400" />
+                <span>Currently Own</span>
+                <span className="text-[10px] text-neutral-500">In my wardrobe</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.playClick();
+                  setOwnershipStatus('wishlist');
+                }}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
+                  ownershipStatus === 'wishlist'
+                    ? 'bg-amber-950/40 border-amber-500/50 text-amber-200 shadow-sm'
+                    : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Lock className="w-4 h-4 mb-1 text-amber-400" />
+                <span>Wish to Own</span>
+                <span className="text-[10px] text-neutral-500">Milestone goal</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.playClick();
+                  setOwnershipStatus('past');
+                }}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-all ${
+                  ownershipStatus === 'past'
+                    ? 'bg-purple-950/40 border-purple-500/50 text-purple-200 shadow-sm'
+                    : 'bg-[#101216] border-[#23262f] text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Archive className="w-4 h-4 mb-1 text-purple-400" />
+                <span>Used to Own</span>
+                <span className="text-[10px] text-neutral-500">Parted with</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Conditional: Wishlist Goal */}
+          {ownershipStatus === 'wishlist' && (
+            <div className="p-3 bg-amber-950/20 border border-amber-800/40 rounded-lg space-y-1.5 animate-in fade-in">
+              <label className="block text-xs font-medium text-amber-300">
+                Goal or Habit Required to Unlock
+              </label>
+              <input
+                type="text"
+                value={lockRequirement}
+                onChange={(e) => setLockRequirement(e.target.value)}
+                placeholder="e.g. 30-day Salah streak, Ship client MVP, Reach Level 10..."
+                className="w-full px-3 py-2 bg-[#101216] border border-amber-800/60 rounded-md text-xs text-amber-200 placeholder-neutral-500 focus:outline-none"
+              />
+            </div>
+          )}
+
+          {/* Conditional: Used to Own (Past Reason) */}
+          {ownershipStatus === 'past' && (
+            <div className="p-3 bg-purple-950/20 border border-purple-800/40 rounded-lg space-y-3 animate-in fade-in">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-purple-300 mb-1">
+                    How did you part with it?
+                  </label>
+                  <select
+                    value={pastReason}
+                    onChange={(e) => setPastReason(e.target.value as PastReason)}
+                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-purple-800/60 rounded text-xs text-purple-200"
+                  >
+                    <option value="sold">Sold</option>
+                    <option value="gifted">Gifted away</option>
+                    <option value="donated">Donated</option>
+                    <option value="retired">Retired / Recycled</option>
+                    <option value="lost">Lost / Replaced</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-purple-300 mb-1">
+                    Date / Year Parted With
+                  </label>
+                  <input
+                    type="date"
+                    value={pastDate}
+                    onChange={(e) => setPastDate(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-[#101216] border border-purple-800/60 rounded text-xs text-purple-200"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Item Name */}
           <div>
             <label className="block text-xs font-medium text-neutral-300 mb-1">Item Title</label>
@@ -358,34 +473,6 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
             </div>
           </div>
 
-          {/* Locked Loot / Wishlist Checkbox */}
-          <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-neutral-200">
-              <input
-                type="checkbox"
-                checked={isLocked}
-                onChange={(e) => setIsLocked(e.target.checked)}
-                className="rounded border-[#272a34] bg-[#181a20] text-[#e5b869] focus:ring-0"
-              />
-              <Lock className="w-3.5 h-3.5 text-amber-400" /> Save as Wishlist Item (Locked Loot)
-            </label>
-
-            {isLocked && (
-              <div className="mt-3">
-                <label className="block text-xs font-medium text-neutral-400 mb-1">
-                  Goal Required to Unlock
-                </label>
-                <input
-                  type="text"
-                  value={lockRequirement}
-                  onChange={(e) => setLockRequirement(e.target.value)}
-                  placeholder="e.g. 30-day Salah streak, Ship client MVP, Hit Level 10..."
-                  className="w-full px-3 py-2 bg-[#181a20] border border-amber-800/40 rounded-lg text-xs text-amber-200 placeholder-neutral-500"
-                />
-              </div>
-            )}
-          </div>
-
           {/* Submit buttons */}
           <div className="pt-3 border-t border-[#23262f] flex justify-end gap-2">
             <button
@@ -402,7 +489,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               type="submit"
               className="px-4 py-2 bg-[#e5b869] hover:bg-[#d8a857] text-[#0f1115] font-semibold text-xs rounded-lg transition-colors shadow-sm"
             >
-              {isLocked ? 'Add to Wishlist' : 'Add to Inventory'}
+              {ownershipStatus === 'wishlist' 
+                ? 'Save to Wishlist' 
+                : ownershipStatus === 'past' 
+                  ? 'Save to Past Archive' 
+                  : 'Add to Wardrobe'}
             </button>
           </div>
 

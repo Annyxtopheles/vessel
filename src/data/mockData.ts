@@ -1,12 +1,13 @@
 import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from '../types';
 
 export const INITIAL_ITEMS: InventoryItem[] = [
-  // APPAREL
+  // CURRENTLY OWNED — APPAREL
   {
     id: 'item-apparel-1',
     name: 'Canvas Field Overshirt',
     category: 'apparel',
     subCategory: 'Outerwear',
+    ownershipStatus: 'owned',
     equipSlot: 'outerwear',
     rarity: 'rare',
     colorName: 'Obsidian Black',
@@ -15,7 +16,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'transitional',
     weightKg: 0.65,
     goldValue: 120,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1578932750294-f5075e85f44a?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STYLE', value: 3, label: 'Structured Silhouette' },
@@ -29,6 +29,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Merino Wool Base Layer',
     category: 'apparel',
     subCategory: 'Tops',
+    ownershipStatus: 'owned',
     equipSlot: 'innerwear',
     rarity: 'rare',
     colorName: 'Charcoal Heather',
@@ -37,7 +38,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.22,
     goldValue: 85,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WARMTH', value: 3, label: 'Thermal Regulating' },
@@ -51,6 +51,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Selvedge Heavy Twill Trousers',
     category: 'apparel',
     subCategory: 'Bottoms',
+    ownershipStatus: 'owned',
     equipSlot: 'legs',
     rarity: 'masterwork',
     colorName: 'Deep Ink',
@@ -59,7 +60,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.75,
     goldValue: 160,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STYLE', value: 4, label: 'Clean Taper' },
@@ -73,6 +73,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Waxed Leather Field Boots',
     category: 'apparel',
     subCategory: 'Footwear',
+    ownershipStatus: 'owned',
     equipSlot: 'footwear',
     rarity: 'masterwork',
     colorName: 'Dark Auburn',
@@ -81,7 +82,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'winter',
     weightKg: 1.4,
     goldValue: 240,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STR', value: 2, label: 'Ankle Support' },
@@ -95,6 +95,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Ribbed Cashmere Watch Cap',
     category: 'apparel',
     subCategory: 'Headwear',
+    ownershipStatus: 'owned',
     equipSlot: 'head',
     rarity: 'rare',
     colorName: 'Slate Bone',
@@ -103,7 +104,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'winter',
     weightKg: 0.1,
     goldValue: 70,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WARMTH', value: 4, label: 'Cashmere' },
@@ -113,12 +113,13 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     isEquipped: true,
   },
 
-  // TECH
+  // CURRENTLY OWNED — TECH
   {
     id: 'item-tech-1',
     name: 'Framework 16 Laptop Workstation',
     category: 'tech',
     subCategory: 'Computing',
+    ownershipStatus: 'owned',
     equipSlot: 'tech_relic',
     rarity: 'legendary',
     colorName: 'Matte Gray',
@@ -127,7 +128,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 2.1,
     goldValue: 2200,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 6, label: 'Fast Build Velocity' },
@@ -141,6 +141,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Sony WH-1000XM5 ANC Headphones',
     category: 'tech',
     subCategory: 'Audio',
+    ownershipStatus: 'owned',
     rarity: 'epic',
     colorName: 'Midnight Silver',
     colorHex: '#334155',
@@ -148,7 +149,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.25,
     goldValue: 380,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'FOCUS', value: 6, label: 'Noise Cancellation' },
@@ -162,6 +162,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Custom Mechanical Keyboard 60%',
     category: 'tech',
     subCategory: 'Peripherals',
+    ownershipStatus: 'owned',
     rarity: 'masterwork',
     colorName: 'Brass & Charcoal',
     colorHex: '#78716C',
@@ -169,7 +170,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.9,
     goldValue: 280,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 3, label: 'Key Travel' },
@@ -179,12 +179,13 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     isEquipped: false,
   },
 
-  // TOMES & BOOKS
+  // CURRENTLY OWNED — TOMES & BOOKS
   {
     id: 'item-tome-1',
     name: "The Holy Qur'an with Commentary",
     category: 'tomes',
     subCategory: 'Scripture',
+    ownershipStatus: 'owned',
     equipSlot: 'tome',
     rarity: 'legendary',
     colorName: 'Emerald Gilt',
@@ -193,7 +194,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 1.1,
     goldValue: 60,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WIS', value: 10, label: 'Spiritual Anchor' },
@@ -207,6 +207,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'The Design of Everyday Things',
     category: 'tomes',
     subCategory: 'Design & Craft',
+    ownershipStatus: 'owned',
     rarity: 'rare',
     colorName: 'Crimson',
     colorHex: '#881337',
@@ -214,7 +215,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.45,
     goldValue: 25,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 4, label: 'Affordance Perception' },
@@ -224,12 +224,13 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     isEquipped: false,
   },
 
-  // EDC
+  // CURRENTLY OWNED — EDC
   {
     id: 'item-edc-1',
     name: 'Automatic Field Watch 38mm',
     category: 'edc',
     subCategory: 'Timepiece',
+    ownershipStatus: 'owned',
     equipSlot: 'wrist_edc',
     rarity: 'epic',
     colorName: 'Aged Bronze',
@@ -238,7 +239,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.16,
     goldValue: 450,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WIS', value: 3, label: 'Time Awareness' },
@@ -252,6 +252,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     name: 'Titanium Bolt-Action Pen',
     category: 'edc',
     subCategory: 'Writing Tool',
+    ownershipStatus: 'owned',
     rarity: 'masterwork',
     colorName: 'Stonewash Gray',
     colorHex: '#64748B',
@@ -259,7 +260,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.04,
     goldValue: 95,
-    isLocked: false,
     imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 2, label: 'Writing Flow' },
@@ -269,12 +269,13 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     isEquipped: false,
   },
 
-  // WISHLIST / LOCKED LOOT
+  // WISH TO OWN (WISHLIST)
   {
-    id: 'item-locked-1',
+    id: 'item-wish-1',
     name: 'Herman Miller Aeron Chair',
     category: 'tech',
     subCategory: 'Ergonomics',
+    ownershipStatus: 'wishlist',
     rarity: 'legendary',
     colorName: 'Mineral',
     colorHex: '#94A3B8',
@@ -282,7 +283,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 18.0,
     goldValue: 1450,
-    isLocked: true,
     imageUrl: 'https://images.unsplash.com/photo-1580481077111-e63d4107bfa7?auto=format&fit=crop&w=600&q=80',
     lockRequirement: 'Ship 3 major projects & maintain 60-day posture discipline',
     buffs: [
@@ -292,10 +292,11 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     lore: 'Industry standard ergonomic seating reducing back strain during deep work.',
   },
   {
-    id: 'item-locked-2',
+    id: 'item-wish-2',
     name: 'Tailored Egyptian Cotton Thobe',
     category: 'apparel',
     subCategory: 'Jumu’ah Robe',
+    ownershipStatus: 'wishlist',
     rarity: 'masterwork',
     colorName: 'Off-White',
     colorHex: '#F8FAFC',
@@ -303,7 +304,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     weightKg: 0.5,
     goldValue: 220,
-    isLocked: true,
     imageUrl: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80',
     lockRequirement: 'Maintain 30-day unbroken Salah streak',
     buffs: [
@@ -311,6 +311,71 @@ export const INITIAL_ITEMS: InventoryItem[] = [
       { stat: 'CHA', value: 4, label: 'Congregation Ready' },
     ],
     lore: 'Clean woven cotton reserved for Friday prayers and family gatherings.',
+  },
+
+  // USED TO OWN (PAST RELICS / ARCHIVED)
+  {
+    id: 'item-past-1',
+    name: 'ThinkPad T480 Workhorse',
+    category: 'tech',
+    subCategory: 'Legacy Laptop',
+    ownershipStatus: 'past',
+    pastReason: 'sold',
+    pastDate: '2025-08-15',
+    rarity: 'rare',
+    colorName: 'Matte Charcoal',
+    colorHex: '#262626',
+    condition: 'seasoned',
+    season: 'all',
+    weightKg: 1.8,
+    goldValue: 400,
+    imageUrl: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80',
+    buffs: [
+      { stat: 'INT', value: 4, label: 'Legacy Reliability' },
+    ],
+    lore: 'The legendary dual-battery ThinkPad that powered early coding journeys. Sold to a junior dev when upgrading.',
+  },
+  {
+    id: 'item-past-2',
+    name: 'Heritage Waxed Chore Coat',
+    category: 'apparel',
+    subCategory: 'Outerwear',
+    ownershipStatus: 'past',
+    pastReason: 'gifted',
+    pastDate: '2025-11-20',
+    rarity: 'epic',
+    colorName: 'Tobacco Brown',
+    colorHex: '#713F12',
+    condition: 'worn',
+    season: 'winter',
+    weightKg: 1.2,
+    goldValue: 180,
+    imageUrl: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=600&q=80',
+    buffs: [
+      { stat: 'WARMTH', value: 3, label: 'Waxed Stormproofing' },
+    ],
+    lore: 'Worn through three cold winters on morning walks. Gifted to younger brother when moving apartments.',
+  },
+  {
+    id: 'item-past-3',
+    name: 'Casio F-91W Classic Digital',
+    category: 'edc',
+    subCategory: 'Timepiece',
+    ownershipStatus: 'past',
+    pastReason: 'retired',
+    pastDate: '2024-06-10',
+    rarity: 'common',
+    colorName: 'Resin Black',
+    colorHex: '#000000',
+    condition: 'worn',
+    season: 'all',
+    weightKg: 0.02,
+    goldValue: 18,
+    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80',
+    buffs: [
+      { stat: 'WIS', value: 2, label: 'No Frills Utility' },
+    ],
+    lore: 'Survived countless university exams and gym sessions. Battery lasted 7 years before being safely retired.',
   },
 ];
 

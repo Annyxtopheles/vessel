@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { InventoryItem, ItemRarity } from '../types';
-import { Search, Plus, Lock, Check, Scale, Package } from 'lucide-react';
+import type { InventoryItem, ItemRarity, OwnershipStatus } from '../types';
+import { Search, Plus, Lock, Check, Scale, Package, History } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface InventoryGridProps {
@@ -38,27 +38,42 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   onToggleEquip,
   onOpenAddItem,
 }) => {
+  const [selectedStatus, setSelectedStatus] = useState<OwnershipStatus | 'all'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Counts by ownership status
+  const ownedCount = items.filter(i => (i.ownershipStatus || 'owned') === 'owned').length;
+  const wishCount = items.filter(i => i.ownershipStatus === 'wishlist' || i.isLocked).length;
+  const pastCount = items.filter(i => i.ownershipStatus === 'past').length;
+
   // Filter pipeline
   const filteredItems = items.filter(item => {
-    if (selectedCategory === 'locked') {
-      if (!item.isLocked) return false;
-    } else if (selectedCategory !== 'all') {
-      if (item.category !== selectedCategory || item.isLocked) return false;
+    const itemStatus = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
+
+    // Status filter
+    if (selectedStatus !== 'all' && itemStatus !== selectedStatus) {
+      return false;
     }
 
+    // Category filter
+    if (selectedCategory !== 'all' && item.category !== selectedCategory) {
+      return false;
+    }
+
+    // Season filter
     if (selectedSeason !== 'all' && item.season !== 'all' && item.season !== selectedSeason) {
       return false;
     }
 
+    // Condition filter
     if (selectedCondition !== 'all' && item.condition !== selectedCondition) {
       return false;
     }
 
+    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = item.name.toLowerCase().includes(q);
@@ -75,18 +90,99 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   });
 
   const categories = [
-    { id: 'all', label: 'All Items' },
+    { id: 'all', label: 'All Categories' },
     { id: 'apparel', label: 'Clothing & Wardrobe' },
     { id: 'tech', label: 'Tech & Hardware' },
     { id: 'tomes', label: 'Books & Tomes' },
     { id: 'edc', label: 'Everyday Carry' },
-    { id: 'locked', label: 'Wishlist (Locked Loot)' },
   ];
 
   return (
     <div className="space-y-4">
       
-      {/* Search & Actions Toolbar */}
+      {/* 1. Primary Ownership Lifecycle Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 bg-[#14161a] border border-[#23262f] rounded-xl">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => {
+              sfx.playClick();
+              setSelectedStatus('all');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              selectedStatus === 'all'
+                ? 'bg-[#22252e] text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            All Life Possessions <span className="text-[10px] ml-1 text-neutral-500">({items.length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              sfx.playClick();
+              setSelectedStatus('owned');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              selectedStatus === 'owned'
+                ? 'bg-[#22252e] text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <span>Currently Owned</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-emerald-400 border border-emerald-900/30">
+              {ownedCount}
+            </span>
+          </button>
+
+          <button
+            onClick={() => {
+              sfx.playClick();
+              setSelectedStatus('wishlist');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              selectedStatus === 'wishlist'
+                ? 'bg-[#22252e] text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <Lock className="w-3 h-3 text-amber-400" />
+            <span>Wish to Own</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-amber-400 border border-amber-900/30">
+              {wishCount}
+            </span>
+          </button>
+
+          <button
+            onClick={() => {
+              sfx.playClick();
+              setSelectedStatus('past');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              selectedStatus === 'past'
+                ? 'bg-[#22252e] text-white shadow-sm'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            <History className="w-3 h-3 text-sky-400" />
+            <span>Used to Own (Parted With)</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#181a20] text-sky-400 border border-sky-900/30">
+              {pastCount}
+            </span>
+          </button>
+        </div>
+
+        <button
+          onClick={() => {
+            sfx.playClick();
+            onOpenAddItem();
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#e5b869] hover:bg-[#d8a857] text-[#0f1115] font-semibold text-xs rounded-lg transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" /> Add Item
+        </button>
+      </div>
+
+      {/* 2. Search & Secondary Filters Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
@@ -100,8 +196,22 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
           />
         </div>
 
-        {/* Filters and Add Item Button */}
+        {/* Category & Tag Dropdowns */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Category Dropdown */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => {
+              sfx.playClick();
+              setSelectedCategory(e.target.value);
+            }}
+            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
+          >
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
+
           {/* Season Filter */}
           <select
             value={selectedSeason}
@@ -132,50 +242,20 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             <option value="worn">Worn</option>
             <option value="needs_repair">Needs Repair</option>
           </select>
-
-          {/* Add Item Button */}
-          <button
-            onClick={() => {
-              sfx.playClick();
-              onOpenAddItem();
-            }}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#e5b869] hover:bg-[#d8a857] text-[#0f1115] font-semibold text-xs rounded-lg transition-colors shadow-sm"
-          >
-            <Plus className="w-4 h-4" /> Add Item
-          </button>
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[#1f2229] pt-1">
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => {
-              sfx.playClick();
-              setSelectedCategory(cat.id);
-            }}
-            className={`px-3 py-1.5 rounded-t-md text-xs font-medium whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${
-              selectedCategory === cat.id
-                ? 'border-[#e5b869] text-white font-semibold'
-                : 'border-transparent text-neutral-400 hover:text-neutral-200'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Item Cards Grid with Visual Image Thumbnails */}
+      {/* 3. Items Grid */}
       {filteredItems.length === 0 ? (
         <div className="ui-card p-12 text-center border-dashed">
-          <p className="text-sm font-medium text-neutral-400">No items match your active filters.</p>
-          <p className="text-xs text-neutral-500 mt-1">Try resetting search or adding a new possession.</p>
+          <p className="text-sm font-medium text-neutral-400">No items found in this view.</p>
+          <p className="text-xs text-neutral-500 mt-1">Try switching status tabs or resetting search filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {filteredItems.map(item => {
             const rarityInfo = RARITY_BADGES[item.rarity] || RARITY_BADGES.common;
+            const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
 
             return (
               <div
@@ -185,8 +265,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   onInspectItem(item);
                 }}
                 className={`ui-card ui-card-hover overflow-hidden flex flex-col justify-between cursor-pointer relative group ${
-                  item.isEquipped ? 'ring-1 ring-[#e5b869]/50 bg-[#161920]' : ''
-                }`}
+                  item.isEquipped && status === 'owned' ? 'ring-1 ring-[#e5b869]/50 bg-[#161920]' : ''
+                } ${status === 'past' ? 'opacity-85' : ''}`}
               >
                 <div>
                   {/* Visual Item Image Preview */}
@@ -215,9 +295,13 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         {rarityInfo.label}
                       </span>
 
-                      {item.isLocked ? (
+                      {status === 'wishlist' ? (
                         <span className="flex items-center gap-1 text-[10px] font-medium text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-800/40 backdrop-blur-sm">
-                          <Lock className="w-2.5 h-2.5" /> Wishlist
+                          <Lock className="w-2.5 h-2.5" /> Wish to Own
+                        </span>
+                      ) : status === 'past' ? (
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-800/40 backdrop-blur-sm capitalize">
+                          <History className="w-2.5 h-2.5" /> {item.pastReason || 'Used to Own'}
                         </span>
                       ) : item.isEquipped ? (
                         <span className="flex items-center gap-1 text-[10px] font-medium text-[#e5b869] bg-[#0f1115]/80 px-2 py-0.5 rounded-full border border-[#e5b869]/40 backdrop-blur-sm">
@@ -251,15 +335,23 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       {item.lore}
                     </p>
 
-                    {/* Wishlist Goal if locked */}
-                    {item.isLocked && item.lockRequirement && (
+                    {/* Wishlist Goal if wishlist */}
+                    {status === 'wishlist' && item.lockRequirement && (
                       <div className="mb-3 p-2 rounded-md bg-amber-950/20 border border-amber-800/30 text-[11px] text-amber-200">
                         <span className="font-semibold block text-[10px] text-amber-400">Unlock Goal:</span>
                         {item.lockRequirement}
                       </div>
                     )}
 
-                    {/* Buffs with full readable names */}
+                    {/* Past reason tag if used to own */}
+                    {status === 'past' && item.pastReason && (
+                      <div className="mb-3 p-2 rounded-md bg-sky-950/20 border border-sky-800/30 text-[11px] text-sky-200">
+                        <span className="font-semibold block text-[10px] text-sky-400">Lifecycle Note:</span>
+                        Parted with ({item.pastReason}) {item.pastDate ? `on ${item.pastDate}` : ''}
+                      </div>
+                    )}
+
+                    {/* Buffs */}
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       {item.buffs.slice(0, 2).map((b, i) => (
                         <span
@@ -290,7 +382,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     </span>
                   </div>
 
-                  {!item.isLocked && (
+                  {status === 'owned' && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from './types';
+import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit, OwnershipStatus, PastReason } from './types';
 import { loadItems, saveItems, loadProfile, saveProfile, loadSkills, saveSkills, loadDayRecords, saveDayRecords, loadHabits, saveHabits, exportSaveFile, importSaveFile } from './utils/storage';
 import { getTodayLocalDateStr } from './utils/date';
 import { Header } from './components/Header';
@@ -64,18 +64,21 @@ export const App: React.FC = () => {
     sfx.setMuted(isMuted);
   }, [isMuted]);
 
-  // Derived state: equipped items
-  const equippedItems = items.filter(it => it.isEquipped && !it.isLocked);
+  // Derived state: equipped items (only currently owned possessions)
+  const equippedItems = items.filter(
+    it => it.isEquipped && (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
+  );
   const currentEncumbrance = items
-    .filter(it => !it.isLocked)
+    .filter(it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned')
     .reduce((acc, it) => acc + it.weightKg, 0);
   const totalGoldValue = items
-    .filter(it => !it.isLocked)
+    .filter(it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned')
     .reduce((acc, it) => acc + it.goldValue, 0);
 
   // Equip / Unequip Toggle
   const handleToggleEquip = (item: InventoryItem) => {
-    if (item.isLocked) return;
+    const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
+    if (status !== 'owned') return;
 
     const nextEquipped = !item.isEquipped;
 
@@ -110,15 +113,23 @@ export const App: React.FC = () => {
     }
   };
 
-  // Lock / Unlock Toggle
-  const handleToggleLock = (item: InventoryItem) => {
-    const nextLocked = !item.isLocked;
+  // Possession Lifecycle: Change Ownership Status (owned <-> wishlist <-> past)
+  const handleChangeStatus = (
+    item: InventoryItem,
+    newStatus: OwnershipStatus,
+    pastReason?: PastReason,
+    pastDate?: string
+  ) => {
+    const isNowLocked = newStatus === 'wishlist';
     const updatedItems = items.map(it => {
       if (it.id === item.id) {
         return {
           ...it,
-          isLocked: nextLocked,
-          isEquipped: nextLocked ? false : it.isEquipped,
+          ownershipStatus: newStatus,
+          isLocked: isNowLocked,
+          isEquipped: newStatus === 'owned' ? it.isEquipped : false,
+          pastReason: newStatus === 'past' ? pastReason : undefined,
+          pastDate: newStatus === 'past' ? pastDate : undefined,
         };
       }
       return it;
@@ -128,8 +139,11 @@ export const App: React.FC = () => {
     if (inspectedItem && inspectedItem.id === item.id) {
       setInspectedItem({
         ...inspectedItem,
-        isLocked: nextLocked,
-        isEquipped: nextLocked ? false : inspectedItem.isEquipped,
+        ownershipStatus: newStatus,
+        isLocked: isNowLocked,
+        isEquipped: newStatus === 'owned' ? inspectedItem.isEquipped : false,
+        pastReason: newStatus === 'past' ? pastReason : undefined,
+        pastDate: newStatus === 'past' ? pastDate : undefined,
       });
     }
   };
@@ -326,7 +340,7 @@ export const App: React.FC = () => {
         item={inspectedItem}
         onClose={() => setInspectedItem(null)}
         onToggleEquip={handleToggleEquip}
-        onToggleLock={handleToggleLock}
+        onChangeStatus={handleChangeStatus}
         onDeleteItem={handleDeleteItem}
       />
 
