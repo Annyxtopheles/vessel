@@ -41,9 +41,15 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const conditionInfo = CONDITION_MAP[item.condition] || CONDITION_MAP.pristine;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      onClick={() => {
+        sfx.playClick();
+        onClose();
+      }}
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+    >
       <div 
-        className="ui-card w-full max-w-lg bg-[#14161a] border border-[#2b2e38] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95"
+        className="ui-card w-full max-w-lg bg-[#14161a] border border-[#2b2e38] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
