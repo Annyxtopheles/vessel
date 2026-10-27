@@ -1,5 +1,12 @@
 export type AttributeType = 'STR' | 'INT' | 'WIS' | 'CHA';
 
+export const ATTRIBUTE_NAMES: Record<AttributeType, string> = {
+  STR: 'Strength',
+  INT: 'Intellect',
+  WIS: 'Wisdom',
+  CHA: 'Charisma',
+};
+
 export type ItemCategory = 'apparel' | 'tech' | 'tomes' | 'edc';
 
 export type EquipSlot = 
@@ -43,6 +50,7 @@ export interface InventoryItem {
   lore: string;
   isEquipped?: boolean;
   dateAcquired?: string;
+  imageUrl?: string;
 }
 
 export interface SalahStatus {

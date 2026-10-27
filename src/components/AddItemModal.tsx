@@ -32,6 +32,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
   const [season, setSeason] = useState<ItemSeason>('all');
   const [weightKg, setWeightKg] = useState('0.5');
   const [goldValue, setGoldValue] = useState('100');
+  const [imageUrl, setImageUrl] = useState('');
   const [isLocked, setIsLocked] = useState(false);
   const [lockRequirement, setLockRequirement] = useState('');
   const [lore, setLore] = useState('');
@@ -42,7 +43,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
   if (!isOpen) return null;
 
   const handleAddBuff = () => {
-    setBuffs([...buffs, { stat: 'STYLE', value: 2, label: 'Elegance' }]);
+    setBuffs([...buffs, { stat: 'STYLE', value: 2, label: 'Structured Fit' }]);
   };
 
   const handleRemoveBuff = (index: number) => {
@@ -72,6 +73,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
       season,
       weightKg: Math.max(0.01, parseFloat(weightKg) || 0.1),
       goldValue: Math.max(0, parseInt(goldValue, 10) || 0),
+      imageUrl: imageUrl.trim() || undefined,
       isLocked,
       lockRequirement: isLocked ? lockRequirement.trim() || 'Milestone goal' : undefined,
       lore: lore.trim() || 'Personal item in inventory.',
@@ -121,6 +123,18 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Linen Overshirt, Sony XM5, Leather Notebook..."
               className="w-full px-3 py-2 bg-[#101216] border border-[#23262f] rounded-lg text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#e5b869]"
+            />
+          </div>
+
+          {/* Image URL */}
+          <div>
+            <label className="block text-xs font-medium text-neutral-300 mb-1">Image URL (Optional)</label>
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://images.unsplash.com/... or paste image link"
+              className="w-full px-3 py-2 bg-[#101216] border border-[#23262f] rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#e5b869]"
             />
           </div>
 
@@ -276,7 +290,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
             />
           </div>
 
-          {/* Real-Life Attribute Buffs */}
+          {/* Real-Life Attribute Buffs with Full Clear Names */}
           <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider text-[11px]">
@@ -299,14 +313,14 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                     onChange={(e) => handleUpdateBuff(idx, 'stat', e.target.value)}
                     className="px-2.5 py-1 bg-[#181a20] border border-[#272a34] rounded text-xs text-neutral-200"
                   >
-                    <option value="STR">STR (Physical)</option>
-                    <option value="INT">INT (Intellect/Craft)</option>
-                    <option value="WIS">WIS (Spiritual/Soul)</option>
-                    <option value="CHA">CHA (Social)</option>
-                    <option value="FOCUS">FOCUS</option>
-                    <option value="STYLE">STYLE</option>
-                    <option value="COMFORT">COMFORT</option>
-                    <option value="WARMTH">WARMTH</option>
+                    <option value="STR">Strength (Physical)</option>
+                    <option value="INT">Intellect (Craft & Focus)</option>
+                    <option value="WIS">Wisdom (Spiritual & Mind)</option>
+                    <option value="CHA">Charisma (Community)</option>
+                    <option value="FOCUS">Focus</option>
+                    <option value="STYLE">Style</option>
+                    <option value="COMFORT">Comfort</option>
+                    <option value="WARMTH">Warmth</option>
                   </select>
 
                   <input
@@ -320,7 +334,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                     type="text"
                     value={buff.label}
                     onChange={(e) => handleUpdateBuff(idx, 'label', e.target.value)}
-                    placeholder="Modifier label"
+                    placeholder="Modifier label (e.g. Ergonomics)"
                     className="flex-1 px-2.5 py-1 bg-[#181a20] border border-[#272a34] rounded text-xs text-neutral-200"
                   />
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { CharacterProfile, SkillNode, AttributeType } from '../types';
+import { ATTRIBUTE_NAMES } from '../types';
 import { Cpu, Users, Flame, Check, Lock, Sun, Target } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -107,7 +108,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                       <Icon className="w-4 h-4" />
                     </div>
                     <span className="text-xs font-bold text-white uppercase tracking-wider">
-                      {key}
+                      {ATTRIBUTE_NAMES[key]}
                     </span>
                   </div>
                   <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#181a20] text-neutral-300 border border-[#262933]">
@@ -157,22 +158,28 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             </div>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5">
-            {(['ALL', 'STR', 'INT', 'WIS', 'CHA'] as const).map((filter) => (
+          {/* Filter Pills with Full Clear Names */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {[
+              { id: 'ALL', label: 'All Attributes' },
+              { id: 'STR', label: 'Strength' },
+              { id: 'INT', label: 'Intellect' },
+              { id: 'WIS', label: 'Wisdom' },
+              { id: 'CHA', label: 'Charisma' },
+            ].map(({ id, label }) => (
               <button
-                key={filter}
+                key={id}
                 onClick={() => {
                   sfx.playClick();
-                  setSelectedAttr(filter);
+                  setSelectedAttr(id as AttributeType | 'ALL');
                 }}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors border ${
-                  selectedAttr === filter
+                className={`px-3 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors border ${
+                  selectedAttr === id
                     ? 'bg-[#22252e] border-[#343844] text-white font-semibold'
                     : 'bg-[#101216] border-[#20232b] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                {filter}
+                {label}
               </button>
             ))}
           </div>
@@ -197,7 +204,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${accent.badge}`}>
                       <Icon className="w-3 h-3" />
-                      {skill.attribute} • Tier {skill.tier}
+                      {ATTRIBUTE_NAMES[skill.attribute]} • Tier {skill.tier}
                     </span>
 
                     {skill.unlocked ? (

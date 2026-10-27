@@ -12,11 +12,25 @@ interface InventoryGridProps {
 
 const RARITY_BADGES: Record<ItemRarity, { label: string; badge: string }> = {
   common: { label: 'Common', badge: 'bg-neutral-800 text-neutral-300 border-neutral-700' },
-  rare: { label: 'Rare', badge: 'bg-sky-950/70 text-sky-300 border-sky-800/40' },
-  epic: { label: 'Epic', badge: 'bg-purple-950/70 text-purple-300 border-purple-800/40' },
-  masterwork: { label: 'Masterwork', badge: 'bg-amber-950/70 text-amber-300 border-amber-800/40' },
-  legendary: { label: 'Legendary', badge: 'bg-orange-950/70 text-orange-300 border-orange-800/40' },
+  rare: { label: 'Rare', badge: 'bg-sky-950/80 text-sky-300 border-sky-800/40' },
+  epic: { label: 'Epic', badge: 'bg-purple-950/80 text-purple-300 border-purple-800/40' },
+  masterwork: { label: 'Masterwork', badge: 'bg-amber-950/80 text-amber-300 border-amber-800/40' },
+  legendary: { label: 'Legendary', badge: 'bg-orange-950/80 text-orange-300 border-orange-800/40' },
 };
+
+function formatBuffName(stat: string, value: number): string {
+  const map: Record<string, string> = {
+    STR: 'Strength',
+    INT: 'Intellect',
+    WIS: 'Wisdom',
+    CHA: 'Charisma',
+    FOCUS: 'Focus',
+    STYLE: 'Style',
+    COMFORT: 'Comfort',
+    WARMTH: 'Warmth',
+  };
+  return `+${value} ${map[stat] || stat}`;
+}
 
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
   items,
@@ -81,7 +95,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search items by name, color, lore, or buff..."
+            placeholder="Search items by name, color, notes, or modifier..."
             className="w-full pl-9 pr-4 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#e5b869] transition-colors"
           />
         </div>
@@ -152,7 +166,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         ))}
       </div>
 
-      {/* Item Cards Grid */}
+      {/* Item Cards Grid with Visual Image Thumbnails */}
       {filteredItems.length === 0 ? (
         <div className="ui-card p-12 text-center border-dashed">
           <p className="text-sm font-medium text-neutral-400">No items match your active filters.</p>
@@ -170,78 +184,101 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   sfx.playClick();
                   onInspectItem(item);
                 }}
-                className={`ui-card ui-card-hover p-4 flex flex-col justify-between cursor-pointer relative ${
+                className={`ui-card ui-card-hover overflow-hidden flex flex-col justify-between cursor-pointer relative group ${
                   item.isEquipped ? 'ring-1 ring-[#e5b869]/50 bg-[#161920]' : ''
                 }`}
               >
                 <div>
-                  {/* Top Badges */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${rarityInfo.badge}`}>
-                      {rarityInfo.label}
-                    </span>
-
-                    {item.isLocked ? (
-                      <span className="flex items-center gap-1 text-[10px] font-medium text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-800/30">
-                        <Lock className="w-2.5 h-2.5" /> Wishlist
-                      </span>
-                    ) : item.isEquipped ? (
-                      <span className="flex items-center gap-1 text-[10px] font-medium text-[#e5b869] bg-[#e5b869]/10 px-2 py-0.5 rounded-full border border-[#e5b869]/20">
-                        <Check className="w-2.5 h-2.5" /> Equipped
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {/* Title & Category Info */}
-                  <h3 className="font-semibold text-sm text-white group-hover:text-[#e5b869] transition-colors line-clamp-1 mb-1">
-                    {item.name}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2.5">
-                    <span>{item.subCategory}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full border border-black/50"
-                        style={{ backgroundColor: item.colorHex }}
+                  {/* Visual Item Image Preview */}
+                  <div className="w-full h-36 bg-[#0f1115] relative overflow-hidden border-b border-[#23262e]">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onError={(e) => {
+                          // Fallback to placeholder if url fails
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
                       />
-                      {item.colorName}
-                    </span>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-neutral-500 bg-[#121418]">
+                        No Image Preview
+                      </div>
+                    )}
+
+                    {/* Floating Badges over image */}
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shadow-sm ${rarityInfo.badge}`}>
+                        {rarityInfo.label}
+                      </span>
+
+                      {item.isLocked ? (
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-800/40 backdrop-blur-sm">
+                          <Lock className="w-2.5 h-2.5" /> Wishlist
+                        </span>
+                      ) : item.isEquipped ? (
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#e5b869] bg-[#0f1115]/80 px-2 py-0.5 rounded-full border border-[#e5b869]/40 backdrop-blur-sm">
+                          <Check className="w-2.5 h-2.5" /> Equipped
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
 
-                  {/* Lore / Notes (Clean & Readable) */}
-                  <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-3">
-                    {item.lore}
-                  </p>
+                  {/* Card Content */}
+                  <div className="p-3.5">
+                    {/* Title & Category Info */}
+                    <h3 className="font-semibold text-sm text-white group-hover:text-[#e5b869] transition-colors line-clamp-1 mb-1">
+                      {item.name}
+                    </h3>
 
-                  {/* Locked Criteria if wishlist */}
-                  {item.isLocked && item.lockRequirement && (
-                    <div className="mb-3 p-2 rounded-md bg-amber-950/20 border border-amber-800/30 text-[11px] text-amber-200">
-                      <span className="font-semibold block text-[10px] text-amber-400">Unlock Goal:</span>
-                      {item.lockRequirement}
+                    <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2">
+                      <span>{item.subCategory}</span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full border border-black/50"
+                          style={{ backgroundColor: item.colorHex }}
+                        />
+                        {item.colorName}
+                      </span>
                     </div>
-                  )}
 
-                  {/* Buffs pills */}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {item.buffs.slice(0, 2).map((b, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1c1f26] text-neutral-300 border border-[#2b2e38]"
-                      >
-                        +{b.value} {b.stat}
-                      </span>
-                    ))}
-                    {item.buffs.length > 2 && (
-                      <span className="text-[10px] text-neutral-500 self-center">
-                        +{item.buffs.length - 2} more
-                      </span>
+                    {/* Lore / Description */}
+                    <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-3">
+                      {item.lore}
+                    </p>
+
+                    {/* Wishlist Goal if locked */}
+                    {item.isLocked && item.lockRequirement && (
+                      <div className="mb-3 p-2 rounded-md bg-amber-950/20 border border-amber-800/30 text-[11px] text-amber-200">
+                        <span className="font-semibold block text-[10px] text-amber-400">Unlock Goal:</span>
+                        {item.lockRequirement}
+                      </div>
                     )}
+
+                    {/* Buffs with full readable names */}
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {item.buffs.slice(0, 2).map((b, i) => (
+                        <span
+                          key={i}
+                          className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#1c1f26] text-neutral-300 border border-[#2b2e38]"
+                        >
+                          {formatBuffName(b.stat, b.value)}
+                        </span>
+                      ))}
+                      {item.buffs.length > 2 && (
+                        <span className="text-[10px] text-neutral-500 self-center">
+                          +{item.buffs.length - 2} more
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Footer Metrics & Actions */}
-                <div className="pt-2.5 border-t border-[#23262f] flex items-center justify-between text-xs text-neutral-400">
+                <div className="p-3.5 pt-2.5 border-t border-[#23262f] flex items-center justify-between text-xs text-neutral-400">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1">
                       <Scale className="w-3.5 h-3.5 text-neutral-500" />

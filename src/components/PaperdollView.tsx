@@ -16,9 +16,20 @@ const SLOT_CONFIG: { slot: EquipSlot; label: string; icon: React.ComponentType<{
   { slot: 'legs', label: 'Pants', icon: Layers },
   { slot: 'footwear', label: 'Footwear', icon: Footprints },
   { slot: 'tech_relic', label: 'Tech Gear', icon: Laptop },
-  { slot: 'tome', label: 'Book / Grimoire', icon: BookOpen },
+  { slot: 'tome', label: 'Book / Tome', icon: BookOpen },
   { slot: 'wrist_edc', label: 'Wrist / EDC', icon: Watch },
 ];
+
+const FULL_MODIFIER_NAMES: Record<string, string> = {
+  STR: 'Strength',
+  INT: 'Intellect',
+  WIS: 'Wisdom',
+  CHA: 'Charisma',
+  FOCUS: 'Focus',
+  STYLE: 'Style',
+  COMFORT: 'Comfort',
+  WARMTH: 'Warmth',
+};
 
 export const PaperdollView: React.FC<PaperdollViewProps> = ({
   equippedItems,
@@ -50,7 +61,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           <div>
             <h2 className="text-sm font-semibold text-white tracking-tight">Active Loadout & Daily Equips</h2>
             <p className="text-xs text-neutral-400">
-              Items currently worn or carried that provide active attribute bonuses
+              Items currently worn or carried that provide active character attribute bonuses
             </p>
           </div>
         </div>
@@ -70,7 +81,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
 
       {isExpanded && (
         <>
-          {/* Active Buffs Summary Row */}
+          {/* Active Buffs Summary Row with Full Clear Names */}
           {Object.keys(aggregateBuffs).length > 0 && (
             <div className="pt-3 pb-4 flex flex-wrap items-center gap-2 border-b border-[#23262f]/60">
               <span className="text-xs font-semibold text-neutral-400 mr-1 uppercase tracking-wider text-[11px]">
@@ -79,16 +90,16 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
               {Object.entries(aggregateBuffs).map(([stat, val]) => (
                 <span
                   key={stat}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1b1e26] border border-[#2d313d] text-xs font-mono font-medium text-neutral-200"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1b1e26] border border-[#2d313d] text-xs font-medium text-neutral-200"
                 >
-                  <span className="text-[#e5b869]">+{val}</span>
-                  <span>{stat}</span>
+                  <span className="text-[#e5b869] font-bold">+{val}</span>
+                  <span>{FULL_MODIFIER_NAMES[stat] || stat}</span>
                 </span>
               ))}
             </div>
           )}
 
-          {/* Clean 4-column Slot Cards */}
+          {/* Clean 4-column Slot Cards with Thumbnail Preview */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
             {SLOT_CONFIG.map(({ slot, label, icon: IconComponent }) => {
               const item = getItemInSlot(slot);
@@ -96,58 +107,68 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
               return (
                 <div
                   key={slot}
-                  className={`p-3 rounded-lg border transition-all text-left flex flex-col justify-between min-h-[92px] ${
+                  className={`p-3 rounded-lg border transition-all text-left flex items-center gap-3 min-h-[80px] ${
                     item
                       ? 'bg-[#181a21] border-[#2c303c] hover:border-[#3d4354]'
                       : 'bg-[#121317]/50 border-dashed border-[#23262e]'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-xs text-neutral-400 mb-1.5">
-                    <span className="flex items-center gap-1.5 font-medium text-neutral-400">
-                      <IconComponent className="w-3.5 h-3.5 text-neutral-500" />
-                      {label}
-                    </span>
-                    {item && (
-                      <span className="text-[11px] font-mono text-neutral-500">{item.weightKg}kg</span>
+                  {/* Thumbnail */}
+                  <div className="w-14 h-14 rounded-md bg-[#0f1115] border border-[#23262e] flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    {item && item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <IconComponent className="w-5 h-5 text-neutral-600" />
                     )}
                   </div>
 
-                  {item ? (
-                    <div>
-                      <div className="flex items-start justify-between gap-1">
-                        <button
-                          onClick={() => {
-                            sfx.playClick();
-                            onInspectItem(item);
-                          }}
-                          className="font-medium text-xs text-white hover:text-[#e5b869] transition-colors line-clamp-1 text-left"
-                        >
-                          {item.name}
-                        </button>
-                        <button
-                          onClick={() => {
-                            sfx.playClick();
-                            onUnequipItem(item);
-                          }}
-                          className="text-[10px] text-neutral-500 hover:text-rose-400 font-mono transition-colors ml-1"
-                        >
-                          Unequip
-                        </button>
-                      </div>
+                  {/* Slot Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between text-xs text-neutral-400 mb-0.5">
+                      <span className="font-medium text-neutral-400 truncate">{label}</span>
+                      {item && (
+                        <span className="text-[11px] font-mono text-neutral-500">{item.weightKg}kg</span>
+                      )}
+                    </div>
 
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span
-                          className="w-2 h-2 rounded-full border border-black/40"
-                          style={{ backgroundColor: item.colorHex }}
-                        />
-                        <span className="text-[11px] text-neutral-400 truncate">{item.colorName}</span>
+                    {item ? (
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <button
+                            onClick={() => {
+                              sfx.playClick();
+                              onInspectItem(item);
+                            }}
+                            className="font-medium text-xs text-white hover:text-[#e5b869] transition-colors truncate text-left"
+                            title={item.name}
+                          >
+                            {item.name}
+                          </button>
+                          <button
+                            onClick={() => {
+                              sfx.playClick();
+                              onUnequipItem(item);
+                            }}
+                            className="text-[10px] text-neutral-500 hover:text-rose-400 transition-colors ml-1"
+                          >
+                            Unequip
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span
+                            className="w-2 h-2 rounded-full border border-black/40"
+                            style={{ backgroundColor: item.colorHex }}
+                          />
+                          <span className="text-[11px] text-neutral-400 truncate">{item.colorName}</span>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-[11px] text-neutral-600 italic">
-                      Empty Slot
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-[11px] text-neutral-600 italic">
+                        Empty Slot
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}

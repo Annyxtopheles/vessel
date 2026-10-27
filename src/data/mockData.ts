@@ -16,6 +16,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.65,
     goldValue: 120,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1578932750294-f5075e85f44a?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STYLE', value: 3, label: 'Structured Silhouette' },
       { stat: 'COMFORT', value: 2, label: 'Breathable Duck Canvas' },
@@ -37,6 +38,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.22,
     goldValue: 85,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WARMTH', value: 3, label: 'Thermal Regulating' },
       { stat: 'COMFORT', value: 4, label: 'Ultra-Fine 18.5 Micron' },
@@ -58,6 +60,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.75,
     goldValue: 160,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STYLE', value: 4, label: 'Clean Taper' },
       { stat: 'STR', value: 1, label: 'Reinforced Gusset' },
@@ -79,6 +82,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 1.4,
     goldValue: 240,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'STR', value: 2, label: 'Ankle Support' },
       { stat: 'STYLE', value: 3, label: 'Classic Cap-Toe' },
@@ -100,6 +104,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.1,
     goldValue: 70,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WARMTH', value: 4, label: 'Cashmere' },
       { stat: 'COMFORT', value: 3, label: 'Comfort Fit' },
@@ -123,6 +128,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 2.1,
     goldValue: 2200,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 6, label: 'Fast Build Velocity' },
       { stat: 'FOCUS', value: 5, label: 'Zero Compilation Latency' },
@@ -143,6 +149,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.25,
     goldValue: 380,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'FOCUS', value: 6, label: 'Noise Cancellation' },
       { stat: 'COMFORT', value: 3, label: 'Ergonomic Fit' },
@@ -163,6 +170,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.9,
     goldValue: 280,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 3, label: 'Key Travel' },
       { stat: 'STYLE', value: 3, label: 'Milled Brass' },
@@ -186,6 +194,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 1.1,
     goldValue: 60,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WIS', value: 10, label: 'Spiritual Anchor' },
       { stat: 'CHA', value: 4, label: 'Perspective' },
@@ -206,6 +215,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.45,
     goldValue: 25,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 4, label: 'Affordance Perception' },
       { stat: 'CHA', value: 2, label: 'User Empathy' },
@@ -229,6 +239,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.16,
     goldValue: 450,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'WIS', value: 3, label: 'Time Awareness' },
       { stat: 'STYLE', value: 4, label: 'Bronze Patina' },
@@ -249,6 +260,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.04,
     goldValue: 95,
     isLocked: false,
+    imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80',
     buffs: [
       { stat: 'INT', value: 2, label: 'Writing Flow' },
       { stat: 'STYLE', value: 2, label: 'Precision Fit' },
@@ -271,6 +283,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 18.0,
     goldValue: 1450,
     isLocked: true,
+    imageUrl: 'https://images.unsplash.com/photo-1580481077111-e63d4107bfa7?auto=format&fit=crop&w=600&q=80',
     lockRequirement: 'Ship 3 major projects & maintain 60-day posture discipline',
     buffs: [
       { stat: 'STR', value: 5, label: 'Lumbar Health' },
@@ -291,6 +304,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     weightKg: 0.5,
     goldValue: 220,
     isLocked: true,
+    imageUrl: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80',
     lockRequirement: 'Maintain 30-day unbroken Salah streak',
     buffs: [
       { stat: 'WIS', value: 6, label: 'Dignified Presence' },
@@ -303,7 +317,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
 export const INITIAL_HABITS: CustomHabit[] = [
   { id: 'h-1', name: 'Morning Adhkar & Quran reading', attribute: 'WIS', description: 'At least 15 minutes of recitation before starting the work day.' },
   { id: 'h-2', name: 'Ship code commit / client milestone', attribute: 'INT', description: 'Meaningful engineering contribution pushed and reviewed.' },
-  { id: 'h-3', name: 'Daily posture & mobility stretch', attribute: 'STR', description: 'Spine decompression, dead-hangs, and hip openers.' },
+  { id: 'h-3', name: 'Daily posture & mobility stretch', attribute: 'STR', description: 'Spinal decompression, dead-hangs, and hip openers.' },
   { id: 'h-4', name: 'No mindless phone before 10 AM', attribute: 'WIS', description: 'Protect early morning mental clarity from notification overload.' },
   { id: 'h-5', name: 'Check in with peer or team member', attribute: 'CHA', description: 'Active mentorship or collaborative unblocking.' },
 ];
@@ -361,7 +375,7 @@ export const INITIAL_SKILLS: SkillNode[] = [
     tier: 2,
     unlocked: true,
     requirement: 'Accumulate 50 logged hours of deep work',
-    bonus: '+3 INT buff when wearing ANC gear',
+    bonus: '+3 Intellect buff when wearing ANC gear',
     progressPercent: 100,
   },
   {
@@ -394,7 +408,7 @@ export const INITIAL_SKILLS: SkillNode[] = [
     tier: 2,
     unlocked: false,
     requirement: 'Memorize and retain 5 complete Surahs with tajweed',
-    bonus: '+4 WIS permanent baseline',
+    bonus: '+4 Wisdom permanent baseline',
     progressPercent: 60,
   },
   {
@@ -430,7 +444,6 @@ export const INITIAL_PROFILE: CharacterProfile = {
   },
 };
 
-// Past 7 days realistic history
 export const INITIAL_DAY_RECORDS: Record<string, DayRecord> = {
   '2026-10-21': {
     date: '2026-10-21',

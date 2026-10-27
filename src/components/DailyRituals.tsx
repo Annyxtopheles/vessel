@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { DayRecord, SalahStatus, CustomHabit, AttributeType } from '../types';
-import { ChevronLeft, ChevronRight, Check, Plus, Dumbbell, Clock, Trash2 } from 'lucide-react';
+import { ATTRIBUTE_NAMES } from '../types';
+import { ChevronLeft, ChevronRight, Check, Plus, Dumbbell, Clock, Trash2, RotateCcw } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface DailyRitualsProps {
@@ -36,7 +37,6 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  // Retrieve or initialize record for selected date
   const currentRecord: DayRecord = dayRecords[selectedDate] || {
     date: selectedDate,
     salah: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
@@ -51,7 +51,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   const completedSalahCount = Object.values(currentRecord.salah).filter(Boolean).length;
   const isAllSalahCompleted = completedSalahCount === 5;
 
-  // Generate 7-day strip ending at today (or around selected date)
+  // 7-day strip
   const getRecentDays = () => {
     const days = [];
     const base = new Date();
@@ -71,7 +71,6 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
   const recentDays = getRecentDays();
 
-  // Navigation handlers
   const handleShiftDay = (offsetDays: number) => {
     sfx.playClick();
     const parts = selectedDate.split('-');
@@ -109,7 +108,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     );
   };
 
-  const handleAddPushups = (amount: number) => {
+  // Adjust pushups with both addition and reduction
+  const handleAdjustPushups = (amount: number) => {
     sfx.playClick();
     const newCount = Math.max(0, currentRecord.pushups + amount);
     onUpdateDayRecord(
@@ -118,13 +118,24 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     );
   };
 
-  const handleAddSquats = (amount: number) => {
+  const handleSetPushupsDirect = (val: number) => {
+    const newCount = Math.max(0, isNaN(val) ? 0 : val);
+    onUpdateDayRecord({ ...currentRecord, pushups: newCount });
+  };
+
+  // Adjust squats with both addition and reduction
+  const handleAdjustSquats = (amount: number) => {
     sfx.playClick();
     const newCount = Math.max(0, currentRecord.squats + amount);
     onUpdateDayRecord(
       { ...currentRecord, squats: newCount },
       amount > 0 ? { attr: 'STR', xp: amount * 2 } : undefined
     );
+  };
+
+  const handleSetSquatsDirect = (val: number) => {
+    const newCount = Math.max(0, isNaN(val) ? 0 : val);
+    onUpdateDayRecord({ ...currentRecord, squats: newCount });
   };
 
   const handleToggleWorkout = () => {
@@ -138,7 +149,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     );
   };
 
-  const handleAddDeepWork = (mins: number) => {
+  // Adjust deep work with both addition and reduction
+  const handleAdjustDeepWork = (mins: number) => {
     sfx.playClick();
     const newMins = Math.max(0, currentRecord.deepWorkMinutes + mins);
     onUpdateDayRecord(
@@ -163,7 +175,6 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     sfx.playClick();
   };
 
-  // Format date display (e.g. "Tuesday, October 27, 2026")
   const dateFormatted = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -198,7 +209,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               )}
             </div>
             <p className="text-xs text-neutral-400">
-              Viewing logged habits, prayers, and volume for this day
+              Viewing logged habits, prayers, and volume for this date
             </p>
           </div>
 
@@ -235,7 +246,6 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <span className="text-[10px] font-medium uppercase text-neutral-400">{day.dayName}</span>
                 <span className="font-bold text-sm my-0.5 text-white">{day.dayNum}</span>
 
-                {/* Micro indicators: 5 prayer ticks */}
                 <div className="flex items-center gap-0.5 mt-0.5">
                   <span className={`w-1.5 h-1.5 rounded-full ${prayerCount === 5 ? 'bg-emerald-400' : prayerCount > 0 ? 'bg-amber-400' : 'bg-neutral-700'}`} />
                   {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />}
@@ -263,10 +273,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#23262f] gap-2 mb-4">
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight">
-              Five Daily Prayers (Salah)
+              Five Daily Prayers (Salah Consistency)
             </h3>
             <p className="text-xs text-neutral-400">
-              Anchors daily circadian cadence (+50 WIS XP per prayer, +150 bonus on perfect day)
+              Anchors daily circadian cadence (+50 Wisdom XP per prayer, +150 bonus on perfect day)
             </p>
           </div>
 
@@ -335,7 +345,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
           </button>
         </div>
 
-        {/* Add Habit Form Modal/Dropdown */}
+        {/* Add Habit Form */}
         {isAddingHabit && (
           <form onSubmit={handleCreateHabit} className="p-4 rounded-xl bg-[#101216] border border-[#23262f] mb-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             <input
@@ -352,10 +362,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               onChange={(e) => setNewHabitAttr(e.target.value as AttributeType)}
               className="px-3 py-2 bg-[#181a20] border border-[#272a34] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
             >
-              <option value="STR">STR (Physical)</option>
-              <option value="INT">INT (Craft/Intellect)</option>
-              <option value="WIS">WIS (Spiritual/Soul)</option>
-              <option value="CHA">CHA (Social/Community)</option>
+              <option value="STR">Strength (Physical)</option>
+              <option value="INT">Intellect (Craft & Focus)</option>
+              <option value="WIS">Wisdom (Spiritual & Mind)</option>
+              <option value="CHA">Charisma (Community)</option>
             </select>
 
             <div className="flex items-center gap-2">
@@ -417,8 +427,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181a20] text-neutral-400 border border-[#272a34]">
-                    {habit.attribute}
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#181a20] text-neutral-300 border border-[#272a34]">
+                    {ATTRIBUTE_NAMES[habit.attribute]}
                   </span>
                   <button
                     onClick={(e) => {
@@ -439,16 +449,16 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         </div>
       </div>
 
-      {/* 4. Physical Volume & Focus Grid */}
+      {/* 4. Physical Volume & Focus Grid with Add & Reduce Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        {/* Physical Movement (STR) */}
+        {/* Physical Movement (Strength) */}
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
               <Dumbbell className="w-4 h-4 text-rose-400" />
               <h3 className="text-sm font-bold text-white tracking-tight">
-                Bodyweight Movement (STR)
+                Bodyweight Movement (Strength)
               </h3>
             </div>
             <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-neutral-300">
@@ -458,103 +468,193 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 onChange={handleToggleWorkout}
                 className="rounded border-[#2b2e38] bg-[#14161a] text-rose-500 focus:ring-0"
               />
-              <span>Full Workout Session</span>
+              <span>Full Workout (+120 XP)</span>
             </label>
           </div>
 
-          <div className="space-y-3">
-            {/* Pushups */}
-            <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b] flex items-center justify-between">
-              <div>
-                <span className="text-xs text-neutral-400 font-medium">Pushups</span>
-                <div className="text-xl font-bold font-mono text-white mt-0.5">{currentRecord.pushups} reps</div>
+          <div className="space-y-4">
+            {/* Pushups Stepper */}
+            <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-neutral-400 font-medium">Pushups Completed</span>
+                <span className="text-[11px] text-neutral-500">+{currentRecord.pushups * 2} Strength XP</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => handleAddPushups(5)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +5
-                </button>
-                <button
-                  onClick={() => handleAddPushups(10)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +10
-                </button>
-                <button
-                  onClick={() => handleAddPushups(25)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +25
-                </button>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {/* Direct Number Input */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={currentRecord.pushups}
+                    onChange={(e) => handleSetPushupsDirect(parseInt(e.target.value) || 0)}
+                    className="w-20 px-2.5 py-1.5 bg-[#181a20] border border-[#272a34] rounded-lg text-lg font-bold font-mono text-white text-center focus:outline-none focus:border-[#e5b869]"
+                  />
+                  <span className="text-xs text-neutral-400 font-medium">reps</span>
+                </div>
+
+                {/* Stepper Buttons (Reduce & Add) */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleAdjustPushups(-10)}
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    title="Reduce 10"
+                  >
+                    -10
+                  </button>
+                  <button
+                    onClick={() => handleAdjustPushups(-5)}
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    title="Reduce 5"
+                  >
+                    -5
+                  </button>
+                  <button
+                    onClick={() => handleAdjustPushups(5)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 5"
+                  >
+                    +5
+                  </button>
+                  <button
+                    onClick={() => handleAdjustPushups(10)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 10"
+                  >
+                    +10
+                  </button>
+                  <button
+                    onClick={() => handleAdjustPushups(25)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 25"
+                  >
+                    +25
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Squats */}
-            <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b] flex items-center justify-between">
-              <div>
-                <span className="text-xs text-neutral-400 font-medium">Squats</span>
-                <div className="text-xl font-bold font-mono text-white mt-0.5">{currentRecord.squats} reps</div>
+            {/* Squats Stepper */}
+            <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-neutral-400 font-medium">Bodyweight Squats</span>
+                <span className="text-[11px] text-neutral-500">+{currentRecord.squats * 2} Strength XP</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => handleAddSquats(10)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +10
-                </button>
-                <button
-                  onClick={() => handleAddSquats(20)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +20
-                </button>
-                <button
-                  onClick={() => handleAddSquats(50)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-neutral-300 border border-[#272a34] transition-colors"
-                >
-                  +50
-                </button>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {/* Direct Number Input */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={currentRecord.squats}
+                    onChange={(e) => handleSetSquatsDirect(parseInt(e.target.value) || 0)}
+                    className="w-20 px-2.5 py-1.5 bg-[#181a20] border border-[#272a34] rounded-lg text-lg font-bold font-mono text-white text-center focus:outline-none focus:border-[#e5b869]"
+                  />
+                  <span className="text-xs text-neutral-400 font-medium">reps</span>
+                </div>
+
+                {/* Stepper Buttons (Reduce & Add) */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleAdjustSquats(-10)}
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    title="Reduce 10"
+                  >
+                    -10
+                  </button>
+                  <button
+                    onClick={() => handleAdjustSquats(-5)}
+                    className="px-2 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                    title="Reduce 5"
+                  >
+                    -5
+                  </button>
+                  <button
+                    onClick={() => handleAdjustSquats(10)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 10"
+                  >
+                    +10
+                  </button>
+                  <button
+                    onClick={() => handleAdjustSquats(20)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 20"
+                  >
+                    +20
+                  </button>
+                  <button
+                    onClick={() => handleAdjustSquats(50)}
+                    className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-neutral-200 border border-[#272a34] transition-colors"
+                    title="Add 50"
+                  >
+                    +50
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Deep Work (INT) */}
+        {/* Deep Work Focus (Intellect) with Add & Reduce */}
         <div className="ui-card p-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#23262f] mb-4">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-sky-400" />
               <h3 className="text-sm font-bold text-white tracking-tight">
-                Deep Work Focus (INT)
+                Deep Work Focus (Intellect)
               </h3>
             </div>
             <span className="text-xs font-mono font-medium text-sky-400">
-              +{Math.round(currentRecord.deepWorkMinutes * 1.5)} INT XP
+              +{Math.round(currentRecord.deepWorkMinutes * 1.5)} Intellect XP
             </span>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b] flex items-center justify-between mb-4">
-            <div>
-              <span className="text-xs text-neutral-400 font-medium">Logged Focus Time</span>
-              <div className="text-xl font-bold font-mono text-white mt-0.5">
+          <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b] mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-neutral-400 font-medium">Logged Focus Duration</span>
+              <span className="text-xl font-bold font-mono text-white">
                 {Math.floor(currentRecord.deepWorkMinutes / 60)}h {currentRecord.deepWorkMinutes % 60}m
-              </div>
+              </span>
             </div>
-            <div className="flex items-center gap-1.5">
+
+            <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 border-t border-[#1d2027]">
               <button
-                onClick={() => handleAddDeepWork(30)}
-                className="px-3 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-sky-300 border border-[#272a34] transition-colors"
+                onClick={() => handleAdjustDeepWork(-30)}
+                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                title="Subtract 30 minutes"
+              >
+                -30m
+              </button>
+              <button
+                onClick={() => handleAdjustDeepWork(-15)}
+                className="px-2.5 py-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-xs font-mono text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                title="Subtract 15 minutes"
+              >
+                -15m
+              </button>
+              <button
+                onClick={() => handleAdjustDeepWork(30)}
+                className="px-3 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-sky-300 border border-[#272a34] transition-colors"
+                title="Add 30 minutes"
               >
                 +30m
               </button>
               <button
-                onClick={() => handleAddDeepWork(60)}
-                className="px-3 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-semibold text-sky-300 border border-[#272a34] transition-colors"
+                onClick={() => handleAdjustDeepWork(60)}
+                className="px-3 py-1.5 rounded-md bg-[#181a20] hover:bg-[#22252e] text-xs font-mono text-sky-300 border border-[#272a34] transition-colors"
+                title="Add 60 minutes"
               >
                 +60m
               </button>
+              {currentRecord.deepWorkMinutes > 0 && (
+                <button
+                  onClick={() => onUpdateDayRecord({ ...currentRecord, deepWorkMinutes: 0 })}
+                  className="p-1.5 rounded-md bg-[#181a20] hover:bg-rose-950/40 text-neutral-400 hover:text-rose-300 border border-[#272a34] transition-colors"
+                  title="Reset to 0"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 
