@@ -228,7 +228,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090B] text-[#D6CFBE]">
+    <div className="min-h-screen flex flex-col bg-[#0c0d10] text-[#e5e7eb]">
       <input
         type="file"
         ref={fileInputRef}
@@ -237,7 +237,7 @@ export const App: React.FC = () => {
         className="hidden"
       />
 
-      {/* Main RPG Header */}
+      {/* Main Header */}
       <Header
         profile={profile}
         activeTab={activeTab}
@@ -251,9 +251,9 @@ export const App: React.FC = () => {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
         {activeTab === 'inventory' && (
-          <>
+          <div>
             <PaperdollView
               equippedItems={equippedItems}
               onInspectItem={setInspectedItem}
@@ -266,7 +266,7 @@ export const App: React.FC = () => {
               onToggleEquip={handleToggleEquip}
               onOpenAddItem={() => setIsAddItemOpen(true)}
             />
-          </>
+          </div>
         )}
 
         {activeTab === 'codex' && (
@@ -301,8 +301,8 @@ export const App: React.FC = () => {
       />
 
       {/* Footer */}
-      <footer className="border-t border-[#1C1F28] py-4 text-center text-xs font-mono text-[#635D52]">
-        <p>VESSEL // REALITY STATUS & INVENTORY PROTOCOL // OFFLINE LOCAL-FIRST LEDGER</p>
+      <footer className="border-t border-[#1f2229] py-6 text-center text-xs text-neutral-500">
+        <p>Vessel — Sovereign Life Inventory & Habit Ledger</p>
       </footer>
     </div>
   );

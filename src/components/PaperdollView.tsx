@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { InventoryItem, EquipSlot } from '../types';
-import { Sparkles, BookOpen, Laptop, Watch, Shirt, Footprints, Disc, Layers } from 'lucide-react';
+import { Sparkles, Shirt, Footprints, Laptop, BookOpen, Watch, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface PaperdollViewProps {
@@ -13,10 +13,10 @@ const SLOT_CONFIG: { slot: EquipSlot; label: string; icon: React.ComponentType<{
   { slot: 'head', label: 'Headwear', icon: Layers },
   { slot: 'outerwear', label: 'Outerwear', icon: Shirt },
   { slot: 'innerwear', label: 'Base Layer', icon: Layers },
-  { slot: 'legs', label: 'Trousers', icon: Layers },
+  { slot: 'legs', label: 'Pants', icon: Layers },
   { slot: 'footwear', label: 'Footwear', icon: Footprints },
-  { slot: 'tech_relic', label: 'Tech Relic', icon: Laptop },
-  { slot: 'tome', label: 'Tome / Lore', icon: BookOpen },
+  { slot: 'tech_relic', label: 'Tech Gear', icon: Laptop },
+  { slot: 'tome', label: 'Book / Grimoire', icon: BookOpen },
   { slot: 'wrist_edc', label: 'Wrist / EDC', icon: Watch },
 ];
 
@@ -25,6 +25,8 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
   onInspectItem,
   onUnequipItem,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   // Compute aggregate stats and buffs
   const aggregateBuffs: Record<string, number> = {};
   equippedItems.forEach(item => {
@@ -33,70 +35,92 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
     });
   });
 
-  const totalEquippedWeight = equippedItems.reduce((acc, it) => acc + it.weightKg, 0);
-
   const getItemInSlot = (slot: EquipSlot) => {
     return equippedItems.find(it => it.equipSlot === slot);
   };
 
   return (
-    <div className="arcane-card rounded-xl p-5 border border-[#C5A059]/25 bg-gradient-to-b from-[#12141A] to-[#0A0B0E] relative overflow-hidden">
-      {/* Background Runic Watermark */}
-      <div className="absolute right-4 top-4 text-[#C5A059]/5 pointer-events-none select-none font-cinzel text-9xl font-black">
-        VESSEL
+    <div className="ui-card p-5 mb-6">
+      {/* Header bar */}
+      <div className="flex items-center justify-between pb-3 border-b border-[#23262f]">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-[#1c1f26] border border-[#2b2e38] text-[#e5b869]">
+            <Shirt className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-white tracking-tight">Active Loadout & Daily Equips</h2>
+            <p className="text-xs text-neutral-400">
+              Items currently worn or carried that provide active attribute bonuses
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-[#1c1f26] border border-[#282b35] text-neutral-300">
+            {equippedItems.length} / 8 slots active
+          </span>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1 rounded text-neutral-400 hover:text-white transition-colors"
+          >
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start relative z-10">
-        
-        {/* Left Column: Equipment Slots Matrix */}
-        <div className="flex-1 w-full">
-          <div className="flex items-center justify-between pb-3 border-b border-[#232732] mb-4">
-            <div>
-              <h2 className="font-cinzel text-base font-bold text-[#E5C378] tracking-wider flex items-center gap-2">
-                <Disc className="w-4 h-4 text-[#C5A059]" /> ACTIVE LOADOUT & PAPERDOLL
-              </h2>
-              <p className="text-xs text-[#8E887B]">Equipped artifacts currently conferring real-world attribute modifiers</p>
+      {isExpanded && (
+        <>
+          {/* Active Buffs Summary Row */}
+          {Object.keys(aggregateBuffs).length > 0 && (
+            <div className="pt-3 pb-4 flex flex-wrap items-center gap-2 border-b border-[#23262f]/60">
+              <span className="text-xs font-medium text-neutral-400 flex items-center gap-1.5 mr-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#e5b869]" /> Active Buffs:
+              </span>
+              {Object.entries(aggregateBuffs).map(([stat, val]) => (
+                <span
+                  key={stat}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1b1e26] border border-[#2d313d] text-xs font-mono font-medium text-neutral-200"
+                >
+                  <span className="text-[#e5b869]">+{val}</span>
+                  <span>{stat}</span>
+                </span>
+              ))}
             </div>
-            <span className="text-xs font-mono text-[#A89F91] px-2 py-0.5 rounded bg-[#181A22] border border-[#2B2E3A]">
-              {equippedItems.length} / 8 SLOTS FILLED
-            </span>
-          </div>
+          )}
 
-          {/* Grid of 8 Equip Slots */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Clean 4-column Slot Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
             {SLOT_CONFIG.map(({ slot, label, icon: IconComponent }) => {
               const item = getItemInSlot(slot);
+
               return (
                 <div
                   key={slot}
-                  className={`p-3 rounded-lg border transition-all ${
+                  className={`p-3 rounded-lg border transition-all text-left flex flex-col justify-between min-h-[92px] ${
                     item
-                      ? 'bg-[#15171F] border-[#C5A059]/30 hover:border-[#C5A059]/60 shadow-md'
-                      : 'bg-[#0E1015]/60 border-dashed border-[#262934] text-[#55524B]'
+                      ? 'bg-[#181a21] border-[#2c303c] hover:border-[#3d4354]'
+                      : 'bg-[#121317]/50 border-dashed border-[#23262e]'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-xs font-cinzel text-[#A69E90]">
-                      <IconComponent className="w-3.5 h-3.5 text-[#C5A059]" />
-                      <span>{label.toUpperCase()}</span>
-                    </div>
-
+                  <div className="flex items-center justify-between text-xs text-neutral-400 mb-1.5">
+                    <span className="flex items-center gap-1.5 font-medium text-neutral-400">
+                      <IconComponent className="w-3.5 h-3.5 text-neutral-500" />
+                      {label}
+                    </span>
                     {item && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#C5A059]/10 text-[#E5C378] border border-[#C5A059]/20">
-                        {item.weightKg}kg
-                      </span>
+                      <span className="text-[11px] font-mono text-neutral-500">{item.weightKg}kg</span>
                     )}
                   </div>
 
                   {item ? (
-                    <div className="mt-2">
-                      <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-start justify-between gap-1">
                         <button
                           onClick={() => {
                             sfx.playClick();
                             onInspectItem(item);
                           }}
-                          className="text-left font-serif text-sm font-semibold text-[#F1E9DB] hover:text-[#E5C378] transition-colors leading-snug line-clamp-1"
+                          className="font-medium text-xs text-white hover:text-[#e5b869] transition-colors line-clamp-1 text-left"
                         >
                           {item.name}
                         </button>
@@ -105,73 +129,31 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
                             sfx.playClick();
                             onUnequipItem(item);
                           }}
-                          title="Unequip to bag"
-                          className="text-[10px] text-[#8C8477] hover:text-rose-400 font-mono transition-colors"
+                          className="text-[10px] text-neutral-500 hover:text-rose-400 font-mono transition-colors ml-1"
                         >
-                          [UNEQUIP]
+                          Unequip
                         </button>
                       </div>
 
-                      {/* Buff chips */}
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                        {item.buffs.map((buff, i) => (
-                          <span
-                            key={i}
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1D212B] text-[#C5A059] border border-[#C5A059]/20"
-                          >
-                            +{buff.value} {buff.stat}
-                          </span>
-                        ))}
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <span
+                          className="w-2 h-2 rounded-full border border-black/40"
+                          style={{ backgroundColor: item.colorHex }}
+                        />
+                        <span className="text-[11px] text-neutral-400 truncate">{item.colorName}</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-2 text-xs text-[#524E46] italic font-serif">
-                      Empty Slot — equip an item from inventory
+                    <div className="text-[11px] text-neutral-600 italic">
+                      Empty Slot
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* Right Column: Dynamic Buffs Tally & Encumbrance */}
-        <div className="w-full lg:w-72 bg-[#0E1015] border border-[#232733] rounded-lg p-4 flex flex-col justify-between">
-          <div>
-            <h3 className="font-cinzel text-xs font-bold text-[#E5C378] tracking-wider pb-2 border-b border-[#232733] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" /> CONFERRED REAL-LIFE BUFFS
-            </h3>
-
-            <div className="space-y-2 mt-3">
-              {Object.keys(aggregateBuffs).length === 0 ? (
-                <p className="text-xs text-[#635D52] italic font-serif">No active buffs conferred. Equip artifacts to activate life bonuses.</p>
-              ) : (
-                Object.entries(aggregateBuffs).map(([stat, val]) => (
-                  <div key={stat} className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-[#A39B8E]">{stat} MODIFIER</span>
-                    <span className="px-2 py-0.5 rounded bg-[#1B1F2A] border border-[#C5A059]/30 text-[#E5C378] font-bold">
-                      +{val}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Loadout Weight Stats */}
-          <div className="mt-6 pt-3 border-t border-[#232733] text-xs font-mono">
-            <div className="flex justify-between items-center text-[#9E9789] mb-1">
-              <span>EQUIPPED LOAD:</span>
-              <span className="text-[#F1E8D9] font-medium">{totalEquippedWeight.toFixed(2)} kg</span>
-            </div>
-            <p className="text-[10px] text-[#6E685C] leading-normal">
-              Items worn directly reduce mental friction and augment readiness for active tasks.
-            </p>
-          </div>
-
-        </div>
-
-      </div>
+        </>
+      )}
     </div>
   );
 };

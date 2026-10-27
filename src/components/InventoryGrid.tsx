@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { InventoryItem, ItemRarity } from '../types';
-import { Search, Plus, Lock, CheckCircle, Feather, Scale } from 'lucide-react';
+import { Search, Plus, Lock, Check, Scale } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface InventoryGridProps {
@@ -10,12 +10,12 @@ interface InventoryGridProps {
   onOpenAddItem: () => void;
 }
 
-const RARITY_COLORS: Record<ItemRarity, { border: string; badge: string; text: string }> = {
-  common: { border: 'border-[#333846]', badge: 'bg-[#1E222D] text-[#9EA4B5]', text: 'text-[#9EA4B5]' },
-  rare: { border: 'border-sky-700/50', badge: 'bg-sky-950/60 text-sky-300 border border-sky-600/40', text: 'text-sky-300' },
-  epic: { border: 'border-purple-600/50', badge: 'bg-purple-950/60 text-purple-300 border border-purple-600/40', text: 'text-purple-300' },
-  masterwork: { border: 'border-[#C5A059]/50', badge: 'bg-[#C5A059]/15 text-[#E5C378] border border-[#C5A059]/40', text: 'text-[#E5C378]' },
-  legendary: { border: 'border-amber-500/60', badge: 'bg-amber-950/60 text-amber-300 border border-amber-500/50 shadow-sm shadow-amber-950', text: 'text-amber-300' },
+const RARITY_BADGES: Record<ItemRarity, { label: string; badge: string }> = {
+  common: { label: 'Common', badge: 'bg-neutral-800 text-neutral-300 border-neutral-700' },
+  rare: { label: 'Rare', badge: 'bg-sky-950/70 text-sky-300 border-sky-800/40' },
+  epic: { label: 'Epic', badge: 'bg-purple-950/70 text-purple-300 border-purple-800/40' },
+  masterwork: { label: 'Masterwork', badge: 'bg-amber-950/70 text-amber-300 border-amber-800/40' },
+  legendary: { label: 'Legendary', badge: 'bg-orange-950/70 text-orange-300 border-orange-800/40' },
 };
 
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
@@ -31,24 +31,20 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
   // Filter pipeline
   const filteredItems = items.filter(item => {
-    // Category or Locked filter
     if (selectedCategory === 'locked') {
       if (!item.isLocked) return false;
     } else if (selectedCategory !== 'all') {
       if (item.category !== selectedCategory || item.isLocked) return false;
     }
 
-    // Season filter
     if (selectedSeason !== 'all' && item.season !== 'all' && item.season !== selectedSeason) {
       return false;
     }
 
-    // Condition filter
     if (selectedCondition !== 'all' && item.condition !== selectedCondition) {
       return false;
     }
 
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = item.name.toLowerCase().includes(q);
@@ -65,27 +61,28 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   });
 
   const categories = [
-    { id: 'all', label: 'All Artifacts' },
-    { id: 'apparel', label: 'Wardrobe & Apparel' },
-    { id: 'tech', label: 'Tech & Relics' },
-    { id: 'tomes', label: 'Tomes & Grimoires' },
+    { id: 'all', label: 'All Items' },
+    { id: 'apparel', label: 'Clothing & Wardrobe' },
+    { id: 'tech', label: 'Tech & Hardware' },
+    { id: 'tomes', label: 'Books & Tomes' },
     { id: 'edc', label: 'Everyday Carry' },
-    { id: 'locked', label: 'Locked Loot (Wishlist)' },
+    { id: 'locked', label: 'Wishlist (Locked Loot)' },
   ];
 
   return (
     <div className="space-y-4">
+      
       {/* Search & Actions Toolbar */}
-      <div className="arcane-card rounded-xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7F796E]" />
+        <div className="relative flex-1 max-w-md">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search relics by title, color, lore, or attribute buff..."
-            className="w-full pl-9 pr-4 py-2 bg-[#0E1015] border border-[#2B2F3D] rounded-lg text-xs font-mono text-[#EBE4D5] placeholder-[#666258] focus:outline-none focus:border-[#C5A059]/60 transition-colors"
+            placeholder="Search items by name, color, lore, or buff..."
+            className="w-full pl-9 pr-4 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#e5b869] transition-colors"
           />
         </div>
 
@@ -98,7 +95,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedSeason(e.target.value);
             }}
-            className="px-2.5 py-2 bg-[#0E1015] border border-[#2B2F3D] rounded-lg text-xs font-mono text-[#A89F91] focus:outline-none focus:border-[#C5A059]/60"
+            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
           >
             <option value="all">Season: All</option>
             <option value="summer">Summer</option>
@@ -113,7 +110,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCondition(e.target.value);
             }}
-            className="px-2.5 py-2 bg-[#0E1015] border border-[#2B2F3D] rounded-lg text-xs font-mono text-[#A89F91] focus:outline-none focus:border-[#C5A059]/60"
+            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
           >
             <option value="all">Condition: All</option>
             <option value="pristine">Pristine</option>
@@ -128,15 +125,15 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               onOpenAddItem();
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-[#C5A059] to-[#DFBC78] hover:from-[#B89248] hover:to-[#CEAA64] text-[#121318] font-cinzel font-bold text-xs tracking-wider rounded-lg shadow-md transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#e5b869] hover:bg-[#d8a857] text-[#0f1115] font-semibold text-xs rounded-lg transition-colors shadow-sm"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" /> INSCRIBE NEW ITEM
+            <Plus className="w-4 h-4" /> Add Item
           </button>
         </div>
       </div>
 
       {/* Category Tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[#1f2229] pt-1">
         {categories.map(cat => (
           <button
             key={cat.id}
@@ -144,10 +141,10 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCategory(cat.id);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-cinzel whitespace-nowrap transition-all border ${
+            className={`px-3 py-1.5 rounded-t-md text-xs font-medium whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${
               selectedCategory === cat.id
-                ? 'bg-[#181B24] border-[#C5A059]/50 text-[#F1E9DB] shadow-sm'
-                : 'bg-[#0E1015]/60 border-transparent text-[#7F796F] hover:text-[#B5AC9E] hover:bg-[#13151D]'
+                ? 'border-[#e5b869] text-white font-semibold'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
             {cat.label}
@@ -155,105 +152,103 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         ))}
       </div>
 
-      {/* Grid of Inventory Items */}
+      {/* Item Cards Grid */}
       {filteredItems.length === 0 ? (
-        <div className="arcane-card rounded-xl p-12 text-center border-dashed border-[#2B2F3D]">
-          <Feather className="w-10 h-10 mx-auto text-[#635D52] mb-3 stroke-[1.2]" />
-          <h3 className="font-cinzel text-sm font-bold text-[#A69E90]">No Relics Discovered in Vault</h3>
-          <p className="text-xs text-[#736C61] mt-1 font-serif">Adjust filters or inscribe a new possession to populate your inventory.</p>
+        <div className="ui-card p-12 text-center border-dashed">
+          <p className="text-sm font-medium text-neutral-400">No items match your active filters.</p>
+          <p className="text-xs text-neutral-500 mt-1">Try resetting search or adding a new possession.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredItems.map(item => {
-            const rarityStyle = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+            const rarityInfo = RARITY_BADGES[item.rarity] || RARITY_BADGES.common;
 
             return (
               <div
                 key={item.id}
-                className={`arcane-card arcane-card-hover rounded-xl p-4 flex flex-col justify-between relative group cursor-pointer transition-all border ${
-                  item.isEquipped ? 'border-[#C5A059]/60 ring-1 ring-[#C5A059]/20' : rarityStyle.border
-                }`}
                 onClick={() => {
                   sfx.playClick();
                   onInspectItem(item);
                 }}
+                className={`ui-card ui-card-hover p-4 flex flex-col justify-between cursor-pointer relative ${
+                  item.isEquipped ? 'ring-1 ring-[#e5b869]/50 bg-[#161920]' : ''
+                }`}
               >
-                {/* Top Badges */}
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded uppercase tracking-wider ${rarityStyle.badge}`}>
-                    {item.rarity}
-                  </span>
+                <div>
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${rarityInfo.badge}`}>
+                      {rarityInfo.label}
+                    </span>
 
-                  <div className="flex items-center gap-1.5">
                     {item.isLocked ? (
-                      <span className="flex items-center gap-1 text-[10px] font-mono text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-500/30">
-                        <Lock className="w-3 h-3" /> LOCKED
+                      <span className="flex items-center gap-1 text-[10px] font-medium text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-800/30">
+                        <Lock className="w-2.5 h-2.5" /> Wishlist
                       </span>
                     ) : item.isEquipped ? (
-                      <span className="flex items-center gap-1 text-[10px] font-mono text-[#E5C378] bg-[#C5A059]/15 px-1.5 py-0.5 rounded border border-[#C5A059]/30">
-                        <CheckCircle className="w-3 h-3" /> EQUIPPED
+                      <span className="flex items-center gap-1 text-[10px] font-medium text-[#e5b869] bg-[#e5b869]/10 px-2 py-0.5 rounded-full border border-[#e5b869]/20">
+                        <Check className="w-2.5 h-2.5" /> Equipped
                       </span>
                     ) : null}
                   </div>
-                </div>
 
-                {/* Title & Subcategory */}
-                <div className="mb-3">
-                  <h3 className="font-serif font-bold text-sm text-[#F4EDE2] group-hover:text-[#E5C378] transition-colors line-clamp-1">
+                  {/* Title & Category Info */}
+                  <h3 className="font-semibold text-sm text-white group-hover:text-[#e5b869] transition-colors line-clamp-1 mb-1">
                     {item.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-[11px] text-[#867F73] mt-0.5">
+
+                  <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2.5">
                     <span>{item.subCategory}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <span
-                        className="w-2 h-2 rounded-full inline-block border border-black/40"
+                        className="w-2 h-2 rounded-full border border-black/50"
                         style={{ backgroundColor: item.colorHex }}
                       />
                       {item.colorName}
                     </span>
                   </div>
-                </div>
 
-                {/* Lore Excerpt */}
-                <p className="text-[11px] font-serif italic text-[#80796E] line-clamp-2 mb-3 leading-relaxed">
-                  "{item.lore}"
-                </p>
+                  {/* Lore / Notes (Clean & Readable) */}
+                  <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-3">
+                    {item.lore}
+                  </p>
 
-                {/* Locked Objective Preview if locked */}
-                {item.isLocked && item.lockRequirement && (
-                  <div className="mb-3 p-2 rounded bg-amber-950/20 border border-amber-600/20 text-[10px] font-mono text-amber-300">
-                    <span className="text-[#C5A059] font-bold block mb-0.5">UNLOCK CRITERIA:</span>
-                    {item.lockRequirement}
-                  </div>
-                )}
-
-                {/* Buffs preview */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {item.buffs.slice(0, 2).map((b, i) => (
-                    <span
-                      key={i}
-                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#171A22] text-[#C5A059] border border-[#C5A059]/20"
-                    >
-                      +{b.value} {b.stat}
-                    </span>
-                  ))}
-                  {item.buffs.length > 2 && (
-                    <span className="text-[10px] font-mono text-[#6A6458] self-center">
-                      +{item.buffs.length - 2} more
-                    </span>
+                  {/* Locked Criteria if wishlist */}
+                  {item.isLocked && item.lockRequirement && (
+                    <div className="mb-3 p-2 rounded-md bg-amber-950/20 border border-amber-800/30 text-[11px] text-amber-200">
+                      <span className="font-semibold block text-[10px] text-amber-400">Unlock Goal:</span>
+                      {item.lockRequirement}
+                    </div>
                   )}
+
+                  {/* Buffs pills */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {item.buffs.slice(0, 2).map((b, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1c1f26] text-neutral-300 border border-[#2b2e38]"
+                      >
+                        +{b.value} {b.stat}
+                      </span>
+                    ))}
+                    {item.buffs.length > 2 && (
+                      <span className="text-[10px] text-neutral-500 self-center">
+                        +{item.buffs.length - 2} more
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Footer Metrics & Actions */}
-                <div className="pt-2.5 border-t border-[#1F222C] flex items-center justify-between text-[11px] font-mono text-[#918A7D]">
+                <div className="pt-2.5 border-t border-[#23262f] flex items-center justify-between text-xs text-neutral-400">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1">
-                      <Scale className="w-3 h-3 text-[#6B655A]" />
-                      {item.weightKg}kg
+                      <Scale className="w-3.5 h-3.5 text-neutral-500" />
+                      {item.weightKg} kg
                     </span>
-                    <span className="flex items-center gap-1 text-[#C5A059]">
-                      ⚜ ${item.goldValue}
+                    <span className="font-medium text-neutral-300">
+                      ${item.goldValue.toLocaleString()}
                     </span>
                   </div>
 
@@ -264,13 +259,13 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         sfx.playEquip();
                         onToggleEquip(item);
                       }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-cinzel transition-all ${
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                         item.isEquipped
-                          ? 'bg-[#1C1F28] hover:bg-rose-950/60 text-[#A69E90] hover:text-rose-300 border border-[#2E3240]'
-                          : 'bg-[#C5A059]/15 hover:bg-[#C5A059]/30 text-[#E5C378] border border-[#C5A059]/40'
+                          ? 'bg-[#1e222a] hover:bg-rose-950/40 text-neutral-300 hover:text-rose-300 border border-[#2b2e38]'
+                          : 'bg-[#22252e] hover:bg-[#2b2e38] text-white border border-[#343844]'
                       }`}
                     >
-                      {item.isEquipped ? 'UNEQUIP' : 'EQUIP'}
+                      {item.isEquipped ? 'Unequip' : 'Equip'}
                     </button>
                   )}
                 </div>
@@ -280,6 +275,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
           })}
         </div>
       )}
+
     </div>
   );
 };
