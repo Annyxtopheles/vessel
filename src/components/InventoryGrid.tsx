@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { InventoryItem, ItemRarity } from '../types';
-import { Search, Plus, Lock, Check, Scale } from 'lucide-react';
+import { Search, Plus, Lock, Check, Scale, Package } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface InventoryGridProps {
@@ -190,26 +190,27 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               >
                 <div>
                   {/* Visual Item Image Preview */}
-                  <div className="w-full h-36 bg-[#0f1115] relative overflow-hidden border-b border-[#23262e]">
-                    {item.imageUrl ? (
+                  <div className="w-full h-36 bg-[#0f1115] relative overflow-hidden border-b border-[#23262e] flex items-center justify-center">
+                    {/* Fallback placeholder */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-600 bg-[#121418] p-2 text-center">
+                      <Package className="w-7 h-7 text-neutral-600 mb-1" />
+                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider truncate max-w-[80%]">{item.subCategory}</span>
+                    </div>
+
+                    {item.imageUrl && (
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
                         loading="lazy"
                         onError={(e) => {
-                          // Fallback to placeholder if url fails
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-neutral-500 bg-[#121418]">
-                        No Image Preview
-                      </div>
                     )}
 
                     {/* Floating Badges over image */}
-                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-20">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shadow-sm ${rarityInfo.badge}`}>
                         {rarityInfo.label}
                       </span>

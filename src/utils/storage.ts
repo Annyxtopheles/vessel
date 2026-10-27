@@ -2,7 +2,7 @@ import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit
 import { INITIAL_ITEMS, INITIAL_PROFILE, INITIAL_SKILLS, INITIAL_DAY_RECORDS, INITIAL_HABITS } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  ITEMS: 'vessel_inventory_items_v2',
+  ITEMS: 'vessel_inventory_items_v3',
   PROFILE: 'vessel_character_profile_v2',
   SKILLS: 'vessel_skill_tree_v2',
   DAY_RECORDS: 'vessel_day_records_v2',
@@ -11,8 +11,27 @@ const STORAGE_KEYS = {
 
 export function loadItems(): InventoryItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
-    if (raw) return JSON.parse(raw);
+    // Check v3 first
+    let raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
+    // If not in v3, check legacy v2
+    if (!raw) {
+      raw = localStorage.getItem('vessel_inventory_items_v2');
+    }
+
+    if (raw) {
+      const parsed: InventoryItem[] = JSON.parse(raw);
+      // Auto-heal / backfill: inject image URLs from initial dataset if missing
+      const healed = parsed.map(item => {
+        if (!item.imageUrl) {
+          const match = INITIAL_ITEMS.find(init => init.id === item.id);
+          if (match?.imageUrl) {
+            return { ...item, imageUrl: match.imageUrl };
+          }
+        }
+        return item;
+      });
+      return healed;
+    }
   } catch (err) {
     console.error('Failed to load items', err);
   }
