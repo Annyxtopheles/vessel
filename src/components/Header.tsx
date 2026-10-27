@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="border-b border-[#1f2229] bg-[#0f1115]/80 backdrop-blur-md sticky top-0 z-30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="w-full max-w-[1720px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
         {/* Brand & Profile Status */}
         <div className="flex items-center gap-3">

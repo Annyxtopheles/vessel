@@ -159,7 +159,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
           <p className="text-xs text-neutral-500 mt-1">Try resetting search or adding a new possession.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {filteredItems.map(item => {
             const rarityInfo = RARITY_BADGES[item.rarity] || RARITY_BADGES.common;
 

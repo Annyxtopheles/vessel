@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { InventoryItem, CharacterProfile, SkillNode, DailyLog } from './types';
-import { loadItems, saveItems, loadProfile, saveProfile, loadSkills, saveSkills, loadDailyLog, saveDailyLog, exportSaveFile, importSaveFile } from './utils/storage';
+import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from './types';
+import { loadItems, saveItems, loadProfile, saveProfile, loadSkills, saveSkills, loadDayRecords, saveDayRecords, loadHabits, saveHabits, exportSaveFile, importSaveFile } from './utils/storage';
 import { Header } from './components/Header';
 import { PaperdollView } from './components/PaperdollView';
 import { InventoryGrid } from './components/InventoryGrid';
@@ -14,7 +14,9 @@ export const App: React.FC = () => {
   const [items, setItems] = useState<InventoryItem[]>(() => loadItems());
   const [profile, setProfile] = useState<CharacterProfile>(() => loadProfile());
   const [skills, setSkills] = useState<SkillNode[]>(() => loadSkills());
-  const [dailyLog, setDailyLog] = useState<DailyLog>(() => loadDailyLog());
+  const [habits, setHabits] = useState<CustomHabit[]>(() => loadHabits());
+  const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
+  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
 
   const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
@@ -37,8 +39,12 @@ export const App: React.FC = () => {
   }, [skills]);
 
   useEffect(() => {
-    saveDailyLog(dailyLog);
-  }, [dailyLog]);
+    saveHabits(habits);
+  }, [habits]);
+
+  useEffect(() => {
+    saveDayRecords(dayRecords);
+  }, [dayRecords]);
 
   // Audio mute state
   useEffect(() => {
@@ -61,7 +67,6 @@ export const App: React.FC = () => {
     const nextEquipped = !item.isEquipped;
 
     const updatedItems = items.map(it => {
-      // If equipping, unequip any existing item in that same slot
       if (nextEquipped && item.equipSlot && it.equipSlot === item.equipSlot && it.id !== item.id) {
         return { ...it, isEquipped: false };
       }
@@ -73,7 +78,6 @@ export const App: React.FC = () => {
 
     setItems(updatedItems);
 
-    // Update inspected item if open
     if (inspectedItem && inspectedItem.id === item.id) {
       setInspectedItem({ ...inspectedItem, isEquipped: nextEquipped });
     }
@@ -93,7 +97,7 @@ export const App: React.FC = () => {
     }
   };
 
-  // Lock / Unlock Toggle (Wishlist <-> Possession)
+  // Lock / Unlock Toggle
   const handleToggleLock = (item: InventoryItem) => {
     const nextLocked = !item.isLocked;
     const updatedItems = items.map(it => {
@@ -162,14 +166,27 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleUpdateDailyLog = (
-    updated: DailyLog,
+  // Update specific day's records
+  const handleUpdateDayRecord = (
+    updated: DayRecord,
     xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }
   ) => {
-    setDailyLog(updated);
+    setDayRecords(prev => ({
+      ...prev,
+      [updated.date]: updated,
+    }));
+
     if (xpGained) {
       grantExperience(xpGained.attr, xpGained.xp);
     }
+  };
+
+  const handleAddHabit = (newHabit: CustomHabit) => {
+    setHabits([...habits, newHabit]);
+  };
+
+  const handleDeleteHabit = (habitId: string) => {
+    setHabits(habits.filter(h => h.id !== habitId));
   };
 
   const handleUnlockSkill = (skillId: string) => {
@@ -184,14 +201,14 @@ export const App: React.FC = () => {
     grantExperience('INT', 150);
   };
 
-  // Export / Import JSON save file
+  // Export / Import
   const handleExport = () => {
     const dataStr = exportSaveFile();
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `vessel-character-save-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `vessel-data-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -215,11 +232,12 @@ export const App: React.FC = () => {
           setItems(loadItems());
           setProfile(loadProfile());
           setSkills(loadSkills());
-          setDailyLog(loadDailyLog());
+          setHabits(loadHabits());
+          setDayRecords(loadDayRecords());
           sfx.playRunicHarmonic();
-          alert('Vessel state successfully restored from backup.');
+          alert('Vessel state successfully restored.');
         } else {
-          alert('Failed to parse Vessel backup file. Check JSON structure.');
+          alert('Failed to parse Vessel backup file.');
         }
       }
     };
@@ -250,8 +268,8 @@ export const App: React.FC = () => {
         onImport={handleImportClick}
       />
 
-      {/* Main View Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
+      {/* Main View Area (Fluid Full Width) */}
+      <main className="flex-1 w-full max-w-[1720px] mx-auto px-6 lg:px-8 py-8">
         {activeTab === 'inventory' && (
           <div>
             <PaperdollView
@@ -279,8 +297,13 @@ export const App: React.FC = () => {
 
         {activeTab === 'rituals' && (
           <DailyRituals
-            dailyLog={dailyLog}
-            onUpdateDailyLog={handleUpdateDailyLog}
+            dayRecords={dayRecords}
+            habits={habits}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            onUpdateDayRecord={handleUpdateDayRecord}
+            onAddHabit={handleAddHabit}
+            onDeleteHabit={handleDeleteHabit}
           />
         )}
       </main>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { InventoryItem, EquipSlot } from '../types';
-import { Sparkles, Shirt, Footprints, Laptop, BookOpen, Watch, Layers, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shirt, Footprints, Laptop, BookOpen, Watch, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface PaperdollViewProps {
@@ -73,8 +73,8 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           {/* Active Buffs Summary Row */}
           {Object.keys(aggregateBuffs).length > 0 && (
             <div className="pt-3 pb-4 flex flex-wrap items-center gap-2 border-b border-[#23262f]/60">
-              <span className="text-xs font-medium text-neutral-400 flex items-center gap-1.5 mr-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#e5b869]" /> Active Buffs:
+              <span className="text-xs font-semibold text-neutral-400 mr-1 uppercase tracking-wider text-[11px]">
+                Active Modifiers:
               </span>
               {Object.entries(aggregateBuffs).map(([stat, val]) => (
                 <span

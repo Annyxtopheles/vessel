@@ -36,15 +36,13 @@ export interface InventoryItem {
   condition: ItemCondition;
   season: ItemSeason;
   weightKg: number;
-  goldValue: number; // Value in currency/gold
-  isLocked: boolean; // Wishlist / Locked Loot
-  lockRequirement?: string; // Goal needed to unlock
+  goldValue: number;
+  isLocked: boolean; // Wishlist
+  lockRequirement?: string;
   buffs: ItemBuff[];
   lore: string;
   isEquipped?: boolean;
-  imageUri?: string;
   dateAcquired?: string;
-  quantity?: number;
 }
 
 export interface SalahStatus {
@@ -55,16 +53,22 @@ export interface SalahStatus {
   isha: boolean;
 }
 
-export interface DailyLog {
+export interface CustomHabit {
+  id: string;
+  name: string;
+  attribute: AttributeType;
+  description?: string;
+}
+
+export interface DayRecord {
   date: string; // YYYY-MM-DD
   salah: SalahStatus;
   pushups: number;
   squats: number;
   workoutCompleted: boolean;
   deepWorkMinutes: number;
-  projectShippedNotes?: string;
-  surahStudyNotes?: string;
-  mentorshipNotes?: string;
+  completedHabitIds: string[];
+  notes?: string;
 }
 
 export interface SkillNode {
@@ -73,7 +77,6 @@ export interface SkillNode {
   title: string;
   description: string;
   tier: 1 | 2 | 3;
-  iconName: string;
   unlocked: boolean;
   requirement: string;
   bonus: string;
@@ -83,7 +86,6 @@ export interface SkillNode {
 export interface CharacterProfile {
   name: string;
   title: string;
-  avatarUrl?: string;
   level: number;
   currentXp: number;
   xpToNextLevel: number;
@@ -94,7 +96,6 @@ export interface CharacterProfile {
     CHA: { level: number; xp: number; title: string };
   };
   maxEncumbranceKg: number;
-  equippedSlots: Partial<Record<EquipSlot, string>>; // slot -> itemId
   streaks: {
     salahStreak: number;
     workoutStreak: number;

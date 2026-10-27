@@ -1,11 +1,12 @@
-import type { InventoryItem, CharacterProfile, SkillNode, DailyLog } from '../types';
-import { INITIAL_ITEMS, INITIAL_PROFILE, INITIAL_SKILLS, INITIAL_DAILY_LOG } from '../data/mockData';
+import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from '../types';
+import { INITIAL_ITEMS, INITIAL_PROFILE, INITIAL_SKILLS, INITIAL_DAY_RECORDS, INITIAL_HABITS } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  ITEMS: 'vessel_inventory_items_v1',
-  PROFILE: 'vessel_character_profile_v1',
-  SKILLS: 'vessel_skill_tree_v1',
-  DAILY: 'vessel_daily_log_v1',
+  ITEMS: 'vessel_inventory_items_v2',
+  PROFILE: 'vessel_character_profile_v2',
+  SKILLS: 'vessel_skill_tree_v2',
+  DAY_RECORDS: 'vessel_day_records_v2',
+  HABITS: 'vessel_custom_habits_v2',
 };
 
 export function loadItems(): InventoryItem[] {
@@ -13,7 +14,7 @@ export function loadItems(): InventoryItem[] {
     const raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
     if (raw) return JSON.parse(raw);
   } catch (err) {
-    console.error('Failed to load items from storage', err);
+    console.error('Failed to load items', err);
   }
   return INITIAL_ITEMS;
 }
@@ -62,51 +63,51 @@ export function saveSkills(skills: SkillNode[]): void {
   }
 }
 
-export function loadDailyLog(): DailyLog {
-  const today = new Date().toISOString().split('T')[0];
+export function loadHabits(): CustomHabit[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.DAILY);
-    if (raw) {
-      const parsed: DailyLog = JSON.parse(raw);
-      if (parsed.date === today) {
-        return parsed;
-      }
-      // If new day, return fresh day template with rollover
-      return {
-        ...INITIAL_DAILY_LOG,
-        date: today,
-        salah: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
-        pushups: 0,
-        squats: 0,
-        workoutCompleted: false,
-        deepWorkMinutes: 0,
-        projectShippedNotes: '',
-        surahStudyNotes: '',
-        mentorshipNotes: '',
-      };
-    }
+    const raw = localStorage.getItem(STORAGE_KEYS.HABITS);
+    if (raw) return JSON.parse(raw);
   } catch (err) {
-    console.error('Failed to load daily log', err);
+    console.error('Failed to load habits', err);
   }
-  return { ...INITIAL_DAILY_LOG, date: today };
+  return INITIAL_HABITS;
 }
 
-export function saveDailyLog(log: DailyLog): void {
+export function saveHabits(habits: CustomHabit[]): void {
   try {
-    localStorage.setItem(STORAGE_KEYS.DAILY, JSON.stringify(log));
+    localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
   } catch (err) {
-    console.error('Failed to save daily log', err);
+    console.error('Failed to save habits', err);
+  }
+}
+
+export function loadDayRecords(): Record<string, DayRecord> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DAY_RECORDS);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load day records', err);
+  }
+  return INITIAL_DAY_RECORDS;
+}
+
+export function saveDayRecords(records: Record<string, DayRecord>): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.DAY_RECORDS, JSON.stringify(records));
+  } catch (err) {
+    console.error('Failed to save day records', err);
   }
 }
 
 export function exportSaveFile(): string {
   const data = {
-    version: '1.0',
+    version: '2.0',
     exportedAt: new Date().toISOString(),
     profile: loadProfile(),
     items: loadItems(),
     skills: loadSkills(),
-    daily: loadDailyLog(),
+    habits: loadHabits(),
+    dayRecords: loadDayRecords(),
   };
   return JSON.stringify(data, null, 2);
 }
@@ -118,7 +119,8 @@ export function importSaveFile(jsonString: string): boolean {
       saveProfile(parsed.profile);
       saveItems(parsed.items);
       saveSkills(parsed.skills);
-      if (parsed.daily) saveDailyLog(parsed.daily);
+      if (parsed.habits) saveHabits(parsed.habits);
+      if (parsed.dayRecords) saveDayRecords(parsed.dayRecords);
       return true;
     }
   } catch (err) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { InventoryItem, ItemCategory, EquipSlot, ItemRarity, ItemCondition, ItemSeason, ItemBuff } from '../types';
-import { X, Trash2, Lock, Sparkles } from 'lucide-react';
+import { X, Trash2, Lock } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface AddItemModalProps {
@@ -279,8 +279,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
           {/* Real-Life Attribute Buffs */}
           <div className="p-3.5 rounded-lg bg-[#101216] border border-[#20232b]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-neutral-300 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#e5b869]" /> Conferred Life Modifiers
+              <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider text-[11px]">
+                Conferred Life Modifiers
               </span>
               <button
                 type="button"

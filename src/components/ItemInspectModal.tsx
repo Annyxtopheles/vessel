@@ -1,6 +1,6 @@
 import React from 'react';
 import type { InventoryItem, ItemCondition } from '../types';
-import { X, Lock, Unlock, Trash2, Scale, Sparkles } from 'lucide-react';
+import { X, Lock, Unlock, Trash2, Scale } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface ItemInspectModalProps {
@@ -107,8 +107,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
         {/* Conferred Buffs */}
         <div className="mb-6">
-          <h3 className="text-xs font-semibold text-neutral-400 mb-2 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#e5b869]" /> Conferred Life Attributes
+          <h3 className="text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider text-[11px]">
+            Conferred Life Modifiers
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {item.buffs.map((buff, i) => (
