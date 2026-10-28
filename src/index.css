@@ -8,44 +8,54 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #0c0d10;
-    color: #e5e7eb;
+    background-color: #0d0e12;
+    color: #f3f4f6;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Clean modern scrollbars */
+  /* Linear-style ultra-thin scrollbars */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2d35;
+    background: #232630;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3f434e;
+    background: #323644;
   }
 }
 
-/* Polished modern UI cards */
+/* Linear-style quiet cards */
 .ui-card {
-  background-color: #14161a;
-  border: 1px solid #23262e;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  background-color: #12141a;
+  border: 1px solid #20232c;
+  border-radius: 10px;
 }
 
 .ui-card-hover {
-  transition: all 0.15s ease-in-out;
+  transition: all 0.12s ease-in-out;
 }
 
 .ui-card-hover:hover {
-  background-color: #181a20;
-  border-color: #343844;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  background-color: #161822;
+  border-color: #2e323e;
+}
+
+/* Linear mono tag style (like vehicle_state in screenshot) */
+.linear-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #181a22;
+  border: 1px solid #262936;
+  color: #c9ccd6;
 }

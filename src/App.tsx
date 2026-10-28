@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit, OwnershipStatus, PastReason } from './types';
-import { loadItems, saveItems, loadProfile, saveProfile, loadSkills, saveSkills, loadDayRecords, saveDayRecords, loadHabits, saveHabits, exportSaveFile, importSaveFile } from './utils/storage';
+import { 
+  loadItems, saveItems, 
+  loadProfile, saveProfile, 
+  loadSkills, saveSkills, 
+  loadDayRecords, saveDayRecords, 
+  loadHabits, saveHabits, 
+  exportSaveFile, importSaveFile,
+  fetchVaultFromDisk, debounceSyncVault
+} from './utils/storage';
 import { getTodayLocalDateStr } from './utils/date';
 import { Header } from './components/Header';
 import { PaperdollView } from './components/PaperdollView';
@@ -19,12 +27,27 @@ export const App: React.FC = () => {
   const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('rituals');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [vaultStatus, setVaultStatus] = useState<'saving' | 'saved' | 'idle'>('saved');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Path A: Load latest Vault JSON from disk on boot
+  useEffect(() => {
+    fetchVaultFromDisk().then(vault => {
+      if (vault) {
+        if (vault.items && vault.items.length) setItems(vault.items);
+        if (vault.profile) setProfile(vault.profile);
+        if (vault.skills && vault.skills.length) setSkills(vault.skills);
+        if (vault.habits && vault.habits.length) setHabits(vault.habits);
+        if (vault.dayRecords) setDayRecords(vault.dayRecords);
+        setVaultStatus('saved');
+      }
+    });
+  }, []);
 
   // Close modals on Escape key
   useEffect(() => {
@@ -38,26 +61,22 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Sync state to local storage
+  // Sync state to local storage & disk vault (Path A)
   useEffect(() => {
     saveItems(items);
-  }, [items]);
-
-  useEffect(() => {
     saveProfile(profile);
-  }, [profile]);
-
-  useEffect(() => {
     saveSkills(skills);
-  }, [skills]);
-
-  useEffect(() => {
     saveHabits(habits);
-  }, [habits]);
-
-  useEffect(() => {
     saveDayRecords(dayRecords);
-  }, [dayRecords]);
+
+    debounceSyncVault({
+      items,
+      profile,
+      skills,
+      habits,
+      dayRecords,
+    }, setVaultStatus);
+  }, [items, profile, skills, habits, dayRecords]);
 
   // Audio mute state
   useEffect(() => {
@@ -157,6 +176,11 @@ export const App: React.FC = () => {
 
   const handleAddItem = (newItem: InventoryItem) => {
     setItems([newItem, ...items]);
+  };
+
+  const handleUpdateItem = (updated: InventoryItem) => {
+    setItems(prev => prev.map(it => it.id === updated.id ? updated : it));
+    setInspectedItem(updated);
   };
 
   // XP & Level Progression System
@@ -293,6 +317,7 @@ export const App: React.FC = () => {
         setIsMuted={setIsMuted}
         onExport={handleExport}
         onImport={handleImportClick}
+        vaultStatus={vaultStatus}
       />
 
       {/* Main View Area (Fluid Full Width) */}
@@ -343,6 +368,8 @@ export const App: React.FC = () => {
         onToggleEquip={handleToggleEquip}
         onChangeStatus={handleChangeStatus}
         onDeleteItem={handleDeleteItem}
+        onUpdateItem={handleUpdateItem}
+        onDuplicateItem={handleAddItem}
       />
 
       <AddItemModal

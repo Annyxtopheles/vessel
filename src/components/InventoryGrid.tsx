@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { InventoryItem, ItemRarity, OwnershipStatus } from '../types';
-import { Search, Plus, Lock, Check, Scale, Package, History } from 'lucide-react';
+import { Search, Plus, Lock, Check, Package, History } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface InventoryGridProps {
@@ -17,20 +17,6 @@ const RARITY_BADGES: Record<ItemRarity, { label: string; badge: string }> = {
   masterwork: { label: 'Masterwork', badge: 'bg-[#251f15] text-[#d8b46b] border-[#443722]' },
   legendary: { label: 'Legendary', badge: 'bg-[#291b17] text-[#e08c72] border-[#4a2e26]' },
 };
-
-function formatBuffName(stat: string, value: number): string {
-  const map: Record<string, string> = {
-    STR: 'Strength',
-    INT: 'Intellect',
-    WIS: 'Wisdom',
-    CHA: 'Charisma',
-    FOCUS: 'Focus',
-    STYLE: 'Style',
-    COMFORT: 'Comfort',
-    WARMTH: 'Warmth',
-  };
-  return `+${value} ${map[stat] || stat}`;
-}
 
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
   items,
@@ -100,21 +86,21 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   return (
     <div className="space-y-4">
       
-      {/* 1. Primary Ownership Lifecycle Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 bg-[#14161a] border border-[#23262f] rounded-xl">
-        <div className="flex flex-wrap items-center gap-1.5">
+      {/* 1. Primary Ownership Lifecycle Tabs (Linear Style) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 bg-[#12141a] border border-[#20232c] rounded-lg">
+        <div className="flex flex-wrap items-center gap-1">
           <button
             onClick={() => {
               sfx.playClick();
               setSelectedStatus('all');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               selectedStatus === 'all'
-                ? 'bg-[#22252e] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
-            All Life Possessions <span className="text-[10px] ml-1 text-neutral-500">({items.length})</span>
+            All Possessions <span className="text-[10px] ml-1 font-mono text-[#6b7280]">({items.length})</span>
           </button>
 
           <button
@@ -122,14 +108,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedStatus('owned');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               selectedStatus === 'owned'
-                ? 'bg-[#22252e] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
             <span>Currently Owned</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#16221a] text-[#93bfa0] border border-[#27382c]">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#16221a] text-[#93bfa0] border border-[#27382c]">
               {ownedCount}
             </span>
           </button>
@@ -139,15 +125,15 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedStatus('wishlist');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               selectedStatus === 'wishlist'
-                ? 'bg-[#22252e] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
             <Lock className="w-3 h-3 text-[#d8b46b]" />
             <span>Wish to Own</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#221c13] text-[#d8b46b] border border-[#3d311f]">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#221c13] text-[#d8b46b] border border-[#3d311f]">
               {wishCount}
             </span>
           </button>
@@ -157,15 +143,15 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedStatus('past');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
               selectedStatus === 'past'
-                ? 'bg-[#22252e] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
             <History className="w-3 h-3 text-[#86a6cf]" />
-            <span>Used to Own (Parted With)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#151e29] text-[#86a6cf] border border-[#243345]">
+            <span>Parted With</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#151e29] text-[#86a6cf] border border-[#243345]">
               {pastCount}
             </span>
           </button>
@@ -176,9 +162,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             sfx.playClick();
             onOpenAddItem();
           }}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#e5b869] hover:bg-[#d8a857] text-[#0f1115] font-semibold text-xs rounded-lg transition-colors shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d8b46b] hover:bg-[#c5a059] text-[#0d0e12] font-semibold text-xs rounded-md transition-colors shadow-xs"
         >
-          <Plus className="w-4 h-4" /> Add Item
+          <Plus className="w-3.5 h-3.5" /> Add Possession
         </button>
       </div>
 
@@ -186,13 +172,13 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search items by name, color, notes, or modifier..."
-            className="w-full pl-9 pr-4 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#e5b869] transition-colors"
+            placeholder="Search items by name, color, notes..."
+            className="w-full pl-8 pr-4 py-1.5 bg-[#0e1014] border border-[#20232c] rounded-md text-xs text-white placeholder-[#525866] focus:outline-none focus:border-[#d8b46b] transition-colors"
           />
         </div>
 
@@ -205,7 +191,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCategory(e.target.value);
             }}
-            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
           >
             {categories.map(c => (
               <option key={c.id} value={c.id}>{c.label}</option>
@@ -219,7 +205,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedSeason(e.target.value);
             }}
-            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
           >
             <option value="all">Season: All</option>
             <option value="summer">Summer</option>
@@ -234,7 +220,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCondition(e.target.value);
             }}
-            className="px-3 py-2 bg-[#14161a] border border-[#23262e] rounded-lg text-xs text-neutral-300 focus:outline-none focus:border-[#e5b869]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
           >
             <option value="all">Condition: All</option>
             <option value="pristine">Pristine</option>
@@ -245,14 +231,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         </div>
       </div>
 
-      {/* 3. Items Grid */}
+      {/* 3. Items Grid (Linear Editorial Catalog) */}
       {filteredItems.length === 0 ? (
         <div className="ui-card p-12 text-center border-dashed">
-          <p className="text-sm font-medium text-neutral-400">No items found in this view.</p>
-          <p className="text-xs text-neutral-500 mt-1">Try switching status tabs or resetting search filters.</p>
+          <p className="text-sm font-medium text-neutral-400">No possessions found in this view.</p>
+          <p className="text-xs text-neutral-500 mt-1">Try switching lifecycle tabs or clearing search filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3.5">
           {filteredItems.map(item => {
             const rarityInfo = RARITY_BADGES[item.rarity] || RARITY_BADGES.common;
             const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
@@ -264,24 +250,26 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   sfx.playClick();
                   onInspectItem(item);
                 }}
-                className={`ui-card ui-card-hover overflow-hidden flex flex-col justify-between cursor-pointer relative group ${
-                  item.isEquipped && status === 'owned' ? 'ring-1 ring-[#e5b869]/50 bg-[#161920]' : ''
-                } ${status === 'past' ? 'opacity-85' : ''}`}
+                className={`ui-card ui-card-hover overflow-hidden flex flex-col justify-between cursor-pointer group rounded-lg ${
+                  item.isEquipped && status === 'owned' ? 'border-[#443722] bg-[#15171e]' : ''
+                } ${status === 'past' ? 'opacity-80' : ''}`}
               >
                 <div>
-                  {/* Visual Item Image Preview */}
-                  <div className="w-full h-36 bg-[#0f1115] relative overflow-hidden border-b border-[#23262e] flex items-center justify-center">
+                  {/* Clean Visual Image Frame */}
+                  <div className="w-full h-40 bg-[#0e1014] relative overflow-hidden border-b border-[#1c1e26] flex items-center justify-center">
                     {/* Fallback placeholder */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-600 bg-[#121418] p-2 text-center">
-                      <Package className="w-7 h-7 text-neutral-600 mb-1" />
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider truncate max-w-[80%]">{item.subCategory}</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-600 bg-[#101217] p-2 text-center">
+                      <Package className="w-6 h-6 text-neutral-600 mb-1" />
+                      <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider truncate max-w-[80%]">
+                        {item.subCategory}
+                      </span>
                     </div>
 
                     {item.imageUrl && (
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
+                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-200 relative z-10"
                         loading="lazy"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
@@ -291,95 +279,66 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
                     {/* Floating Badges over image */}
                     <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-20">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shadow-sm ${rarityInfo.badge}`}>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded border shadow-xs ${rarityInfo.badge}`}>
                         {rarityInfo.label}
                       </span>
 
                       {status === 'wishlist' ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#d8b46b] bg-[#1a1610]/90 px-2 py-0.5 rounded-full border border-[#3d311f] backdrop-blur-sm">
-                          <Lock className="w-2.5 h-2.5 text-[#d8b46b]" /> Wish to Own
+                        <span className="linear-tag text-[#d8b46b] border-[#3d311f] bg-[#1a1610]/90 backdrop-blur-xs flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5" /> Wishlist
                         </span>
                       ) : status === 'past' ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#86a6cf] bg-[#121924]/90 px-2 py-0.5 rounded-full border border-[#243345] backdrop-blur-sm capitalize">
-                          <History className="w-2.5 h-2.5 text-[#86a6cf]" /> {item.pastReason || 'Used to Own'}
+                        <span className="linear-tag text-[#86a6cf] border-[#243345] bg-[#121924]/90 backdrop-blur-xs capitalize flex items-center gap-1">
+                          <History className="w-2.5 h-2.5" /> {item.pastReason || 'Past'}
                         </span>
                       ) : item.isEquipped ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#d8b46b] bg-[#1a1712]/90 px-2 py-0.5 rounded-full border border-[#443722] backdrop-blur-sm">
-                          <Check className="w-2.5 h-2.5 text-[#d8b46b]" /> Equipped
+                        <span className="linear-tag text-[#d8b46b] border-[#443722] bg-[#1a1712]/90 backdrop-blur-xs flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5" /> Equipped
                         </span>
                       ) : null}
                     </div>
                   </div>
 
-                  {/* Card Content */}
-                  <div className="p-3.5">
-                    {/* Title & Category Info */}
-                    <h3 className="font-semibold text-sm text-white group-hover:text-[#e5b869] transition-colors line-clamp-1 mb-1">
+                  {/* Card Content (Clean & Editorial) */}
+                  <div className="p-3">
+                    {/* Title */}
+                    <h3 className="font-medium text-sm text-white group-hover:text-[#d8b46b] transition-colors truncate mb-1">
                       {item.name}
                     </h3>
 
-                    <div className="flex items-center gap-2 text-xs text-neutral-400 mb-2">
+                    {/* Clean Meta Line */}
+                    <div className="flex items-center gap-1.5 text-xs text-[#8a8f98] font-mono mb-2.5">
                       <span>{item.subCategory}</span>
                       <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full border border-black/50"
-                          style={{ backgroundColor: item.colorHex }}
-                        />
-                        {item.colorName}
-                      </span>
+                      <span>{item.weightKg}kg</span>
+                      <span>•</span>
+                      <span className="text-[#ededed]">${item.goldValue}</span>
                     </div>
 
-                    {/* Lore / Description */}
-                    <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-3">
-                      {item.lore}
-                    </p>
-
-                    {/* Wishlist Goal if wishlist */}
-                    {status === 'wishlist' && item.lockRequirement && (
-                      <div className="mb-3 p-2 rounded-md bg-amber-950/20 border border-amber-800/30 text-[11px] text-amber-200">
-                        <span className="font-semibold block text-[10px] text-amber-400">Unlock Goal:</span>
-                        {item.lockRequirement}
+                    {/* Compact Stat Buff Chips */}
+                    {item.buffs.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.buffs.slice(0, 2).map((b, i) => (
+                          <span
+                            key={i}
+                            className="linear-tag text-[10px] text-[#8a8f98]"
+                          >
+                            +{b.value} {b.stat}
+                          </span>
+                        ))}
                       </div>
                     )}
-
-                    {/* Past reason tag if used to own */}
-                    {status === 'past' && item.pastReason && (
-                      <div className="mb-3 p-2 rounded-md bg-sky-950/20 border border-sky-800/30 text-[11px] text-sky-200">
-                        <span className="font-semibold block text-[10px] text-sky-400">Lifecycle Note:</span>
-                        Parted with ({item.pastReason}) {item.pastDate ? `on ${item.pastDate}` : ''}
-                      </div>
-                    )}
-
-                    {/* Buffs */}
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {item.buffs.slice(0, 2).map((b, i) => (
-                        <span
-                          key={i}
-                          className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#1c1f26] text-neutral-300 border border-[#2b2e38]"
-                        >
-                          {formatBuffName(b.stat, b.value)}
-                        </span>
-                      ))}
-                      {item.buffs.length > 2 && (
-                        <span className="text-[10px] text-neutral-500 self-center">
-                          +{item.buffs.length - 2} more
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
 
-                {/* Footer Metrics & Actions */}
-                <div className="p-3.5 pt-2.5 border-t border-[#23262f] flex items-center justify-between text-xs text-neutral-400">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Scale className="w-3.5 h-3.5 text-neutral-500" />
-                      {item.weightKg} kg
-                    </span>
-                    <span className="font-medium text-neutral-300">
-                      ${item.goldValue.toLocaleString()}
-                    </span>
+                {/* Bottom Card Actions */}
+                <div className="px-3 pb-3 pt-1 border-t border-[#1a1c24] flex items-center justify-between text-xs text-[#8a8f98]">
+                  <div className="flex items-center gap-1 text-[11px]">
+                    <span
+                      className="w-2 h-2 rounded-full border border-black/50"
+                      style={{ backgroundColor: item.colorHex }}
+                    />
+                    <span className="truncate max-w-[80px]">{item.colorName}</span>
                   </div>
 
                   {status === 'owned' && (
@@ -389,10 +348,10 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         sfx.playEquip();
                         onToggleEquip(item);
                       }}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                      className={`text-[11px] font-mono px-2 py-0.5 rounded transition-colors ${
                         item.isEquipped
-                          ? 'bg-[#1e222a] hover:bg-rose-950/40 text-neutral-300 hover:text-rose-300 border border-[#2b2e38]'
-                          : 'bg-[#22252e] hover:bg-[#2b2e38] text-white border border-[#343844]'
+                          ? 'text-[#d8b46b] hover:text-white bg-[#221c13] border border-[#3d311f]'
+                          : 'text-[#8a8f98] hover:text-white hover:bg-[#181a22]'
                       }`}
                     >
                       {item.isEquipped ? 'Unequip' : 'Equip'}

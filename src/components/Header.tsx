@@ -13,6 +13,7 @@ interface HeaderProps {
   setIsMuted: (muted: boolean) => void;
   onExport: () => void;
   onImport: () => void;
+  vaultStatus?: 'saving' | 'saved' | 'idle';
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,47 +26,73 @@ export const Header: React.FC<HeaderProps> = ({
   setIsMuted,
   onExport,
   onImport,
+  vaultStatus = 'idle',
 }) => {
   const encumbrancePercent = Math.min(100, Math.round((currentEncumbrance / profile.maxEncumbranceKg) * 100));
   const isOverburdened = currentEncumbrance > profile.maxEncumbranceKg;
 
+  const tabLabels: Record<'inventory' | 'codex' | 'rituals', string> = {
+    rituals: 'Daily Cadence & Rituals',
+    inventory: 'Life Inventory & Wardrobe',
+    codex: 'Attributes & Skill Codex',
+  };
+
   return (
-    <header className="border-b border-[#1f2229] bg-[#0f1115]/80 backdrop-blur-md sticky top-0 z-30">
-      <div className="w-full max-w-[1720px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="border-b border-[#1c1e26] bg-[#0d0e12]/95 backdrop-blur-md sticky top-0 z-30">
+      <div className="w-full max-w-[1720px] mx-auto px-5 lg:px-8 h-14 flex items-center justify-between gap-4">
         
-        {/* Brand & Profile Status */}
+        {/* Left: Linear-style Breadcrumb Brand & Vault Status */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2a2d36] to-[#15171c] border border-[#363a45] flex items-center justify-center font-bold text-sm text-[#e5b869]">
+          <div className="w-6 h-6 rounded bg-[#181a22] border border-[#262936] flex items-center justify-center font-bold font-mono text-xs text-[#ededed]">
             V
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight text-white">Vessel</span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#e5b869]/10 text-[#e5b869] border border-[#e5b869]/20">
-                Level {profile.level}
-              </span>
-            </div>
-            <p className="text-xs text-neutral-400 hidden sm:block">
-              {profile.name} • {profile.title}
-            </p>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-semibold text-white tracking-tight">Vessel</span>
+            <span className="text-neutral-600 font-mono">/</span>
+            <span className="text-[#8a8f98] font-medium hidden sm:inline">{tabLabels[activeTab]}</span>
+          </div>
+
+          {/* Local-First Git Vault Sync Indicator (Path A) */}
+          <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#12141a] border border-[#20232c] text-[11px] font-mono text-[#8a8f98]">
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              vaultStatus === 'saving'
+                ? 'bg-amber-400 animate-pulse'
+                : 'bg-emerald-400'
+            }`} />
+            <span>{vaultStatus === 'saving' ? 'Syncing vault...' : 'Vault Synced (Git)'}</span>
           </div>
         </div>
 
-        {/* Center: Clean Modern Navigation Tabs */}
-        <nav className="flex items-center p-1 bg-[#15171d] border border-[#23262f] rounded-lg">
+        {/* Center: Linear Tab Bar */}
+        <nav className="flex items-center p-0.5 bg-[#12141a] border border-[#20232c] rounded-lg">
+          <button
+            onClick={() => {
+              sfx.playClick();
+              setActiveTab('rituals');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              activeTab === 'rituals'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
+            }`}
+          >
+            <CalendarCheck2 className="w-3.5 h-3.5 text-[#d8b46b]" />
+            <span>Daily Cadence</span>
+          </button>
+
           <button
             onClick={() => {
               sfx.playClick();
               setActiveTab('inventory');
             }}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
               activeTab === 'inventory'
-                ? 'bg-[#22252e] text-white shadow-sm font-semibold'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
-            <Package className="w-3.5 h-3.5 text-[#e5b869]" />
-            <span>Inventory & Wardrobe</span>
+            <Package className="w-3.5 h-3.5 text-[#86a6cf]" />
+            <span>Inventory</span>
           </button>
 
           <button
@@ -73,44 +100,29 @@ export const Header: React.FC<HeaderProps> = ({
               sfx.playClick();
               setActiveTab('codex');
             }}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
               activeTab === 'codex'
-                ? 'bg-[#22252e] text-white shadow-sm font-semibold'
-                : 'text-neutral-400 hover:text-neutral-200'
+                ? 'bg-[#1c1e27] text-white shadow-xs font-semibold'
+                : 'text-[#8a8f98] hover:text-white'
             }`}
           >
-            <Target className="w-3.5 h-3.5 text-[#e5b869]" />
-            <span>Attributes & Skills</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sfx.playClick();
-              setActiveTab('rituals');
-            }}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'rituals'
-                ? 'bg-[#22252e] text-white shadow-sm font-semibold'
-                : 'text-neutral-400 hover:text-neutral-200'
-            }`}
-          >
-            <CalendarCheck2 className="w-3.5 h-3.5 text-[#e5b869]" />
-            <span>Daily Habits & Salah</span>
+            <Target className="w-3.5 h-3.5 text-[#df8276]" />
+            <span>Codex</span>
           </button>
         </nav>
 
-        {/* Right Metrics & Quick Actions */}
+        {/* Right: Metrics & User Identity */}
         <div className="flex items-center gap-3">
           
-          {/* Quick Metrics (Clean & Compact) */}
-          <div className="hidden md:flex items-center gap-3 text-xs">
-            {/* Weight Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#16181e] border border-[#23262f] text-neutral-300">
-              <span className="text-neutral-500">Weight:</span>
-              <span className={`font-medium ${isOverburdened ? 'text-rose-400' : 'text-neutral-200'}`}>
-                {currentEncumbrance.toFixed(1)} / {profile.maxEncumbranceKg.toFixed(1)} kg
+          {/* Linear Metrics */}
+          <div className="hidden md:flex items-center gap-2">
+            {/* Encumbrance */}
+            <div className="linear-tag flex items-center gap-1.5">
+              <span className="text-[#8a8f98]">Load:</span>
+              <span className={`font-mono ${isOverburdened ? 'text-rose-400' : 'text-[#ededed]'}`}>
+                {currentEncumbrance.toFixed(1)}/{profile.maxEncumbranceKg.toFixed(1)}kg
               </span>
-              <div className="w-10 h-1.5 bg-[#262933] rounded-full overflow-hidden ml-1">
+              <div className="w-8 h-1 bg-[#262933] rounded-full overflow-hidden ml-0.5">
                 <div
                   className={`h-full rounded-full ${
                     isOverburdened ? 'bg-[#df8276]' : 'bg-[#b8944d]'
@@ -120,24 +132,29 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Total Value Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#16181e] border border-[#23262f] text-neutral-300">
-              <span className="text-neutral-500">Value:</span>
-              <span className="font-medium text-[#d8b46b]">${totalGoldValue.toLocaleString()}</span>
+            {/* Total Gold Value */}
+            <div className="linear-tag flex items-center gap-1">
+              <span className="text-[#8a8f98]">Val:</span>
+              <span className="font-mono text-[#d8b46b]">${totalGoldValue.toLocaleString()}</span>
+            </div>
+
+            {/* User Level */}
+            <div className="linear-tag flex items-center gap-1 text-[#8a8f98]">
+              <span>Lvl {profile.level}</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1 border-l border-[#23262f] pl-3">
+          <div className="flex items-center gap-0.5 border-l border-[#1f222b] pl-2">
             <button
               onClick={() => {
                 sfx.playClick();
                 setIsMuted(!isMuted);
               }}
-              title={isMuted ? 'Unmute sounds' : 'Mute sounds'}
-              className="p-1.5 rounded-md hover:bg-[#1c1f26] text-neutral-400 hover:text-neutral-200 transition-colors"
+              title={isMuted ? 'Unmute' : 'Mute'}
+              className="p-1.5 rounded-md hover:bg-[#181a22] text-[#8a8f98] hover:text-white transition-colors"
             >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
 
             <button
@@ -145,10 +162,10 @@ export const Header: React.FC<HeaderProps> = ({
                 sfx.playClick();
                 onExport();
               }}
-              title="Export JSON backup"
-              className="p-1.5 rounded-md hover:bg-[#1c1f26] text-neutral-400 hover:text-neutral-200 transition-colors"
+              title="Export Vault JSON"
+              className="p-1.5 rounded-md hover:bg-[#181a22] text-[#8a8f98] hover:text-white transition-colors"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-3.5 h-3.5" />
             </button>
 
             <button
@@ -156,10 +173,10 @@ export const Header: React.FC<HeaderProps> = ({
                 sfx.playClick();
                 onImport();
               }}
-              title="Restore from JSON"
-              className="p-1.5 rounded-md hover:bg-[#1c1f26] text-neutral-400 hover:text-neutral-200 transition-colors"
+              title="Import Vault JSON"
+              className="p-1.5 rounded-md hover:bg-[#181a22] text-[#8a8f98] hover:text-white transition-colors"
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-3.5 h-3.5" />
             </button>
           </div>
 

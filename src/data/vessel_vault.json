@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "item-apparel-1",
+      "name": "Canvas Field Overshirt",
+      "category": "apparel",
+      "subCategory": "Outerwear",
+      "ownershipStatus": "owned",
+      "equipSlot": "outerwear",
+      "rarity": "rare",
+      "colorName": "Obsidian Black",
+      "colorHex": "#18181B",
+      "condition": "seasoned",
+      "season": "transitional",
+      "weightKg": 0.65,
+      "goldValue": 120,
+      "imageUrl": "https://images.unsplash.com/photo-1578932750294-f5075e85f44a?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "STYLE",
+          "value": 3,
+          "label": "Structured Silhouette"
+        },
+        {
+          "stat": "COMFORT",
+          "value": 2,
+          "label": "Breathable Duck Canvas"
+        }
+      ],
+      "lore": "Heavyweight 12oz duck cloth. The elbows show slight patina from hours at the desk.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-apparel-2",
+      "name": "Merino Wool Base Layer",
+      "category": "apparel",
+      "subCategory": "Tops",
+      "ownershipStatus": "owned",
+      "equipSlot": "innerwear",
+      "rarity": "rare",
+      "colorName": "Charcoal Heather",
+      "colorHex": "#27272A",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 0.22,
+      "goldValue": 85,
+      "imageUrl": "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WARMTH",
+          "value": 3,
+          "label": "Thermal Regulating"
+        },
+        {
+          "stat": "COMFORT",
+          "value": 4,
+          "label": "Ultra-Fine 18.5 Micron"
+        }
+      ],
+      "lore": "Odor-resistant natural wool fibers that withstand long focus sessions.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-apparel-3",
+      "name": "Selvedge Heavy Twill Trousers",
+      "category": "apparel",
+      "subCategory": "Bottoms",
+      "ownershipStatus": "owned",
+      "equipSlot": "legs",
+      "rarity": "masterwork",
+      "colorName": "Deep Ink",
+      "colorHex": "#0F172A",
+      "condition": "seasoned",
+      "season": "all",
+      "weightKg": 0.75,
+      "goldValue": 160,
+      "imageUrl": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "STYLE",
+          "value": 4,
+          "label": "Clean Taper"
+        },
+        {
+          "stat": "STR",
+          "value": 1,
+          "label": "Reinforced Gusset"
+        }
+      ],
+      "lore": "Woven on vintage shuttle looms with natural indigo fade lines.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-apparel-4",
+      "name": "Waxed Leather Field Boots",
+      "category": "apparel",
+      "subCategory": "Footwear",
+      "ownershipStatus": "owned",
+      "equipSlot": "footwear",
+      "rarity": "masterwork",
+      "colorName": "Dark Auburn",
+      "colorHex": "#451A03",
+      "condition": "seasoned",
+      "season": "winter",
+      "weightKg": 1.4,
+      "goldValue": 240,
+      "imageUrl": "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "STR",
+          "value": 2,
+          "label": "Ankle Support"
+        },
+        {
+          "stat": "STYLE",
+          "value": 3,
+          "label": "Classic Cap-Toe"
+        }
+      ],
+      "lore": "Resoleable Goodyear welt construction built for long walks.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-apparel-5",
+      "name": "Ribbed Cashmere Watch Cap",
+      "category": "apparel",
+      "subCategory": "Headwear",
+      "ownershipStatus": "owned",
+      "equipSlot": "head",
+      "rarity": "rare",
+      "colorName": "Slate Bone",
+      "colorHex": "#475569",
+      "condition": "pristine",
+      "season": "winter",
+      "weightKg": 0.1,
+      "goldValue": 70,
+      "imageUrl": "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WARMTH",
+          "value": 4,
+          "label": "Cashmere"
+        },
+        {
+          "stat": "COMFORT",
+          "value": 3,
+          "label": "Comfort Fit"
+        }
+      ],
+      "lore": "Snug fit keeping cold draughts away while walking before dawn Fajr.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-tech-1",
+      "name": "Framework 16 Laptop Workstation",
+      "category": "tech",
+      "subCategory": "Computing",
+      "ownershipStatus": "owned",
+      "equipSlot": "tech_relic",
+      "rarity": "legendary",
+      "colorName": "Matte Gray",
+      "colorHex": "#1E293B",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 2.1,
+      "goldValue": 2200,
+      "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "INT",
+          "value": 6,
+          "label": "Fast Build Velocity"
+        },
+        {
+          "stat": "FOCUS",
+          "value": 5,
+          "label": "Zero Compilation Latency"
+        }
+      ],
+      "lore": "Central development machine for web architectures and local models.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-tech-2",
+      "name": "Sony WH-1000XM5 ANC Headphones",
+      "category": "tech",
+      "subCategory": "Audio",
+      "ownershipStatus": "owned",
+      "rarity": "epic",
+      "colorName": "Midnight Silver",
+      "colorHex": "#334155",
+      "condition": "seasoned",
+      "season": "all",
+      "weightKg": 0.25,
+      "goldValue": 380,
+      "imageUrl": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "FOCUS",
+          "value": 6,
+          "label": "Noise Cancellation"
+        },
+        {
+          "stat": "COMFORT",
+          "value": 3,
+          "label": "Ergonomic Fit"
+        }
+      ],
+      "lore": "Acoustic isolation for noisy cafes and open environments.",
+      "isEquipped": false
+    },
+    {
+      "id": "item-tech-3",
+      "name": "Custom Mechanical Keyboard 60%",
+      "category": "tech",
+      "subCategory": "Peripherals",
+      "ownershipStatus": "owned",
+      "rarity": "masterwork",
+      "colorName": "Brass & Charcoal",
+      "colorHex": "#78716C",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 0.9,
+      "goldValue": 280,
+      "imageUrl": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "INT",
+          "value": 3,
+          "label": "Key Travel"
+        },
+        {
+          "stat": "STYLE",
+          "value": 3,
+          "label": "Milled Brass"
+        }
+      ],
+      "lore": "Lubed switches seated in solid brass plate for effortless typing cadences.",
+      "isEquipped": false
+    },
+    {
+      "id": "item-tome-1",
+      "name": "The Holy Qur'an with Commentary",
+      "category": "tomes",
+      "subCategory": "Scripture",
+      "ownershipStatus": "owned",
+      "equipSlot": "tome",
+      "rarity": "legendary",
+      "colorName": "Emerald Gilt",
+      "colorHex": "#064E3B",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 1.1,
+      "goldValue": 60,
+      "imageUrl": "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WIS",
+          "value": 10,
+          "label": "Spiritual Anchor"
+        },
+        {
+          "stat": "CHA",
+          "value": 4,
+          "label": "Perspective"
+        }
+      ],
+      "lore": "The cornerstone of spiritual balance, grounding daily ambition with purpose.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-tome-2",
+      "name": "The Design of Everyday Things",
+      "category": "tomes",
+      "subCategory": "Design & Craft",
+      "ownershipStatus": "owned",
+      "rarity": "rare",
+      "colorName": "Crimson",
+      "colorHex": "#881337",
+      "condition": "seasoned",
+      "season": "all",
+      "weightKg": 0.45,
+      "goldValue": 25,
+      "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "INT",
+          "value": 4,
+          "label": "Affordance Perception"
+        },
+        {
+          "stat": "CHA",
+          "value": 2,
+          "label": "User Empathy"
+        }
+      ],
+      "lore": "Core insights on affordances, feedback loops, and human-computer interactions.",
+      "isEquipped": false
+    },
+    {
+      "id": "item-edc-1",
+      "name": "Automatic Field Watch 38mm",
+      "category": "edc",
+      "subCategory": "Timepiece",
+      "ownershipStatus": "owned",
+      "equipSlot": "wrist_edc",
+      "rarity": "epic",
+      "colorName": "Aged Bronze",
+      "colorHex": "#854D0E",
+      "condition": "seasoned",
+      "season": "all",
+      "weightKg": 0.16,
+      "goldValue": 450,
+      "imageUrl": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WIS",
+          "value": 3,
+          "label": "Time Awareness"
+        },
+        {
+          "stat": "STYLE",
+          "value": 4,
+          "label": "Bronze Patina"
+        }
+      ],
+      "lore": "Mechanical automatic movement with zero screen distractions.",
+      "isEquipped": true
+    },
+    {
+      "id": "item-edc-2",
+      "name": "Titanium Bolt-Action Pen",
+      "category": "edc",
+      "subCategory": "Writing Tool",
+      "ownershipStatus": "owned",
+      "rarity": "masterwork",
+      "colorName": "Stonewash Gray",
+      "colorHex": "#64748B",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 0.04,
+      "goldValue": 95,
+      "imageUrl": "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "INT",
+          "value": 2,
+          "label": "Writing Flow"
+        },
+        {
+          "stat": "STYLE",
+          "value": 2,
+          "label": "Precision Fit"
+        }
+      ],
+      "lore": "Grade 5 aerospace titanium with smooth Parker G2 cartridge.",
+      "isEquipped": false
+    },
+    {
+      "id": "item-wish-1",
+      "name": "Herman Miller Aeron Chair",
+      "category": "tech",
+      "subCategory": "Ergonomics",
+      "ownershipStatus": "wishlist",
+      "rarity": "legendary",
+      "colorName": "Mineral",
+      "colorHex": "#94A3B8",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 18,
+      "goldValue": 1450,
+      "imageUrl": "https://images.unsplash.com/photo-1580481077111-e63d4107bfa7?auto=format&fit=crop&w=600&q=80",
+      "lockRequirement": "Ship 3 major projects & maintain 60-day posture discipline",
+      "buffs": [
+        {
+          "stat": "STR",
+          "value": 5,
+          "label": "Lumbar Health"
+        },
+        {
+          "stat": "FOCUS",
+          "value": 5,
+          "label": "All-Day Ergonomics"
+        }
+      ],
+      "lore": "Industry standard ergonomic seating reducing back strain during deep work."
+    },
+    {
+      "id": "item-wish-2",
+      "name": "Tailored Egyptian Cotton Thobe",
+      "category": "apparel",
+      "subCategory": "Jumu’ah Robe",
+      "ownershipStatus": "wishlist",
+      "rarity": "masterwork",
+      "colorName": "Off-White",
+      "colorHex": "#F8FAFC",
+      "condition": "pristine",
+      "season": "all",
+      "weightKg": 0.5,
+      "goldValue": 220,
+      "imageUrl": "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80",
+      "lockRequirement": "Maintain 30-day unbroken Salah streak",
+      "buffs": [
+        {
+          "stat": "WIS",
+          "value": 6,
+          "label": "Dignified Presence"
+        },
+        {
+          "stat": "CHA",
+          "value": 4,
+          "label": "Congregation Ready"
+        }
+      ],
+      "lore": "Clean woven cotton reserved for Friday prayers and family gatherings."
+    },
+    {
+      "id": "item-past-1",
+      "name": "ThinkPad T480 Workhorse",
+      "category": "tech",
+      "subCategory": "Legacy Laptop",
+      "ownershipStatus": "past",
+      "pastReason": "sold",
+      "pastDate": "2025-08-15",
+      "rarity": "rare",
+      "colorName": "Matte Charcoal",
+      "colorHex": "#262626",
+      "condition": "seasoned",
+      "season": "all",
+      "weightKg": 1.8,
+      "goldValue": 400,
+      "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "INT",
+          "value": 4,
+          "label": "Legacy Reliability"
+        }
+      ],
+      "lore": "The legendary dual-battery ThinkPad that powered early coding journeys. Sold to a junior dev when upgrading."
+    },
+    {
+      "id": "item-past-2",
+      "name": "Heritage Waxed Chore Coat",
+      "category": "apparel",
+      "subCategory": "Outerwear",
+      "ownershipStatus": "past",
+      "pastReason": "gifted",
+      "pastDate": "2025-11-20",
+      "rarity": "epic",
+      "colorName": "Tobacco Brown",
+      "colorHex": "#713F12",
+      "condition": "worn",
+      "season": "winter",
+      "weightKg": 1.2,
+      "goldValue": 180,
+      "imageUrl": "https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WARMTH",
+          "value": 3,
+          "label": "Waxed Stormproofing"
+        }
+      ],
+      "lore": "Worn through three cold winters on morning walks. Gifted to younger brother when moving apartments."
+    },
+    {
+      "id": "item-past-3",
+      "name": "Casio F-91W Classic Digital",
+      "category": "edc",
+      "subCategory": "Timepiece",
+      "ownershipStatus": "past",
+      "pastReason": "retired",
+      "pastDate": "2024-06-10",
+      "rarity": "common",
+      "colorName": "Resin Black",
+      "colorHex": "#000000",
+      "condition": "worn",
+      "season": "all",
+      "weightKg": 0.02,
+      "goldValue": 18,
+      "imageUrl": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+      "buffs": [
+        {
+          "stat": "WIS",
+          "value": 2,
+          "label": "No Frills Utility"
+        }
+      ],
+      "lore": "Survived countless university exams and gym sessions. Battery lasted 7 years before being safely retired."
+    }
+  ],
+  "profile": {
+    "name": "Sadman Zaman Khan",
+    "title": "Artificer Wanderer",
+    "level": 8,
+    "currentXp": 1840,
+    "xpToNextLevel": 2500,
+    "attributes": {
+      "STR": {
+        "level": 6,
+        "xp": 420,
+        "title": "Iron Initiate"
+      },
+      "INT": {
+        "level": 9,
+        "xp": 810,
+        "title": "Code Weaver"
+      },
+      "WIS": {
+        "level": 8,
+        "xp": 640,
+        "title": "Seeker of the Dawn"
+      },
+      "CHA": {
+        "level": 5,
+        "xp": 350,
+        "title": "Kindred Guide"
+      }
+    },
+    "maxEncumbranceKg": 12,
+    "streaks": {
+      "salahStreak": 14,
+      "workoutStreak": 4,
+      "craftStreak": 19
+    }
+  },
+  "skills": [
+    {
+      "id": "skill-str-1",
+      "attribute": "STR",
+      "title": "Kinetic Foundation",
+      "description": "Mastery of foundational pushup and squat volume against gravity.",
+      "tier": 1,
+      "unlocked": true,
+      "requirement": "100 total pushups logged",
+      "bonus": "+10% Bodyweight stamina",
+      "progressPercent": 100
+    },
+    {
+      "id": "skill-str-2",
+      "attribute": "STR",
+      "title": "Iron Core & Posture",
+      "description": "Structural spinal integrity resisting prolonged desk fatigue.",
+      "tier": 2,
+      "unlocked": false,
+      "requirement": "Log 5 workouts in a single week",
+      "bonus": "+2 Base Strength endurance",
+      "progressPercent": 65
+    },
+    {
+      "id": "skill-str-3",
+      "attribute": "STR",
+      "title": "Primal Endurance",
+      "description": "Sustained cardiovascular resilience across physical output.",
+      "tier": 3,
+      "unlocked": false,
+      "requirement": "Reach 1,000 pushups & 30-day movement streak",
+      "bonus": "+5 Max Encumbrance load",
+      "progressPercent": 30
+    },
+    {
+      "id": "skill-int-1",
+      "attribute": "INT",
+      "title": "Architectonic Thinking",
+      "description": "Deconstructing complex engineering models into modular components.",
+      "tier": 1,
+      "unlocked": true,
+      "requirement": "Ship 3 end-to-end fullstack projects",
+      "bonus": "+15% Speed on code scaffolding",
+      "progressPercent": 100
+    },
+    {
+      "id": "skill-int-2",
+      "attribute": "INT",
+      "title": "Deep Work Trance",
+      "description": "Sustaining unbroken focus states beyond the 90-minute threshold.",
+      "tier": 2,
+      "unlocked": true,
+      "requirement": "Accumulate 50 logged hours of deep work",
+      "bonus": "+3 Intellect buff when wearing ANC gear",
+      "progressPercent": 100
+    },
+    {
+      "id": "skill-int-3",
+      "attribute": "INT",
+      "title": "Master Artificer",
+      "description": "Flawlessly synthesizing AI orchestration, elegant UX, and performant backends.",
+      "tier": 3,
+      "unlocked": false,
+      "requirement": "Ship 10 landmark platforms with zero critical bugs",
+      "bonus": "Unlocks advanced tech crafting templates",
+      "progressPercent": 45
+    },
+    {
+      "id": "skill-wis-1",
+      "attribute": "WIS",
+      "title": "Five Pillars Cadence",
+      "description": "Anchoring circadian rhythm to the five daily prayers in time.",
+      "tier": 1,
+      "unlocked": true,
+      "requirement": "Complete all 5 prayers for 7 consecutive days",
+      "bonus": "+10% Soul clarity & stress dissipation",
+      "progressPercent": 100
+    },
+    {
+      "id": "skill-wis-2",
+      "attribute": "WIS",
+      "title": "Hafiz Foundation",
+      "description": "Inscribing the divine words into memory through systematic revision.",
+      "tier": 2,
+      "unlocked": false,
+      "requirement": "Memorize and retain 5 complete Surahs with tajweed",
+      "bonus": "+4 Wisdom permanent baseline",
+      "progressPercent": 60
+    },
+    {
+      "id": "skill-cha-1",
+      "attribute": "CHA",
+      "title": "Servant Leader",
+      "description": "Clearing obstacles for peers, mentoring novices, and sharing knowledge openly.",
+      "tier": 1,
+      "unlocked": true,
+      "requirement": "Complete 10 1-on-1 mentorship or enablement sessions",
+      "bonus": "+20% Team morale amplification",
+      "progressPercent": 100
+    }
+  ],
+  "habits": [
+    {
+      "id": "h-1",
+      "name": "Morning Adhkar & Quran reading",
+      "attribute": "WIS",
+      "description": "At least 15 minutes of recitation before starting the work day."
+    },
+    {
+      "id": "h-2",
+      "name": "Ship code commit / client milestone",
+      "attribute": "INT",
+      "description": "Meaningful engineering contribution pushed and reviewed."
+    },
+    {
+      "id": "h-3",
+      "name": "Daily posture & mobility stretch",
+      "attribute": "STR",
+      "description": "Spinal decompression, dead-hangs, and hip openers."
+    },
+    {
+      "id": "h-4",
+      "name": "No mindless phone before 10 AM",
+      "attribute": "WIS",
+      "description": "Protect early morning mental clarity from notification overload."
+    },
+    {
+      "id": "h-5",
+      "name": "Check in with peer or team member",
+      "attribute": "CHA",
+      "description": "Active mentorship or collaborative unblocking."
+    }
+  ],
+  "dayRecords": {
+    "2026-10-21": {
+      "date": "2026-10-21",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 40,
+      "squats": 30,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 180,
+      "completedHabitIds": [
+        "h-1",
+        "h-2",
+        "h-3"
+      ],
+      "notes": "Solid focus block on API layer."
+    },
+    "2026-10-22": {
+      "date": "2026-10-22",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 50,
+      "squats": 40,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 210,
+      "completedHabitIds": [
+        "h-1",
+        "h-2",
+        "h-4",
+        "h-5"
+      ],
+      "notes": "Shipped auth module."
+    },
+    "2026-10-23": {
+      "date": "2026-10-23",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 35,
+      "squats": 30,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 120,
+      "completedHabitIds": [
+        "h-1",
+        "h-3",
+        "h-4"
+      ],
+      "notes": "Friday Jumu’ah prayer in congregation."
+    },
+    "2026-10-24": {
+      "date": "2026-10-24",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 30,
+      "squats": 20,
+      "workoutCompleted": false,
+      "deepWorkMinutes": 90,
+      "completedHabitIds": [
+        "h-1",
+        "h-4"
+      ],
+      "notes": "Weekend recovery and Surah Al-Kahf revision."
+    },
+    "2026-10-25": {
+      "date": "2026-10-25",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 45,
+      "squats": 35,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 150,
+      "completedHabitIds": [
+        "h-1",
+        "h-2",
+        "h-3"
+      ],
+      "notes": "Sprint planning and backlog grooming."
+    },
+    "2026-10-26": {
+      "date": "2026-10-26",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": true,
+        "isha": true
+      },
+      "pushups": 50,
+      "squats": 40,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 240,
+      "completedHabitIds": [
+        "h-1",
+        "h-2",
+        "h-3",
+        "h-5"
+      ],
+      "notes": "Shipped core database migrations."
+    },
+    "2026-10-27": {
+      "date": "2026-10-27",
+      "salah": {
+        "fajr": true,
+        "dhuhr": true,
+        "asr": true,
+        "maghrib": false,
+        "isha": false
+      },
+      "pushups": 45,
+      "squats": 30,
+      "workoutCompleted": true,
+      "deepWorkMinutes": 180,
+      "completedHabitIds": [
+        "h-1",
+        "h-2",
+        "h-3"
+      ],
+      "notes": "Building Vessel inventory and habit tracking system."
+    }
+  }
+}
