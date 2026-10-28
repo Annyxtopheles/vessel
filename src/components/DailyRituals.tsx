@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent } from '../types';
-import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw } from 'lucide-react';
+import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest } from '../types';
+import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw, Compass, AlertCircle, ChevronRight } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
-import { XP_DISCIPLINE_REWARDS } from '../data/xpConfig';
+import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
 
 interface DailyRitualsProps {
   dayRecords: Record<string, DayRecord>;
@@ -14,6 +14,9 @@ interface DailyRitualsProps {
   onAddHabit: (habit: CustomHabit) => void;
   onDeleteHabit: (habitId: string) => void;
   onRecordXpEvent?: (event: Omit<XpEvent, 'id'>) => void;
+  quests?: Quest[];
+  onNavigateToQuests?: () => void;
+  onCompleteQuest?: (quest: Quest) => void;
 }
 
 const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] = [
@@ -40,12 +43,20 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   onAddHabit,
   onDeleteHabit,
   onRecordXpEvent,
+  quests = [],
+  onNavigateToQuests,
+  onCompleteQuest: _onCompleteQuest,
 }) => {
   const [isAddingHabit, setIsAddingHabit] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitAttr, setNewHabitAttr] = useState<AttributeType>('WIS');
 
   const todayStr = getTodayLocalDateStr();
+
+  // Quests due soon: open quests with due date within 7 days or overdue
+  const questsDueSoon = quests
+    .filter(q => !q.deletedAt && q.status !== 'done' && q.dueDate)
+    .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
 
   const currentRecord: DayRecord = dayRecords[selectedDate] || {
     date: selectedDate,
@@ -259,6 +270,83 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
   return (
     <div className="space-y-6">
+
+      {/* 0. Quests Due Soon Mini-Card */}
+      {questsDueSoon.length > 0 && (
+        <div className="ship-card p-5 border-l-4 border-l-[#0891B2] bg-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#ECECF0]">
+            <div className="flex items-center gap-2.5">
+              <div className="ship-icon-tile">
+                <Compass className="w-4 h-4 text-[#0891B2]" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-[#111113]">Tactical Quests Due Soon</h3>
+                  <span className="ship-pill-accent text-[11px] font-semibold">
+                    {questsDueSoon.length} pending
+                  </span>
+                </div>
+                <p className="text-xs text-[#6B6B76]">
+                  Immediate milestone deadlines required to unblock progression
+                </p>
+              </div>
+            </div>
+
+            {onNavigateToQuests && (
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.playClick();
+                  onNavigateToQuests();
+                }}
+                className="text-xs font-semibold text-[#0891B2] hover:text-[#0E7490] flex items-center gap-1 self-start sm:self-center transition-colors cursor-pointer"
+              >
+                <span>Open Quests Board</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+            {questsDueSoon.slice(0, 3).map((quest) => {
+              const isOverdue = quest.dueDate! < todayStr;
+              return (
+                <div
+                  key={quest.id}
+                  onClick={() => {
+                    if (onNavigateToQuests) onNavigateToQuests();
+                  }}
+                  className="p-3 rounded-xl border border-[#ECECF0] bg-[#F4F4F6]/60 hover:bg-[#F4F4F6] hover:border-[#0891B2]/40 transition-all cursor-pointer flex flex-col justify-between"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <span className="text-xs font-semibold text-[#111113] truncate">
+                      {quest.title}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-white text-[#6B6B76] border border-[#ECECF0] flex-shrink-0">
+                      {quest.pillar}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span
+                      className={`flex items-center gap-1 ${
+                        isOverdue ? 'text-[#DC2626] font-semibold' : 'text-[#6B6B76]'
+                      }`}
+                    >
+                      {isOverdue && <AlertCircle className="w-3 h-3 text-[#DC2626]" />}
+                      <span>{isOverdue ? `Overdue (${quest.dueDate})` : `Due: ${quest.dueDate}`}</span>
+                    </span>
+
+                    <span className="text-[10px] font-semibold text-[#0891B2]">
+                      +{getQuestXp(quest.difficulty)} XP
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 1. 7-Day Navigation Strip & Prayer Cadence */}
       <div className="ship-card p-6 space-y-6">

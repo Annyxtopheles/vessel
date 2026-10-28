@@ -12,6 +12,9 @@ import type {
   XpEvent,
   AppSettings,
   AttributeType,
+  Quest,
+  QuestEvidence,
+  EvidenceType,
 } from './types';
 import { 
   loadItems, saveItems, 
@@ -23,9 +26,11 @@ import {
   loadSavedLoadouts, saveSavedLoadouts,
   loadXpEvents, saveXpEvents,
   loadSettings, saveSettings,
+  loadQuests, saveQuests,
+  loadQuestEvidence, saveQuestEvidence,
   exportSaveFile, importSaveFile
 } from './utils/storage';
-import { deriveTotalXp, getOverallLevelProgress } from './data/xpConfig';
+import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
@@ -35,7 +40,9 @@ import { ItemInspectModal } from './components/ItemInspectModal';
 import { AddItemModal } from './components/AddItemModal';
 import { CharacterCodex } from './components/CharacterCodex';
 import { DailyRituals } from './components/DailyRituals';
+import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
+import { Sparkles, Check } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [items, setItems] = useState<InventoryItem[]>(() => loadItems());
@@ -47,13 +54,17 @@ export const App: React.FC = () => {
   const [savedLoadouts, setSavedLoadouts] = useState<SavedLoadout[]>(() => loadSavedLoadouts());
   const [xpEvents, setXpEvents] = useState<XpEvent[]>(() => loadXpEvents());
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
+  const [quests, setQuests] = useState<Quest[]>(() => loadQuests());
+  const [questEvidence, setQuestEvidence] = useState<QuestEvidence[]>(() => loadQuestEvidence());
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'rituals' | 'quests' | 'codex'>('inventory');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
+  const [isAddQuestOpen, setIsAddQuestOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [wishlistPromptItem, setWishlistPromptItem] = useState<InventoryItem | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -63,6 +74,8 @@ export const App: React.FC = () => {
       if (e.key === 'Escape') {
         setInspectedItem(null);
         setIsAddItemOpen(false);
+        setIsAddQuestOpen(false);
+        setWishlistPromptItem(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -80,7 +93,9 @@ export const App: React.FC = () => {
     saveSavedLoadouts(savedLoadouts);
     saveXpEvents(xpEvents);
     saveSettings(settings);
-  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings]);
+    saveQuests(quests);
+    saveQuestEvidence(questEvidence);
+  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings, quests, questEvidence]);
 
   // Audio mute state
   useEffect(() => {
@@ -137,11 +152,23 @@ export const App: React.FC = () => {
   const wishlistCount = wishlistItems.length;
   const pastCount = pastItems.length;
 
+  // Open Quests Count for badge
+  const openQuestsCount = quests.filter(q => !q.deletedAt && q.status !== 'done').length;
+
   // Wear counts index
   const wearCounts: Record<string, number> = {};
   wearEvents.forEach(ev => {
     wearCounts[ev.itemId] = (wearCounts[ev.itemId] || 0) + 1;
   });
+
+  // Record an append-only XP event
+  const handleRecordXpEvent = (event: Omit<XpEvent, 'id'>) => {
+    const newEvent: XpEvent = {
+      id: `xp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      ...event,
+    };
+    setXpEvents(prev => [...prev, newEvent]);
+  };
 
   // Equip / Unequip Toggle with Wear Event Logging
   const handleToggleEquip = (item: InventoryItem) => {
@@ -291,13 +318,94 @@ export const App: React.FC = () => {
     setInspectedItem(updated);
   };
 
-  // Record an append-only XP event
-  const handleRecordXpEvent = (event: Omit<XpEvent, 'id'>) => {
-    const newEvent: XpEvent = {
-      id: `xp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      ...event,
+  // Quest Management
+  const handleAddQuest = (newQuestData: Omit<Quest, 'id' | 'createdAt'>) => {
+    const newQuest: Quest = {
+      ...newQuestData,
+      id: `quest-${Date.now()}`,
+      createdAt: getTodayLocalDateStr(),
     };
-    setXpEvents(prev => [...prev, newEvent]);
+    setQuests(prev => [newQuest, ...prev]);
+  };
+
+  const handleUpdateQuest = (updated: Quest) => {
+    setQuests(prev => prev.map(q => (q.id === updated.id ? updated : q)));
+  };
+
+  const handleDeleteQuest = (questId: string) => {
+    // Soft delete
+    setQuests(prev =>
+      prev.map(q => (q.id === questId ? { ...q, deletedAt: new Date().toISOString() } : q))
+    );
+  };
+
+  const handleAddEvidence = (questId: string, type: EvidenceType, content: string) => {
+    const newEv: QuestEvidence = {
+      id: `ev-${Date.now()}`,
+      questId,
+      type,
+      content,
+      addedAt: getTodayLocalDateStr(),
+    };
+    setQuestEvidence(prev => [newEv, ...prev]);
+  };
+
+  const handleDeleteEvidence = (evidenceId: string) => {
+    setQuestEvidence(prev => prev.filter(e => e.id !== evidenceId));
+    sfx.playClick();
+  };
+
+  // Quest Completion with XP Logging and Wishlist Milestone Prompt
+  const handleCompleteQuest = (quest: Quest) => {
+    const completedDate = getTodayLocalDateStr();
+    const updated: Quest = {
+      ...quest,
+      status: 'done',
+      completedAt: completedDate,
+    };
+    handleUpdateQuest(updated);
+
+    // Write append-only XP event
+    const points = getQuestXp(quest.difficulty);
+    handleRecordXpEvent({
+      action: `Quest Complete: ${quest.title}`,
+      pillar: quest.pillar,
+      points,
+      date: selectedDate,
+      refId: `quest-${quest.id}`,
+    });
+
+    sfx.playRunicHarmonic();
+
+    // Check if linked to a wishlist item
+    if (quest.linkedItemId) {
+      const linkedItem = items.find(i => i.id === quest.linkedItemId);
+      if (linkedItem && linkedItem.ownershipStatus === 'wishlist') {
+        setWishlistPromptItem(linkedItem);
+      }
+    }
+  };
+
+  // Quest Reopen from Done with Negative Append-Only XP Event
+  const handleReopenQuest = (quest: Quest) => {
+    const updated: Quest = {
+      ...quest,
+      status: 'todo',
+      completedAt: undefined,
+    };
+    handleUpdateQuest(updated);
+
+    // Reopening reverses XP by writing a negative event, so log stays append-only
+    const points = getQuestXp(quest.difficulty);
+    handleRecordXpEvent({
+      action: `Quest Reopened: ${quest.title}`,
+      pillar: quest.pillar,
+      points: -points,
+      date: selectedDate,
+      refId: `quest-${quest.id}-reopened`,
+    });
+
+    sfx.playClick();
   };
 
   // Update specific day's records
@@ -399,6 +507,8 @@ export const App: React.FC = () => {
           setSavedLoadouts(loadSavedLoadouts());
           setXpEvents(loadXpEvents());
           setSettings(loadSettings());
+          setQuests(loadQuests());
+          setQuestEvidence(loadQuestEvidence());
           sfx.playRunicHarmonic();
           alert('Vessel state successfully restored.');
         } else {
@@ -427,6 +537,7 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         totalItemsCount={items.length}
         ownedCount={ownedCount}
+        openQuestsCount={openQuestsCount}
         equippedCount={equippedItems.length}
         currentEncumbrance={carriedWeight}
         totalGoldValue={vaultValuation}
@@ -446,11 +557,13 @@ export const App: React.FC = () => {
           onShiftDate={handleShiftDate}
           onResetToday={handleResetToday}
           onOpenAddItem={() => setIsAddItemOpen(true)}
+          onOpenAddQuest={() => setIsAddQuestOpen(true)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           items={items}
           habits={habits}
           skills={skills}
+          quests={quests}
           onSelectTab={setActiveTab}
           onInspectItem={setInspectedItem}
           settings={settings}
@@ -494,17 +607,6 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'codex' && (
-              <CharacterCodex
-                profile={profile}
-                skills={skills}
-                dayRecords={dayRecords}
-                xpEvents={xpEvents}
-                onUnlockSkill={handleUnlockSkill}
-                onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
-              />
-            )}
-
             {activeTab === 'rituals' && (
               <DailyRituals
                 dayRecords={dayRecords}
@@ -515,6 +617,37 @@ export const App: React.FC = () => {
                 onAddHabit={handleAddHabit}
                 onDeleteHabit={handleDeleteHabit}
                 onRecordXpEvent={handleRecordXpEvent}
+                quests={quests}
+                onNavigateToQuests={() => setActiveTab('quests')}
+                onCompleteQuest={handleCompleteQuest}
+              />
+            )}
+
+            {activeTab === 'quests' && (
+              <QuestsView
+                quests={quests}
+                evidence={questEvidence}
+                items={items}
+                onAddQuest={handleAddQuest}
+                onUpdateQuest={handleUpdateQuest}
+                onDeleteQuest={handleDeleteQuest}
+                onAddEvidence={handleAddEvidence}
+                onDeleteEvidence={handleDeleteEvidence}
+                onCompleteQuest={handleCompleteQuest}
+                onReopenQuest={handleReopenQuest}
+                isAddModalOpen={isAddQuestOpen}
+                onCloseAddModal={() => setIsAddQuestOpen(false)}
+              />
+            )}
+
+            {activeTab === 'codex' && (
+              <CharacterCodex
+                profile={profile}
+                skills={skills}
+                dayRecords={dayRecords}
+                xpEvents={xpEvents}
+                onUnlockSkill={handleUnlockSkill}
+                onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
               />
             )}
           </div>
@@ -540,6 +673,69 @@ export const App: React.FC = () => {
         onAddItem={handleAddItem}
         currencySymbol={settings.currencySymbol || '$'}
       />
+
+      {/* Wishlist Claim Confirmation Modal */}
+      {wishlistPromptItem && (
+        <div
+          onClick={() => setWishlistPromptItem(null)}
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white border border-[#ECECF0] rounded-2xl shadow-xl p-6 cursor-default animate-in fade-in zoom-in-95"
+          >
+            <div className="flex items-center gap-3 pb-3 border-b border-[#ECECF0]">
+              <div className="w-10 h-10 rounded-xl bg-[#E6F7F9] border border-[#BCE7EB] flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5 text-[#0891B2]" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-[#111113]">Milestone Quest Completed!</h3>
+                <span className="text-xs text-[#0891B2] font-medium">Linked Possession Unlocked</span>
+              </div>
+            </div>
+
+            <div className="py-4 space-y-2">
+              <p className="text-xs text-[#6B6B76] leading-relaxed">
+                You successfully achieved the objective linked to your wishlist item <strong className="text-[#111113]">{wishlistPromptItem.name}</strong>.
+              </p>
+              <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-[#111113] block">{wishlistPromptItem.name}</span>
+                  <span className="text-[11px] text-[#9A9AA5]">{wishlistPromptItem.subCategory}</span>
+                </div>
+                <span className="text-xs font-semibold text-[#0891B2]">
+                  {settings.currencySymbol}{wishlistPromptItem.targetPrice || wishlistPromptItem.goldValue}
+                </span>
+              </div>
+              <p className="text-xs font-medium text-[#111113]">
+                Would you like to mark this item as currently owned in your Vault?
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-[#ECECF0] flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setWishlistPromptItem(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+              >
+                Keep on Wishlist
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleChangeStatus(wishlistPromptItem, 'owned');
+                  setWishlistPromptItem(null);
+                  sfx.playRunicHarmonic();
+                }}
+                className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Mark Item as Owned</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

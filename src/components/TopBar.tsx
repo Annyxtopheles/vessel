@@ -1,22 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Settings, X, Package, CheckSquare, Target, Check } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Settings, X, Package, CheckSquare, Target, Check, Compass } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { formatHumanDate, getTodayLocalDateStr } from '../utils/date';
-import type { InventoryItem, CustomHabit, SkillNode, AppSettings } from '../types';
+import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest } from '../types';
 
 interface TopBarProps {
-  activeTab: 'rituals' | 'inventory' | 'codex';
+  activeTab: 'rituals' | 'inventory' | 'quests' | 'codex';
   selectedDate: string;
   onShiftDate: (delta: number) => void;
   onResetToday: () => void;
   onOpenAddItem: () => void;
+  onOpenAddQuest?: () => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
   items?: InventoryItem[];
   habits?: CustomHabit[];
   skills?: SkillNode[];
-  onSelectTab?: (tab: 'inventory' | 'rituals' | 'codex') => void;
+  quests?: Quest[];
+  onSelectTab?: (tab: 'inventory' | 'rituals' | 'quests' | 'codex') => void;
   onInspectItem?: (item: InventoryItem) => void;
+  onSelectQuest?: (quest: Quest) => void;
   settings?: AppSettings;
   onUpdateSettings?: (updated: Partial<AppSettings>) => void;
 }
@@ -27,13 +30,16 @@ export const TopBar: React.FC<TopBarProps> = ({
   onShiftDate,
   onResetToday,
   onOpenAddItem,
+  onOpenAddQuest,
   searchQuery = '',
   onSearchChange,
   items = [],
   habits = [],
   skills = [],
+  quests = [],
   onSelectTab,
   onInspectItem,
+  onSelectQuest,
   settings = { currencySymbol: '$', maxEncumbranceKg: 12.0 },
   onUpdateSettings,
 }) => {
@@ -62,7 +68,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const tabConfig: Record<'rituals' | 'inventory' | 'codex', { breadcrumb: string; title: string }> = {
+  const tabConfig: Record<'rituals' | 'inventory' | 'quests' | 'codex', { breadcrumb: string; title: string }> = {
     inventory: {
       breadcrumb: 'Personal Inventory / Wardrobe & Relics',
       title: 'Life Inventory',
@@ -70,6 +76,10 @@ export const TopBar: React.FC<TopBarProps> = ({
     rituals: {
       breadcrumb: 'Daily Practice / Circadian Anchors',
       title: 'Daily Cadence',
+    },
+    quests: {
+      breadcrumb: 'Tactical Objectives / Actionable Milestones',
+      title: 'Active Quests',
     },
     codex: {
       breadcrumb: 'Character System / Four Life Pillars',
@@ -98,6 +108,15 @@ export const TopBar: React.FC<TopBarProps> = ({
       ).slice(0, 3)
     : [];
 
+  const matchingQuests = cleanQ
+    ? quests.filter(
+        q =>
+          !q.deletedAt &&
+          (q.title.toLowerCase().includes(cleanQ) ||
+           q.description.toLowerCase().includes(cleanQ))
+      ).slice(0, 3)
+    : [];
+
   const matchingSkills = cleanQ
     ? skills.filter(
         s =>
@@ -108,7 +127,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     : [];
 
   const hasSearchResults = cleanQ.length > 0;
-  const totalResults = matchingItems.length + matchingHabits.length + matchingSkills.length;
+  const totalResults = matchingItems.length + matchingHabits.length + matchingQuests.length + matchingSkills.length;
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,6 +286,42 @@ export const TopBar: React.FC<TopBarProps> = ({
                       </div>
                     )}
 
+                    {/* Quests Section */}
+                    {matchingQuests.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-[#9A9AA5] px-2.5 py-1 flex items-center gap-1.5">
+                          <Compass className="w-3.5 h-3.5 text-[#0891B2]" />
+                          <span>Quests ({matchingQuests.length})</span>
+                        </div>
+                        <div className="space-y-1 mt-1">
+                          {matchingQuests.map(quest => (
+                            <button
+                              key={quest.id}
+                              onClick={() => {
+                                sfx.playClick();
+                                setIsSearchFocused(false);
+                                if (onSelectTab) onSelectTab('quests');
+                                if (onSelectQuest) onSelectQuest(quest);
+                              }}
+                              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl hover:bg-[#F4F4F6] text-left transition-colors cursor-pointer"
+                            >
+                              <div className="truncate mr-2">
+                                <span className="text-sm font-semibold text-[#111113] block truncate">
+                                  {quest.title}
+                                </span>
+                                <span className="text-xs text-[#6B6B76] truncate block">
+                                  {quest.description}
+                                </span>
+                              </div>
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#E6F7F9] text-[#0891B2]">
+                                {quest.difficulty}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Codex Section */}
                     {matchingSkills.length > 0 && (
                       <div>
@@ -331,6 +386,19 @@ export const TopBar: React.FC<TopBarProps> = ({
           >
             <Plus className="w-4 h-4" />
             <span>Add Item</span>
+          </button>
+        )}
+
+        {activeTab === 'quests' && onOpenAddQuest && (
+          <button
+            onClick={() => {
+              sfx.playClick();
+              onOpenAddQuest();
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Quest</span>
           </button>
         )}
       </div>

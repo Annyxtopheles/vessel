@@ -35,6 +35,15 @@ export const XP_QUEST_DIFFICULTY = {
   EPIC: 400,
 } as const;
 
+export function getQuestXp(difficulty: 'Easy' | 'Medium' | 'Hard'): number {
+  switch (difficulty) {
+    case 'Easy': return XP_QUEST_DIFFICULTY.EASY;
+    case 'Medium': return XP_QUEST_DIFFICULTY.MEDIUM;
+    case 'Hard': return XP_QUEST_DIFFICULTY.HARD;
+    default: return 50;
+  }
+}
+
 /**
  * Cumulative XP thresholds per pillar level (1 through 15).
  * Calibrated so normal daily use advances pillars harmoniously:

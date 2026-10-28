@@ -4,6 +4,7 @@ import {
   CalendarCheck2, 
   Package, 
   Target, 
+  Compass,
   Volume2, 
   VolumeX, 
   Download, 
@@ -13,10 +14,11 @@ import { sfx } from '../utils/audio';
 
 interface SidebarProps {
   profile: CharacterProfile;
-  activeTab: 'rituals' | 'inventory' | 'codex';
-  setActiveTab: (tab: 'rituals' | 'inventory' | 'codex') => void;
+  activeTab: 'rituals' | 'inventory' | 'quests' | 'codex';
+  setActiveTab: (tab: 'rituals' | 'inventory' | 'quests' | 'codex') => void;
   totalItemsCount: number;
   ownedCount?: number;
+  openQuestsCount?: number;
   equippedCount: number;
   currentEncumbrance: number;
   totalGoldValue: number;
@@ -33,6 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   totalItemsCount,
   ownedCount,
+  openQuestsCount = 0,
   isMuted,
   setIsMuted,
   onExport,
@@ -50,6 +53,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Daily Cadence',
       icon: CalendarCheck2,
       badge: `${profile.streaks.salahStreak}d`,
+    },
+    {
+      id: 'quests' as const,
+      label: 'Quests',
+      icon: Compass,
+      badge: `${openQuestsCount}`,
     },
     {
       id: 'codex' as const,

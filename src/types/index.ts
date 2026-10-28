@@ -153,3 +153,32 @@ export interface CharacterProfile {
     craftStreak: number;
   };
 }
+
+export type QuestStatus = 'todo' | 'doing' | 'done';
+export type QuestDifficulty = 'Easy' | 'Medium' | 'Hard';
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  status: QuestStatus;
+  pillar: AttributeType;
+  difficulty: QuestDifficulty;
+  dueDate?: string; // YYYY-MM-DD
+  evidenceRequired: boolean;
+  linkedItemId?: string;
+  createdAt: string;
+  completedAt?: string;
+  deletedAt?: string; // soft delete
+}
+
+export type EvidenceType = 'photo' | 'link' | 'note' | 'file';
+
+export interface QuestEvidence {
+  id: string;
+  questId: string;
+  type: EvidenceType;
+  content: string;
+  addedAt: string;
+}
+

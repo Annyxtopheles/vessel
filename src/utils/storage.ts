@@ -8,6 +8,8 @@ import type {
   SavedLoadout,
   XpEvent,
   AppSettings,
+  Quest,
+  QuestEvidence,
 } from '../types';
 import {
   INITIAL_ITEMS,
@@ -28,7 +30,69 @@ const STORAGE_KEYS = {
   LOADOUTS: 'vessel_saved_loadouts_v1',
   XP_EVENTS: 'vessel_xp_events_v1',
   SETTINGS: 'vessel_app_settings_v1',
+  QUESTS: 'vessel_quests_v1',
+  QUEST_EVIDENCE: 'vessel_quest_evidence_v1',
 };
+
+export const INITIAL_QUESTS: Quest[] = [
+  {
+    id: 'quest-1',
+    title: 'Benchpress Bodyweight Milestone',
+    description: 'Achieve a clean single repetition of bodyweight (75 kg) with paused form.',
+    status: 'doing',
+    pillar: 'STR',
+    difficulty: 'Hard',
+    dueDate: '2026-11-05',
+    evidenceRequired: true,
+    linkedItemId: 'item-wish-1',
+    createdAt: '2026-10-20',
+  },
+  {
+    id: 'quest-2',
+    title: 'Audit & Refactor Event Bus Architecture',
+    description: 'Replace polling listeners with decoupled event-driven reactive stores.',
+    status: 'todo',
+    pillar: 'INT',
+    difficulty: 'Medium',
+    dueDate: '2026-10-30',
+    evidenceRequired: false,
+    createdAt: '2026-10-24',
+  },
+  {
+    id: 'quest-3',
+    title: 'Memorize Surah Al-Mulk with Tajweed',
+    description: 'Commit all 30 verses of the protective Surah to daily recitation memory.',
+    status: 'doing',
+    pillar: 'WIS',
+    difficulty: 'Hard',
+    dueDate: '2026-11-15',
+    evidenceRequired: true,
+    linkedItemId: 'item-wish-2',
+    createdAt: '2026-10-18',
+  },
+  {
+    id: 'quest-4',
+    title: 'Conduct Q4 Architecture Onboarding',
+    description: 'Pair with 2 engineering apprentices to walk through state machines.',
+    status: 'done',
+    pillar: 'CHA',
+    difficulty: 'Easy',
+    dueDate: '2026-10-27',
+    evidenceRequired: false,
+    createdAt: '2026-10-22',
+    completedAt: '2026-10-27',
+  },
+];
+
+export const INITIAL_QUEST_EVIDENCE: QuestEvidence[] = [
+  {
+    id: 'ev-1',
+    questId: 'quest-1',
+    type: 'note',
+    content: 'Hit 70kg for 3 reps comfortably on Tuesday. Will test 75kg next session.',
+    addedAt: '2026-10-25',
+  },
+];
 
 export const DEFAULT_SETTINGS: AppSettings = {
   currencySymbol: '$',
@@ -421,9 +485,49 @@ export function saveSettings(settings: AppSettings): void {
   }
 }
 
+export function loadQuests(): Quest[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.QUESTS);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load quests', err);
+  }
+  saveQuests(INITIAL_QUESTS);
+  return INITIAL_QUESTS;
+}
+
+export function saveQuests(quests: Quest[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.QUESTS, JSON.stringify(quests));
+  } catch (err) {
+    console.error('Failed to save quests', err);
+  }
+}
+
+export function loadQuestEvidence(): QuestEvidence[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.QUEST_EVIDENCE);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load quest evidence', err);
+  }
+  saveQuestEvidence(INITIAL_QUESTEVIDENCE_FALLBACK);
+  return INITIAL_QUESTEVIDENCE_FALLBACK;
+}
+
+const INITIAL_QUESTEVIDENCE_FALLBACK = INITIAL_QUEST_EVIDENCE;
+
+export function saveQuestEvidence(evidence: QuestEvidence[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.QUEST_EVIDENCE, JSON.stringify(evidence));
+  } catch (err) {
+    console.error('Failed to save quest evidence', err);
+  }
+}
+
 export function exportSaveFile(): string {
   const data = {
-    version: '3.0',
+    version: '3.1',
     exportedAt: new Date().toISOString(),
     profile: loadProfile(),
     items: loadItems(),
@@ -434,6 +538,8 @@ export function exportSaveFile(): string {
     savedLoadouts: loadSavedLoadouts(),
     xpEvents: loadXpEvents(),
     settings: loadSettings(),
+    quests: loadQuests(),
+    questEvidence: loadQuestEvidence(),
   };
   return JSON.stringify(data, null, 2);
 }
@@ -451,6 +557,8 @@ export function importSaveFile(jsonString: string): boolean {
       if (parsed.savedLoadouts) saveSavedLoadouts(parsed.savedLoadouts);
       if (parsed.xpEvents) saveXpEvents(parsed.xpEvents);
       if (parsed.settings) saveSettings(parsed.settings);
+      if (parsed.quests) saveQuests(parsed.quests);
+      if (parsed.questEvidence) saveQuestEvidence(parsed.questEvidence);
       return true;
     }
   } catch (err) {
