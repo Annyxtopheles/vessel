@@ -14,9 +14,11 @@
     --text-secondary: #6B6B76;
     --text-tertiary: #9A9AA5;
 
-    --accent-violet: #7C6CF0;
-    --accent-violet-tint: #EDEAFD;
-    --accent-violet-hover: #6B5AE0;
+    /* Celeste / Cyan Accent (between blue and green) */
+    --accent-celeste: #0891B2;
+    --accent-celeste-hover: #0E7490;
+    --accent-celeste-tint: #E6F7F9;
+    --accent-celeste-border: #BCE7EB;
 
     --semantic-success: #16A34A;
     --semantic-success-tint: #E6F6EC;
@@ -58,7 +60,7 @@
   }
 }
 
-/* ShipNow Base Components */
+/* Base Vessel Cards & Components */
 .ship-card {
   background-color: #FFFFFF;
   border: 1px solid #ECECF0;
@@ -70,8 +72,8 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background-color: #EDEAFD;
-  color: #7C6CF0;
+  background-color: #E6F7F9;
+  color: #0891B2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,13 +102,27 @@
 }
 
 .ship-pill-accent {
-  background-color: #EDEAFD;
-  color: #7C6CF0;
+  background-color: #E6F7F9;
+  color: #0891B2;
 }
 
 .ship-pill-neutral {
   background-color: #F4F4F6;
   color: #6B6B76;
+}
+
+/* Primary Celeste Button */
+.ship-btn-primary {
+  background-color: #0891B2;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(8, 145, 178, 0.12);
+}
+
+.ship-btn-primary:hover {
+  background-color: #0E7490;
 }
 
 /* Input / Field styling */
@@ -122,8 +138,8 @@
 
 .ship-input:focus {
   outline: none;
-  border-color: #7C6CF0;
-  box-shadow: 0 0 0 3px rgba(124, 108, 240, 0.12);
+  border-color: #0891B2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.14);
 }
 
 .ship-input::placeholder {

@@ -91,7 +91,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   sfx.playClick();
                   onResetToday();
                 }}
-                className="ml-1 px-2.5 py-1 rounded-lg text-xs bg-white text-[#7C6CF0] font-semibold shadow-xs"
+                className="ml-1 px-2.5 py-1 rounded-lg text-xs bg-white text-[#0891B2] font-semibold shadow-xs"
               >
                 Today
               </button>
@@ -120,7 +120,7 @@ export const TopBar: React.FC<TopBarProps> = ({
               sfx.playClick();
               onOpenAddItem();
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C6CF0] hover:bg-[#6B5AE0] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Item</span>

@@ -176,7 +176,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             ) : (
               <button
                 onClick={handleSaveEdits}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#7C6CF0] hover:bg-[#6A58E8] text-white text-[12px] font-semibold transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0891B2] hover:bg-[#0E7490] text-white text-[12px] font-semibold transition-colors"
               >
                 <Check className="w-3.5 h-3.5" /> Save
               </button>
@@ -309,7 +309,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       className="ship-input flex-1 px-3 py-2 text-[13px]"
                     />
                     <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] text-[#111113] hover:bg-[#EAEAEF] transition-colors font-medium">
-                      <Upload className="w-3.5 h-3.5 text-[#7C6CF0]" />
+                      <Upload className="w-3.5 h-3.5 text-[#0891B2]" />
                       <span>Upload</span>
                       <input
                         type="file"
@@ -347,7 +347,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <span className="ship-pill-success text-[12px]">● Owned</span>
                   )}
                   {currentStatus === 'wishlist' && (
-                    <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] text-[12px] font-medium">● Wishlist</span>
+                    <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] text-[12px] font-medium">● Wishlist</span>
                   )}
                   {currentStatus === 'past' && (
                     <span className="ship-pill bg-[#ECECF0] text-[#6B6B76] text-[12px] font-medium">
@@ -399,8 +399,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Wishlist Goal if wishlist */}
                 {currentStatus === 'wishlist' && (
-                  <div className="mb-4 p-3.5 rounded-xl bg-[#EDEAFD] border border-[#7C6CF0]/30 text-[13px]">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#7C6CF0] mb-1">
+                  <div className="mb-4 p-3.5 rounded-xl bg-[#E6F7F9] border border-[#0891B2]/30 text-[13px]">
+                    <div className="flex items-center gap-1.5 font-semibold text-[#0891B2] mb-1">
                       <Lock className="w-3.5 h-3.5" /> Acquisition Milestone Goal
                     </div>
                     <p className="text-[#111113]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
@@ -429,7 +429,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {item.buffs.map((buff, i) => (
                       <div key={i} className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between text-[13px]">
                         <span className="text-[#6B6B76]">{buff.label}</span>
-                        <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] font-semibold text-[12px]">
+                        <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-semibold text-[12px]">
                           +{buff.value} {FULL_MODIFIER_NAMES[buff.stat] || buff.stat}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                       <button
                         onClick={() => handleSetPast(selectedPastReason)}
-                        className="px-3 py-1 rounded-xl bg-[#7C6CF0] text-white text-[13px] font-medium hover:bg-[#6A58E8] transition-colors"
+                        className="px-3 py-1 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors"
                       >
                         Confirm Archive
                       </button>
@@ -549,7 +549,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all ${
                   item.isEquipped
                     ? 'bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8]'
-                    : 'bg-[#7C6CF0] hover:bg-[#6A58E8] text-white'
+                    : 'bg-[#0891B2] hover:bg-[#0E7490] text-white'
                 }`}
               >
                 {item.isEquipped ? 'Unequip from Loadout' : 'Equip to Loadout'}

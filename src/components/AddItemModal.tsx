@@ -153,11 +153,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-[13px] transition-all ${
                     ownershipStatus === 'owned'
-                      ? 'bg-[#EDEAFD] border-[#7C6CF0] text-[#7C6CF0] font-semibold'
+                      ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2] font-semibold'
                       : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
                   }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 mb-1 text-[#7C6CF0]" />
+                  <CheckCircle2 className="w-4 h-4 mb-1 text-[#0891B2]" />
                   <span>Currently Own</span>
                   <span className="text-[11px] text-[#9A9AA5]">Active item</span>
                 </button>
@@ -170,11 +170,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-[13px] transition-all ${
                     ownershipStatus === 'wishlist'
-                      ? 'bg-[#EDEAFD] border-[#7C6CF0] text-[#7C6CF0] font-semibold'
+                      ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2] font-semibold'
                       : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
                   }`}
                 >
-                  <Lock className="w-4 h-4 mb-1 text-[#7C6CF0]" />
+                  <Lock className="w-4 h-4 mb-1 text-[#0891B2]" />
                   <span>Wish to Own</span>
                   <span className="text-[11px] text-[#9A9AA5]">Milestone goal</span>
                 </button>
@@ -187,11 +187,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-[13px] transition-all ${
                     ownershipStatus === 'past'
-                      ? 'bg-[#EDEAFD] border-[#7C6CF0] text-[#7C6CF0] font-semibold'
+                      ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2] font-semibold'
                       : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
                   }`}
                 >
-                  <Archive className="w-4 h-4 mb-1 text-[#7C6CF0]" />
+                  <Archive className="w-4 h-4 mb-1 text-[#0891B2]" />
                   <span>Used to Own</span>
                   <span className="text-[11px] text-[#9A9AA5]">Parted with</span>
                 </button>
@@ -420,7 +420,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                       setColorHex(col.hex);
                     }}
                     className={`w-7 h-7 rounded-full border transition-all ${
-                      colorHex === col.hex ? 'ring-2 ring-[#7C6CF0] ring-offset-2 scale-110' : 'border-black/10'
+                      colorHex === col.hex ? 'ring-2 ring-[#0891B2] ring-offset-2 scale-110' : 'border-black/10'
                     }`}
                     style={{ backgroundColor: col.hex }}
                     title={col.name}
@@ -452,7 +452,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 <button
                   type="button"
                   onClick={handleAddBuff}
-                  className="text-[13px] font-medium text-[#7C6CF0] hover:underline"
+                  className="text-[13px] font-medium text-[#0891B2] hover:underline"
                 >
                   + Add Modifier
                 </button>
@@ -516,7 +516,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-[#7C6CF0] hover:bg-[#6A58E8] text-white text-[13px] font-semibold transition-all shadow-xs"
+                className="px-5 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-[13px] font-semibold transition-all shadow-xs"
               >
                 Register Possession
               </button>

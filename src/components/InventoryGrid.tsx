@@ -247,7 +247,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   sfx.playClick();
                   onInspectItem(item);
                 }}
-                className="ship-card overflow-hidden group hover:border-[#7C6CF0]/50 transition-all flex flex-col justify-between cursor-pointer"
+                className="ship-card overflow-hidden group hover:border-[#0891B2]/50 transition-all flex flex-col justify-between cursor-pointer"
               >
                 <div>
                   {/* Consistent Image Area (aspect 4/3, #F4F4F6 background, object-cover) */}
@@ -276,7 +276,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         style={{ backgroundColor: dotColor }}
                         title={`Rarity: ${rarityLabel}`}
                       />
-                      <h3 className="text-[15px] font-semibold text-[#111113] group-hover:text-[#7C6CF0] transition-colors truncate">
+                      <h3 className="text-[15px] font-semibold text-[#111113] group-hover:text-[#0891B2] transition-colors truncate">
                         {item.name}
                       </h3>
                     </div>
@@ -289,7 +289,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     {/* ONE Status Pill */}
                     <div className="mt-3">
                       {status === 'wishlist' ? (
-                        <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] inline-flex items-center gap-1.5 text-[12px] font-medium">
+                        <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] inline-flex items-center gap-1.5 text-[12px] font-medium">
                           <Lock className="w-3 h-3" /> Wish to Own
                         </span>
                       ) : status === 'past' ? (
@@ -346,7 +346,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         className={`opacity-0 group-hover:opacity-100 transition-all text-[12px] px-2.5 py-1 rounded-lg font-medium ${
                           item.isEquipped
                             ? 'bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8]'
-                            : 'bg-[#EDEAFD] text-[#7C6CF0] hover:bg-[#DFDAFB]'
+                            : 'bg-[#E6F7F9] text-[#0891B2] hover:bg-[#D4F1F5]'
                         }`}
                       >
                         {item.isEquipped ? 'Unequip' : 'Equip'}

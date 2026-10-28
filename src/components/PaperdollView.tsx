@@ -94,7 +94,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-normal text-[#6B6B76]">Carry Load</span>
             <div className="ship-icon-tile">
-              <Scale className="w-5 h-5 text-[#7C6CF0]" />
+              <Scale className="w-5 h-5 text-[#0891B2]" />
             </div>
           </div>
           <div className="mt-4">
@@ -105,7 +105,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
             <div className="w-full bg-[#ECECF0] h-1.5 rounded-full overflow-hidden mt-3">
               <div
                 className={`h-full rounded-full transition-all duration-300 ${
-                  encumbrancePercent > 90 ? 'bg-[#DC2626]' : 'bg-[#7C6CF0]'
+                  encumbrancePercent > 90 ? 'bg-[#DC2626]' : 'bg-[#0891B2]'
                 }`}
                 style={{ width: `${encumbrancePercent}%` }}
               />
@@ -118,7 +118,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-normal text-[#6B6B76]">Equipped Slots</span>
             <div className="ship-icon-tile">
-              <Shirt className="w-5 h-5 text-[#7C6CF0]" />
+              <Shirt className="w-5 h-5 text-[#0891B2]" />
             </div>
           </div>
           <div className="mt-4">
@@ -138,7 +138,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-normal text-[#6B6B76]">Vault Valuation</span>
             <div className="ship-icon-tile">
-              <DollarSign className="w-5 h-5 text-[#7C6CF0]" />
+              <DollarSign className="w-5 h-5 text-[#0891B2]" />
             </div>
           </div>
           <div className="mt-4">
@@ -156,7 +156,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-normal text-[#6B6B76]">Total Possessions</span>
             <div className="ship-icon-tile">
-              <Package className="w-5 h-5 text-[#7C6CF0]" />
+              <Package className="w-5 h-5 text-[#0891B2]" />
             </div>
           </div>
           <div className="mt-4">
@@ -182,7 +182,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] font-medium text-[12px]">
+            <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-medium text-[12px]">
               {equippedItems.length} / 8 slots active
             </span>
             <button
@@ -219,7 +219,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
                     key={slot}
                     className={`p-3 rounded-xl border transition-all text-left flex items-center gap-3 ${
                       item
-                        ? 'bg-white border-[#ECECF0] hover:border-[#7C6CF0]/40'
+                        ? 'bg-white border-[#ECECF0] hover:border-[#0891B2]/40'
                         : 'bg-[#F4F4F6]/50 border-dashed border-[#ECECF0]'
                     }`}
                   >
@@ -247,7 +247,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
                                 sfx.playClick();
                                 onInspectItem(item);
                               }}
-                              className="font-medium text-[13px] text-[#111113] hover:text-[#7C6CF0] transition-colors truncate text-left"
+                              className="font-medium text-[13px] text-[#111113] hover:text-[#0891B2] transition-colors truncate text-left"
                               title={item.name}
                             >
                               {item.name}

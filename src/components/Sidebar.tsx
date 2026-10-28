@@ -98,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center gap-1.5 pt-1">
                 <button
                   onClick={handleSaveProfile}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#7C6CF0] hover:bg-[#6B5AE0] text-white text-xs font-semibold shadow-xs"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0891B2] hover:bg-[#0E7490] text-white text-xs font-semibold shadow-xs"
                 >
                   <Check className="w-3.5 h-3.5" /> Save
                 </button>
@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#EDEAFD] text-[#7C6CF0] font-bold text-sm flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#E6F7F9] text-[#0891B2] font-bold text-sm flex items-center justify-center flex-shrink-0">
                   SZ
                 </div>
                 <div className="min-w-0">
@@ -160,17 +160,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-[#EDEAFD] text-[#7C6CF0] font-semibold'
+                    ? 'bg-[#E6F7F9] text-[#0891B2] font-semibold'
                     : 'text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#111113]'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-[#7C6CF0]' : 'text-[#6B6B76]'}`} />
+                  <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-[#0891B2]' : 'text-[#6B6B76]'}`} />
                   <span>{item.label}</span>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   isActive 
-                    ? 'bg-white text-[#7C6CF0] shadow-xs' 
+                    ? 'bg-white text-[#0891B2] shadow-xs' 
                     : 'bg-[#F4F4F6] text-[#9A9AA5]'
                 }`}>
                   {item.badge}
