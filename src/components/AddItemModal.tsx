@@ -167,11 +167,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-mono transition-all ${
                   ownershipStatus === 'wishlist'
-                    ? 'bg-[#161822] border-[#d8b46b] text-[#d8b46b]'
+                    ? 'bg-[#161824] border-[#383d57] text-[#818cf8]'
                     : 'bg-[#0d0e12] border-[#20232c] text-[#8a8f98] hover:text-[#f3f4f6]'
                 }`}
               >
-                <Lock className="w-4 h-4 mb-1 text-[#d8b46b]" />
+                <Lock className="w-4 h-4 mb-1 text-[#818cf8]" />
                 <span className="font-semibold">Wish to Own</span>
                 <span className="text-[10px] text-[#8a8f98]">Milestone goal</span>
               </button>
@@ -206,7 +206,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 value={lockRequirement}
                 onChange={(e) => setLockRequirement(e.target.value)}
                 placeholder="e.g. 30-day Salah streak, Ship client MVP, Reach Level 10..."
-                className="w-full px-3 py-1.5 bg-[#12141a] border border-[#20232c] rounded text-xs text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#d8b46b]"
+                className="w-full px-3 py-1.5 bg-[#12141a] border border-[#20232c] rounded text-xs text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#5e6ad2]"
               />
             </div>
           )}
@@ -255,7 +255,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Linen Overshirt, Sony XM5, Leather Notebook..."
-              className="w-full px-3 py-2 bg-[#0d0e12] border border-[#20232c] rounded-lg text-sm text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#d8b46b]"
+              className="w-full px-3 py-2 bg-[#0d0e12] border border-[#20232c] rounded-lg text-sm text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#5e6ad2]"
             />
           </div>
 
@@ -268,7 +268,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/... or upload"
-                className="flex-1 px-3 py-1.5 bg-[#0d0e12] border border-[#20232c] rounded-lg text-xs text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#d8b46b]"
+                className="flex-1 px-3 py-1.5 bg-[#0d0e12] border border-[#20232c] rounded-lg text-xs text-[#f3f4f6] placeholder-[#555a66] focus:outline-none focus:border-[#5e6ad2]"
               />
               <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161822] border border-[#20232c] text-xs font-mono text-[#8a8f98] hover:text-[#f3f4f6] hover:bg-[#202330] transition-colors">
                 <Upload className="w-3.5 h-3.5" />
@@ -449,7 +449,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               <button
                 type="button"
                 onClick={handleAddBuff}
-                className="text-xs font-mono text-[#d8b46b] hover:text-[#c5a059]"
+                className="text-xs font-mono text-[#818cf8] hover:text-[#a5b4fc]"
               >
                 + Add Modifier
               </button>
@@ -512,7 +512,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-[#d8b46b] hover:bg-[#c5a059] text-[#0d0e12] text-xs font-semibold shadow-sm transition-all"
+              className="px-4 py-2 rounded-lg bg-[#5e6ad2] hover:bg-[#4f56e9] text-white text-xs font-semibold shadow-sm transition-all"
             >
               Register Item to Vault
             </button>

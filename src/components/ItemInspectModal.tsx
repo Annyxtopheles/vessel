@@ -15,7 +15,7 @@ interface ItemInspectModalProps {
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
   pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#8ebd9b]' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#d8b46b]' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#818cf8]' },
   worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#e08279]' },
   needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#c45a4f]' },
 };
@@ -176,7 +176,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             ) : (
               <button
                 onClick={handleSaveEdits}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#d8b46b] text-[#0d0e12] text-xs font-semibold hover:bg-[#c5a059]"
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#5e6ad2] text-white text-xs font-semibold hover:bg-[#4f56e9]"
               >
                 <Check className="w-3.5 h-3.5" /> Save
               </button>
@@ -220,7 +220,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#0d0e12] border border-[#20232c] rounded-md text-sm text-[#f3f4f6] focus:outline-none focus:border-[#d8b46b]"
+                    className="w-full px-3 py-1.5 bg-[#0d0e12] border border-[#20232c] rounded-md text-sm text-[#f3f4f6] focus:outline-none focus:border-[#5e6ad2]"
                   />
                 </div>
 
@@ -394,8 +394,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Wishlist Goal if wishlist */}
                 {currentStatus === 'wishlist' && (
-                  <div className="mb-4 p-3.5 rounded-lg bg-[#0d0e12] border border-[#d8b46b]/30 text-xs">
-                    <div className="flex items-center gap-1.5 font-medium text-[#d8b46b] mb-1 font-mono uppercase tracking-wider text-[11px]">
+                  <div className="mb-4 p-3.5 rounded-lg bg-[#0d0e12] border border-[#373d57] text-xs">
+                    <div className="flex items-center gap-1.5 font-medium text-[#818cf8] mb-1 font-mono uppercase tracking-wider text-[11px]">
                       <Lock className="w-3.5 h-3.5" /> Acquisition Milestone Goal
                     </div>
                     <p className="text-[#8a8f98]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
@@ -424,7 +424,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {item.buffs.map((buff, i) => (
                       <div key={i} className="p-2 rounded-lg bg-[#0d0e12] border border-[#20232c] flex items-center justify-between text-xs">
                         <span className="text-[#8a8f98]">{buff.label}</span>
-                        <span className="linear-tag font-mono text-[#d8b46b]">
+                        <span className="linear-tag font-mono text-[#818cf8]">
                           +{buff.value} {FULL_MODIFIER_NAMES[buff.stat] || buff.stat}
                         </span>
                       </div>
@@ -544,7 +544,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                   item.isEquipped
                     ? 'bg-[#161822] hover:bg-rose-950/60 text-[#f3f4f6] hover:text-rose-300 border border-[#20232c]'
-                    : 'bg-[#d8b46b] hover:bg-[#c5a059] text-[#0d0e12] font-semibold'
+                    : 'bg-[#5e6ad2] hover:bg-[#4f56e9] text-white font-semibold'
                 }`}
               >
                 {item.isEquipped ? 'Unequip from Loadout' : 'Equip to Loadout'}

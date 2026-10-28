@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { CharacterProfile, SkillNode, AttributeType } from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
-import { Cpu, Users, Flame, Check, Lock, Sun, Target, Edit3 } from 'lucide-react';
+import { Cpu, Users, Flame, Check, Lock, Sun, Target } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface CharacterCodexProps {
@@ -30,9 +30,9 @@ const ATTRIBUTE_ACCENTS: Record<AttributeType, { text: string; bar: string; icon
     iconColor: 'text-[#85a6cf]',
   },
   WIS: {
-    text: 'text-[#d8b46b]',
-    bar: 'bg-[#d8b46b]',
-    iconColor: 'text-[#d8b46b]',
+    text: 'text-[#a5b4fc]',
+    bar: 'bg-[#6366f1]',
+    iconColor: 'text-[#a5b4fc]',
   },
   CHA: {
     text: 'text-[#8ebd9b]',
@@ -45,20 +45,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   profile,
   skills,
   onUnlockSkill,
-  onUpdateProfile,
 }) => {
   const [selectedAttr, setSelectedAttr] = useState<AttributeType | 'ALL'>('ALL');
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [nameVal, setNameVal] = useState(profile.name);
-  const [titleVal, setTitleVal] = useState(profile.title);
-
-  const handleSaveProfile = () => {
-    sfx.playClick();
-    if (onUpdateProfile && nameVal.trim()) {
-      onUpdateProfile({ name: nameVal.trim(), title: titleVal.trim() || 'Wanderer' });
-    }
-    setIsEditingProfile(false);
-  };
 
   const filteredSkills = skills.filter(
     (skill) => selectedAttr === 'ALL' || skill.attribute === selectedAttr
@@ -74,86 +62,32 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* Overview Card: Character Status & Streaks */}
+      {/* Overview Card: Four Life Pillars */}
       <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#20232c]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#20232c]">
           <div>
-            {isEditingProfile ? (
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <input
-                  type="text"
-                  value={nameVal}
-                  onChange={(e) => setNameVal(e.target.value)}
-                  placeholder="Your Name"
-                  className="px-2.5 py-1 bg-[#0d0e12] border border-[#20232c] rounded-md text-sm font-semibold text-[#f3f4f6] focus:outline-none focus:border-[#d8b46b]"
-                />
-                <input
-                  type="text"
-                  value={titleVal}
-                  onChange={(e) => setTitleVal(e.target.value)}
-                  placeholder="Character Title"
-                  className="px-2.5 py-1 bg-[#0d0e12] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
-                />
-                <button
-                  onClick={handleSaveProfile}
-                  className="px-3 py-1 bg-[#d8b46b] text-[#0d0e12] text-xs font-semibold rounded-md hover:bg-[#c5a059]"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setIsEditingProfile(false)}
-                  className="px-2.5 py-1 bg-[#161822] text-[#8a8f98] text-xs rounded-md hover:text-[#f3f4f6]"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2.5">
-                <h2 className="text-xl font-semibold text-[#f3f4f6] tracking-tight">
-                  {profile.name} — <span className="text-[#8a8f98] font-normal">{profile.title}</span>
-                </h2>
-                <button
-                  onClick={() => {
-                    setNameVal(profile.name);
-                    setTitleVal(profile.title);
-                    setIsEditingProfile(true);
-                  }}
-                  className="p-1 text-[#8a8f98] hover:text-[#f3f4f6] rounded hover:bg-[#161822] transition-colors"
-                  title="Edit character identity"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                </button>
-                <span className="linear-tag text-[#d8b46b]">
-                  Lvl {profile.level}
-                </span>
-              </div>
-            )}
-            <p className="text-xs text-[#8a8f98] mt-1">
-              Overall character progression calculated across physical, professional, spiritual, and social disciplines.
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-sm font-semibold text-[#f3f4f6] tracking-tight">
+                Four Life Pillars & Progression
+              </h2>
+              <span className="linear-tag text-[#818cf8]">
+                Level {profile.level} Master
+              </span>
+            </div>
+            <p className="text-xs text-[#8a8f98] mt-0.5">
+              Cumulative character progression calculated across physical, craft, spiritual, and social disciplines.
             </p>
           </div>
 
-          {/* Streaks Banner */}
           <div className="flex items-center gap-2">
-            <div className="px-3 py-1.5 rounded-lg bg-[#0d0e12] border border-[#20232c] text-center">
-              <span className="block text-[10px] uppercase font-mono text-[#8a8f98]">Salah Streak</span>
-              <span className="text-xs font-semibold text-[#d8b46b] font-mono">{profile.streaks.salahStreak} Days</span>
-            </div>
-
-            <div className="px-3 py-1.5 rounded-lg bg-[#0d0e12] border border-[#20232c] text-center">
-              <span className="block text-[10px] uppercase font-mono text-[#8a8f98]">Workout Streak</span>
-              <span className="text-xs font-semibold text-[#e08279] font-mono">{profile.streaks.workoutStreak} Days</span>
-            </div>
-
-            <div className="px-3 py-1.5 rounded-lg bg-[#0d0e12] border border-[#20232c] text-center">
-              <span className="block text-[10px] uppercase font-mono text-[#8a8f98]">Craft Streak</span>
-              <span className="text-xs font-semibold text-[#85a6cf] font-mono">{profile.streaks.craftStreak} Days</span>
-            </div>
+            <span className="linear-tag font-mono text-[#8a8f98]">
+              {skills.filter(s => s.unlocked).length} of {skills.length} Perks Attuned
+            </span>
           </div>
         </div>
 
         {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
           {attributesList.map(({ key, name, subtitle, desc }) => {
             const attr = profile.attributes[key];
             const accent = ATTRIBUTE_ACCENTS[key];
@@ -169,8 +103,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 }}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-[#161822] border-[#d8b46b]/60'
-                    : 'bg-[#0d0e12]/70 border-[#20232c] hover:border-[#2e323e]'
+                    ? 'bg-[#181a26] border-[#444a73]'
+                    : 'bg-[#0d0e12] border-[#20232c] hover:border-[#2e323e]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -213,10 +147,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
       </div>
 
       {/* Skills & Habit Milestones */}
-      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-6">
+      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#20232c] gap-3 mb-5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#161822] border border-[#20232c] flex items-center justify-center text-[#d8b46b]">
+            <div className="w-8 h-8 rounded-lg bg-[#161824] border border-[#262a38] flex items-center justify-center text-[#818cf8]">
               <Target className="w-4 h-4" />
             </div>
             <div>
@@ -246,7 +180,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 }}
                 className={`px-2.5 py-1 rounded text-xs font-mono transition-colors border ${
                   selectedAttr === id
-                    ? 'bg-[#1c1f29] border-[#363a49] text-[#f3f4f6]'
+                    ? 'bg-[#1e2233] border-[#373d57] text-[#c7d2fe] font-semibold'
                     : 'bg-[#0d0e12] border-[#20232c] text-[#8a8f98] hover:text-[#f3f4f6]'
                 }`}
               >
@@ -267,7 +201,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 key={skill.id}
                 className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
                   skill.unlocked
-                    ? 'bg-[#15171f] border-[#20232c]'
+                    ? 'bg-[#151722] border-[#25293d]'
                     : 'bg-[#0d0e12]/60 border-[#1c1e27] opacity-80'
                 }`}
               >
@@ -299,7 +233,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
                   <div className="p-2.5 rounded-lg bg-[#0d0e12] border border-[#20232c] mb-3 text-xs">
                     <span className="text-[#8a8f98] font-mono text-[10px] uppercase block mb-0.5">Bonus Modifier:</span>
-                    <span className="font-mono text-[#d8b46b]">{skill.bonus}</span>
+                    <span className="font-mono text-[#818cf8]">{skill.bonus}</span>
                   </div>
                 </div>
 
@@ -324,7 +258,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                         sfx.playRunicHarmonic();
                         onUnlockSkill(skill.id);
                       }}
-                      className="w-full py-1.5 rounded-lg text-xs font-medium transition-colors bg-[#161822] hover:bg-[#202330] text-[#f3f4f6] border border-[#20232c]"
+                      className="w-full py-1.5 rounded-lg text-xs font-medium transition-colors bg-[#181a26] hover:bg-[#222738] text-[#c7d2fe] border border-[#2e334a]"
                     >
                       {skill.progressPercent >= 100 ? 'Claim Perk' : 'Mark Requirement Complete'}
                     </button>

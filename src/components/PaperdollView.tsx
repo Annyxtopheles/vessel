@@ -55,7 +55,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
       {/* Header bar */}
       <div className="flex items-center justify-between pb-3 border-b border-[#20232c]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#161822] border border-[#20232c] flex items-center justify-center text-[#d8b46b]">
+          <div className="w-8 h-8 rounded-lg bg-[#161824] border border-[#262a38] flex items-center justify-center text-[#818cf8]">
             <Shirt className="w-4 h-4" />
           </div>
           <div>
@@ -92,7 +92,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
                   key={stat}
                   className="linear-tag flex items-center gap-1.5"
                 >
-                  <span className="text-[#d8b46b] font-semibold">+{val}</span>
+                  <span className="text-[#818cf8] font-semibold">+{val}</span>
                   <span className="text-[#f3f4f6]">{FULL_MODIFIER_NAMES[stat] || stat}</span>
                 </span>
               ))}
@@ -139,7 +139,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
                               sfx.playClick();
                               onInspectItem(item);
                             }}
-                            className="font-medium text-xs text-[#f3f4f6] hover:text-[#d8b46b] transition-colors truncate text-left"
+                            className="font-medium text-xs text-[#f3f4f6] hover:text-[#818cf8] transition-colors truncate text-left"
                             title={item.name}
                           >
                             {item.name}

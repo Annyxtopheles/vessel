@@ -8,8 +8,9 @@ import {
   loadHabits, saveHabits, 
   exportSaveFile, importSaveFile
 } from './utils/storage';
-import { getTodayLocalDateStr } from './utils/date';
-import { Header } from './components/Header';
+import { getTodayLocalDateStr, shiftDate } from './utils/date';
+import { Sidebar } from './components/Sidebar';
+import { TopBar } from './components/TopBar';
 import { PaperdollView } from './components/PaperdollView';
 import { InventoryGrid } from './components/InventoryGrid';
 import { ItemInspectModal } from './components/ItemInspectModal';
@@ -76,13 +77,12 @@ export const App: React.FC = () => {
     if (status !== 'owned') return;
 
     const nextEquipped = !item.isEquipped;
-
     const updatedItems = items.map(it => {
-      if (nextEquipped && item.equipSlot && it.equipSlot === item.equipSlot && it.id !== item.id) {
-        return { ...it, isEquipped: false };
-      }
       if (it.id === item.id) {
         return { ...it, isEquipped: nextEquipped };
+      }
+      if (nextEquipped && it.equipSlot && it.equipSlot === item.equipSlot && it.id !== item.id) {
+        return { ...it, isEquipped: false };
       }
       return it;
     });
@@ -159,14 +159,14 @@ export const App: React.FC = () => {
     setInspectedItem(updated);
   };
 
-  // XP & Level Progression System
-  const grantExperience = (attr: 'STR' | 'INT' | 'WIS' | 'CHA', xpGain: number) => {
+  // Grant EXP and handle leveling
+  const grantExperience = (attr: 'STR' | 'INT' | 'WIS' | 'CHA', amount: number) => {
     setProfile(prev => {
       const currentAttr = prev.attributes[attr];
-      const newAttrXp = currentAttr.xp + xpGain;
+      const newAttrXp = currentAttr.xp + amount;
       const newAttrLevel = Math.floor(newAttrXp / 1000) + 1;
 
-      const newCurrentXp = prev.currentXp + xpGain;
+      const newCurrentXp = prev.currentXp + amount;
       let newLevel = prev.level;
       let newXpToNext = prev.xpToNextLevel;
 
@@ -228,6 +228,14 @@ export const App: React.FC = () => {
     grantExperience('INT', 150);
   };
 
+  const handleShiftDate = (delta: number) => {
+    setSelectedDate(prev => shiftDate(prev, delta));
+  };
+
+  const handleResetToday = () => {
+    setSelectedDate(getTodayLocalDateStr());
+  };
+
   // Export / Import
   const handleExport = () => {
     const dataStr = exportSaveFile();
@@ -273,7 +281,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0c0d10] text-[#e5e7eb]">
+    <div className="flex h-screen w-full bg-[#0d0e12] text-[#f3f4f6] overflow-hidden">
       <input
         type="file"
         ref={fileInputRef}
@@ -282,59 +290,77 @@ export const App: React.FC = () => {
         className="hidden"
       />
 
-      {/* Main Header */}
-      <Header
+      {/* Left Sidebar Dashboard Navigation (Anchored across all views) */}
+      <Sidebar
         profile={profile}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        totalItemsCount={items.length}
+        equippedCount={equippedItems.length}
         currentEncumbrance={currentEncumbrance}
         totalGoldValue={totalGoldValue}
         isMuted={isMuted}
         setIsMuted={setIsMuted}
         onExport={handleExport}
         onImport={handleImportClick}
+        onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
       />
 
-      {/* Main View Area (Fluid Full Width) */}
-      <main className="flex-1 w-full max-w-[1720px] mx-auto px-6 lg:px-8 py-8">
-        {activeTab === 'inventory' && (
-          <div className="space-y-6">
-            <PaperdollView
-              equippedItems={equippedItems}
-              onInspectItem={setInspectedItem}
-              onUnequipItem={handleUnequipItem}
-            />
+      {/* Main Workspace Area */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#0a0b0e]">
+        
+        {/* Consistent Unified TopBar */}
+        <TopBar
+          activeTab={activeTab}
+          selectedDate={selectedDate}
+          onShiftDate={handleShiftDate}
+          onResetToday={handleResetToday}
+          onOpenAddItem={() => setIsAddItemOpen(true)}
+        />
 
-            <InventoryGrid
-              items={items}
-              onInspectItem={setInspectedItem}
-              onToggleEquip={handleToggleEquip}
-              onOpenAddItem={() => setIsAddItemOpen(true)}
-            />
+        {/* Scrollable View Content (Exact same starting baseline & padding) */}
+        <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6">
+          <div className="max-w-[1600px] mx-auto">
+            {activeTab === 'inventory' && (
+              <div className="space-y-6">
+                <PaperdollView
+                  equippedItems={equippedItems}
+                  onInspectItem={setInspectedItem}
+                  onUnequipItem={handleUnequipItem}
+                />
+
+                <InventoryGrid
+                  items={items}
+                  onInspectItem={setInspectedItem}
+                  onToggleEquip={handleToggleEquip}
+                  onOpenAddItem={() => setIsAddItemOpen(true)}
+                />
+              </div>
+            )}
+
+            {activeTab === 'codex' && (
+              <CharacterCodex
+                profile={profile}
+                skills={skills}
+                onUnlockSkill={handleUnlockSkill}
+                onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
+              />
+            )}
+
+            {activeTab === 'rituals' && (
+              <DailyRituals
+                dayRecords={dayRecords}
+                habits={habits}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                onUpdateDayRecord={handleUpdateDayRecord}
+                onAddHabit={handleAddHabit}
+                onDeleteHabit={handleDeleteHabit}
+              />
+            )}
           </div>
-        )}
-
-        {activeTab === 'codex' && (
-          <CharacterCodex
-            profile={profile}
-            skills={skills}
-            onUnlockSkill={handleUnlockSkill}
-            onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
-          />
-        )}
-
-        {activeTab === 'rituals' && (
-          <DailyRituals
-            dayRecords={dayRecords}
-            habits={habits}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            onUpdateDayRecord={handleUpdateDayRecord}
-            onAddHabit={handleAddHabit}
-            onDeleteHabit={handleDeleteHabit}
-          />
-        )}
-      </main>
+        </div>
+      </div>
 
       {/* Modals */}
       <ItemInspectModal
@@ -352,11 +378,6 @@ export const App: React.FC = () => {
         onClose={() => setIsAddItemOpen(false)}
         onAddItem={handleAddItem}
       />
-
-      {/* Footer */}
-      <footer className="border-t border-[#1f2229] py-6 text-center text-xs text-neutral-500">
-        <p>Vessel — Sovereign Life Inventory & Habit Ledger</p>
-      </footer>
     </div>
   );
 };

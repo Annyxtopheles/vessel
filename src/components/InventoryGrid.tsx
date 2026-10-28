@@ -14,7 +14,7 @@ const RARITY_BADGES: Record<ItemRarity, { label: string; badge: string }> = {
   common: { label: 'Common', badge: 'bg-[#16181e] text-neutral-400 border-[#282c37]' },
   rare: { label: 'Rare', badge: 'bg-[#131d2a] text-[#86a6cf] border-[#223348]' },
   epic: { label: 'Epic', badge: 'bg-[#221829] text-[#b895c2] border-[#3d2948]' },
-  masterwork: { label: 'Masterwork', badge: 'bg-[#251f15] text-[#d8b46b] border-[#443722]' },
+  masterwork: { label: 'Masterwork', badge: 'bg-[#181a26] text-[#818cf8] border-[#2f354d]' },
   legendary: { label: 'Legendary', badge: 'bg-[#291b17] text-[#e08c72] border-[#4a2e26]' },
 };
 
@@ -131,9 +131,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                 : 'text-[#8a8f98] hover:text-white'
             }`}
           >
-            <Lock className="w-3 h-3 text-[#d8b46b]" />
+            <Lock className="w-3 h-3 text-[#818cf8]" />
             <span>Wish to Own</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#221c13] text-[#d8b46b] border border-[#3d311f]">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#161824] text-[#818cf8] border border-[#262a38]">
               {wishCount}
             </span>
           </button>
@@ -162,7 +162,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             sfx.playClick();
             onOpenAddItem();
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d8b46b] hover:bg-[#c5a059] text-[#0d0e12] font-semibold text-xs rounded-md transition-colors shadow-xs"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#5e6ad2] hover:bg-[#4f56e9] text-white font-semibold text-xs rounded-md transition-colors shadow-xs"
         >
           <Plus className="w-3.5 h-3.5" /> Add Possession
         </button>
@@ -178,7 +178,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search items by name, color, notes..."
-            className="w-full pl-8 pr-4 py-1.5 bg-[#0e1014] border border-[#20232c] rounded-md text-xs text-white placeholder-[#525866] focus:outline-none focus:border-[#d8b46b] transition-colors"
+            className="w-full pl-8 pr-4 py-1.5 bg-[#0e1014] border border-[#20232c] rounded-md text-xs text-white placeholder-[#525866] focus:outline-none focus:border-[#5e6ad2] transition-colors"
           />
         </div>
 
@@ -191,7 +191,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCategory(e.target.value);
             }}
-            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#5e6ad2]"
           >
             {categories.map(c => (
               <option key={c.id} value={c.id}>{c.label}</option>
@@ -205,7 +205,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedSeason(e.target.value);
             }}
-            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#5e6ad2]"
           >
             <option value="all">Season: All</option>
             <option value="summer">Summer</option>
@@ -220,7 +220,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               sfx.playClick();
               setSelectedCondition(e.target.value);
             }}
-            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#d8b46b]"
+            className="px-2.5 py-1.5 bg-[#12141a] border border-[#20232c] rounded-md text-xs text-[#8a8f98] focus:outline-none focus:border-[#5e6ad2]"
           >
             <option value="all">Condition: All</option>
             <option value="pristine">Pristine</option>
@@ -302,7 +302,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   {/* Card Content (Clean & Editorial) */}
                   <div className="p-3">
                     {/* Title */}
-                    <h3 className="font-medium text-sm text-white group-hover:text-[#d8b46b] transition-colors truncate mb-1">
+                    <h3 className="font-medium text-sm text-white group-hover:text-[#818cf8] transition-colors truncate mb-1">
                       {item.name}
                     </h3>
 
@@ -350,7 +350,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       }}
                       className={`text-[11px] font-mono px-2 py-0.5 rounded transition-colors ${
                         item.isEquipped
-                          ? 'text-[#d8b46b] hover:text-white bg-[#221c13] border border-[#3d311f]'
+                          ? 'text-[#818cf8] hover:text-white bg-[#1a1d2e] border border-[#2e3557]'
                           : 'text-[#8a8f98] hover:text-white hover:bg-[#181a22]'
                       }`}
                     >
