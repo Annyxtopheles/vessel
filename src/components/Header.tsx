@@ -30,29 +30,29 @@ export const Header: React.FC<HeaderProps> = ({
   const isOverburdened = currentEncumbrance > profile.maxEncumbranceKg;
 
   const tabLabels: Record<'inventory' | 'codex' | 'rituals', string> = {
-    rituals: 'Daily Cadence & Rituals',
-    inventory: 'Life Inventory & Wardrobe',
-    codex: 'Attributes & Skill Codex',
+    rituals: 'Rituals',
+    inventory: 'Inventory',
+    codex: 'Codex',
   };
 
   return (
     <header className="border-b border-[#1c1e26] bg-[#0d0e12]/95 backdrop-blur-md sticky top-0 z-30">
-      <div className="w-full max-w-[1720px] mx-auto px-5 lg:px-8 h-14 flex items-center justify-between gap-4">
+      <div className="w-full max-w-[1720px] mx-auto px-6 lg:px-8 h-14 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
         
-        {/* Left: Linear-style Breadcrumb Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded bg-[#181a22] border border-[#262936] flex items-center justify-center font-bold font-mono text-xs text-[#ededed]">
+        {/* Left: Fixed Left-aligned Brand & Breadcrumb */}
+        <div className="flex items-center gap-3 justify-start min-w-0">
+          <div className="w-6 h-6 rounded bg-[#181a22] border border-[#262936] flex items-center justify-center font-bold font-mono text-xs text-[#ededed] shrink-0">
             V
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold text-white tracking-tight">Vessel</span>
-            <span className="text-neutral-600 font-mono">/</span>
-            <span className="text-[#8a8f98] font-medium hidden sm:inline">{tabLabels[activeTab]}</span>
+          <div className="flex items-center gap-2 text-xs truncate">
+            <span className="font-semibold text-white tracking-tight shrink-0">Vessel</span>
+            <span className="text-neutral-600 font-mono shrink-0">/</span>
+            <span className="text-[#8a8f98] font-medium truncate">{tabLabels[activeTab]}</span>
           </div>
         </div>
 
-        {/* Center: Linear Tab Bar */}
-        <nav className="flex items-center p-0.5 bg-[#12141a] border border-[#20232c] rounded-lg">
+        {/* Center: Mathematically Centered Tab Bar */}
+        <nav className="flex items-center p-0.5 bg-[#12141a] border border-[#20232c] rounded-lg justify-self-center shrink-0">
           <button
             onClick={() => {
               sfx.playClick();
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Right: Metrics & User Identity */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 justify-end min-w-0">
           
           {/* Linear Metrics */}
           <div className="hidden md:flex items-center gap-2">

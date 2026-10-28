@@ -75,7 +75,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
     <div className="space-y-6">
       
       {/* Overview Card: Character Status & Streaks */}
-      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-6">
+      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#20232c]">
           <div>
             {isEditingProfile ? (

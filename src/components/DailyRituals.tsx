@@ -168,7 +168,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     <div className="space-y-6">
 
       {/* 1. Linear-style Date Navigator Bar */}
-      <div className="ui-card p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Date Selector */}
         <div className="flex items-center gap-3">
           <button

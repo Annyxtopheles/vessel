@@ -51,7 +51,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
   };
 
   return (
-    <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5 mb-6">
+    <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
       {/* Header bar */}
       <div className="flex items-center justify-between pb-3 border-b border-[#20232c]">
         <div className="flex items-center gap-3">

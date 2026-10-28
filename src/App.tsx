@@ -298,7 +298,7 @@ export const App: React.FC = () => {
       {/* Main View Area (Fluid Full Width) */}
       <main className="flex-1 w-full max-w-[1720px] mx-auto px-6 lg:px-8 py-8">
         {activeTab === 'inventory' && (
-          <div>
+          <div className="space-y-6">
             <PaperdollView
               equippedItems={equippedItems}
               onInspectItem={setInspectedItem}
