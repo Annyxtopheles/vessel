@@ -80,15 +80,21 @@
   flex-shrink: 0;
 }
 
-.ship-pill {
+/* Generous, airy pill tags that never hug edges */
+.ship-pill,
+.ship-pill-success,
+.ship-pill-danger,
+.ship-pill-accent,
+.ship-pill-neutral {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .ship-pill-success {
@@ -129,11 +135,15 @@
 .ship-input {
   background-color: #FFFFFF;
   border: 1px solid #ECECF0;
-  border-radius: 10px;
-  padding: 8px 12px;
+  border-radius: 12px;
+  padding: 8px 14px;
   font-size: 14px;
   color: #111113;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ship-input-search {
+  padding-left: 42px !important;
 }
 
 .ship-input:focus {

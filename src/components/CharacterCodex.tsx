@@ -74,7 +74,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
               <h2 className="text-[15px] font-semibold text-[#111113] tracking-tight">
                 Four Life Pillars & Progression
               </h2>
-              <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-semibold text-[12px]">
+              <span className="ship-pill-accent font-semibold">
                 Level {profile.level} Master
               </span>
             </div>
@@ -84,7 +84,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[12px] font-medium">
+            <span className="ship-pill-neutral">
               {skills.filter(s => s.unlocked).length} of {skills.length} Perks Attuned
             </span>
           </div>

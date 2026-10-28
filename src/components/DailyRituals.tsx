@@ -230,7 +230,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 <h3 className="text-[15px] font-semibold text-[#111113] tracking-tight">
                   Five Daily Prayers (Salah Cadence)
                 </h3>
-                <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-semibold text-[12px]">
+                <span className="ship-pill-accent font-semibold">
                   {completedSalahCount} of 5 completed
                 </span>
               </div>
@@ -240,7 +240,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             </div>
 
             {isAllSalahCompleted && (
-              <span className="ship-pill-success inline-flex items-center gap-1.5 text-[12px]">
+              <span className="ship-pill-success">
                 <Check className="w-3.5 h-3.5" /> Perfect 5/5 Day (+150 XP bonus)
               </span>
             )}
@@ -569,7 +569,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               </div>
             </div>
 
-            <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-semibold text-[12px]">
+            <span className="ship-pill-accent font-semibold">
               +{Math.round((currentRecord.deepWorkMinutes / 60) * 60)} XP
             </span>
           </div>

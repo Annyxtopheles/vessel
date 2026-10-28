@@ -108,7 +108,7 @@ export const TopBar: React.FC<TopBarProps> = ({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search possessions, tags..."
-              className="ship-input w-full pl-9 pr-3.5 text-sm py-2"
+              className="ship-input ship-input-search w-full pr-3.5 text-sm py-2"
             />
           </div>
         )}

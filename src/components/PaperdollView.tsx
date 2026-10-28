@@ -182,7 +182,7 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-medium text-[12px]">
+            <span className="ship-pill-accent">
               {equippedItems.length} / 8 slots active
             </span>
             <button
