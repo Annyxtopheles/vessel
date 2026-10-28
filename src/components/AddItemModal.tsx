@@ -2,6 +2,67 @@ import React, { useState } from 'react';
 import type { InventoryItem, ItemCategory, EquipSlot, ItemRarity, ItemCondition, ItemSeason, ItemBuff, OwnershipStatus, PastReason } from '../types';
 import { X, Trash2, Lock, CheckCircle2, Archive, Upload } from 'lucide-react';
 import { sfx } from '../utils/audio';
+import { CustomSelect } from './CustomSelect';
+
+const PAST_REASON_OPTIONS = [
+  { id: 'sold', label: 'Sold' },
+  { id: 'gifted', label: 'Gifted away' },
+  { id: 'donated', label: 'Donated' },
+  { id: 'retired', label: 'Retired / Recycled' },
+  { id: 'lost', label: 'Lost / Replaced' },
+];
+
+const CATEGORY_OPTIONS = [
+  { id: 'apparel', label: 'Clothing & Wardrobe' },
+  { id: 'tech', label: 'Tech & Hardware' },
+  { id: 'tomes', label: 'Book / Tome' },
+  { id: 'edc', label: 'Everyday Carry (EDC)' },
+];
+
+const EQUIP_SLOT_OPTIONS = [
+  { id: '', label: 'None (Storage Only)' },
+  { id: 'head', label: 'Headwear' },
+  { id: 'outerwear', label: 'Outerwear' },
+  { id: 'innerwear', label: 'Base Layer / Tops' },
+  { id: 'legs', label: 'Pants / Bottoms' },
+  { id: 'footwear', label: 'Footwear' },
+  { id: 'tech_relic', label: 'Tech Gear' },
+  { id: 'tome', label: 'Book / Tome' },
+  { id: 'wrist_edc', label: 'Wrist / EDC' },
+];
+
+const RARITY_OPTIONS = [
+  { id: 'common', label: 'Common' },
+  { id: 'rare', label: 'Rare (Premium)' },
+  { id: 'epic', label: 'Epic (Heritage)' },
+  { id: 'masterwork', label: 'Masterwork (Artisanal)' },
+  { id: 'legendary', label: 'Legendary (Benchmark)' },
+];
+
+const CONDITION_OPTIONS = [
+  { id: 'pristine', label: 'Pristine' },
+  { id: 'seasoned', label: 'Seasoned' },
+  { id: 'worn', label: 'Worn' },
+  { id: 'needs_repair', label: 'Needs Repair' },
+];
+
+const SEASON_OPTIONS = [
+  { id: 'all', label: 'All Year' },
+  { id: 'summer', label: 'Summer' },
+  { id: 'winter', label: 'Winter' },
+  { id: 'transitional', label: 'Transitional' },
+];
+
+const BUFF_STAT_OPTIONS = [
+  { id: 'STR', label: 'STR (Physical)' },
+  { id: 'INT', label: 'INT (Professional)' },
+  { id: 'WIS', label: 'WIS (Spiritual)' },
+  { id: 'CHA', label: 'CHA (Social)' },
+  { id: 'FOCUS', label: 'Focus' },
+  { id: 'STYLE', label: 'Style' },
+  { id: 'COMFORT', label: 'Comfort' },
+  { id: 'WARMTH', label: 'Warmth' },
+];
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -234,17 +295,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
                     <label className="block text-[13px] text-[#6B6B76] mb-1 font-medium">
                       How did you part with it?
                     </label>
-                    <select
+                    <CustomSelect
                       value={pastReason}
-                      onChange={(e) => setPastReason(e.target.value as PastReason)}
-                      className="ship-input w-full px-3 py-1.5 text-[13px]"
-                    >
-                      <option value="sold">Sold</option>
-                      <option value="gifted">Gifted away</option>
-                      <option value="donated">Donated</option>
-                      <option value="retired">Retired / Recycled</option>
-                      <option value="lost">Lost / Replaced</option>
-                    </select>
+                      options={PAST_REASON_OPTIONS}
+                      onChange={(val) => setPastReason(val as PastReason)}
+                    />
                   </div>
                   <div>
                     <label className="block text-[13px] text-[#6B6B76] mb-1 font-medium">
@@ -286,7 +341,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
                   className="ship-input flex-1 px-3 py-1.5 text-[13px]"
                 />
                 <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] font-medium text-[#111113] hover:bg-[#EAEAEF] transition-colors">
-                  <Upload className="w-3.5 h-3.5 text-[#7C6CF0]" />
+                  <Upload className="w-3.5 h-3.5 text-[#0891B2]" />
                   <span>Upload</span>
                   <input
                     type="file"
@@ -302,35 +357,20 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Category</label>
-                <select
+                <CustomSelect
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as ItemCategory)}
-                  className="ship-input w-full px-3 py-2 text-[13px]"
-                >
-                  <option value="apparel">Clothing & Wardrobe</option>
-                  <option value="tech">Tech & Hardware</option>
-                  <option value="tomes">Book / Tome</option>
-                  <option value="edc">Everyday Carry (EDC)</option>
-                </select>
+                  options={CATEGORY_OPTIONS}
+                  onChange={(val) => setCategory(val as ItemCategory)}
+                />
               </div>
 
               <div>
                 <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Loadout Slot</label>
-                <select
+                <CustomSelect
                   value={equipSlot}
-                  onChange={(e) => setEquipSlot(e.target.value as EquipSlot | '')}
-                  className="ship-input w-full px-3 py-2 text-[13px]"
-                >
-                  <option value="">None (Storage Only)</option>
-                  <option value="head">Headwear</option>
-                  <option value="outerwear">Outerwear</option>
-                  <option value="innerwear">Base Layer / Tops</option>
-                  <option value="legs">Pants / Bottoms</option>
-                  <option value="footwear">Footwear</option>
-                  <option value="tech_relic">Tech Gear</option>
-                  <option value="tome">Book / Tome</option>
-                  <option value="wrist_edc">Wrist / EDC</option>
-                </select>
+                  options={EQUIP_SLOT_OPTIONS}
+                  onChange={(val) => setEquipSlot(val as EquipSlot | '')}
+                />
               </div>
             </div>
 
@@ -349,17 +389,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
               <div>
                 <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Tier / Grade</label>
-                <select
+                <CustomSelect
                   value={rarity}
-                  onChange={(e) => setRarity(e.target.value as ItemRarity)}
-                  className="ship-input w-full px-3 py-2 text-[13px]"
-                >
-                  <option value="common">Common</option>
-                  <option value="rare">Rare (Premium)</option>
-                  <option value="epic">Epic (Heritage)</option>
-                  <option value="masterwork">Masterwork (Artisanal)</option>
-                  <option value="legendary">Legendary (Benchmark)</option>
-                </select>
+                  options={RARITY_OPTIONS}
+                  onChange={(val) => setRarity(val as ItemRarity)}
+                />
               </div>
             </div>
 
@@ -367,30 +401,20 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Condition</label>
-                <select
+                <CustomSelect
                   value={condition}
-                  onChange={(e) => setCondition(e.target.value as ItemCondition)}
-                  className="ship-input w-full px-2.5 py-2 text-[13px]"
-                >
-                  <option value="pristine">Pristine</option>
-                  <option value="seasoned">Seasoned</option>
-                  <option value="worn">Worn</option>
-                  <option value="needs_repair">Needs Repair</option>
-                </select>
+                  options={CONDITION_OPTIONS}
+                  onChange={(val) => setCondition(val as ItemCondition)}
+                />
               </div>
 
               <div>
                 <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Season</label>
-                <select
+                <CustomSelect
                   value={season}
-                  onChange={(e) => setSeason(e.target.value as ItemSeason)}
-                  className="ship-input w-full px-2.5 py-2 text-[13px]"
-                >
-                  <option value="all">All Year</option>
-                  <option value="summer">Summer</option>
-                  <option value="winter">Winter</option>
-                  <option value="transitional">Transitional</option>
-                </select>
+                  options={SEASON_OPTIONS}
+                  onChange={(val) => setSeason(val as ItemSeason)}
+                />
               </div>
 
               <div>
@@ -508,20 +532,14 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               <div className="space-y-2">
                 {buffs.map((buff, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <select
-                      value={buff.stat}
-                      onChange={(e) => handleUpdateBuff(i, 'stat', e.target.value)}
-                      className="ship-input px-2.5 py-1.5 text-[13px]"
-                    >
-                      <option value="STR">STR (Physical)</option>
-                      <option value="INT">INT (Professional)</option>
-                      <option value="WIS">WIS (Spiritual)</option>
-                      <option value="CHA">CHA (Social)</option>
-                      <option value="FOCUS">Focus</option>
-                      <option value="STYLE">Style</option>
-                      <option value="COMFORT">Comfort</option>
-                      <option value="WARMTH">Warmth</option>
-                    </select>
+                    <div className="w-44 shrink-0">
+                      <CustomSelect
+                        value={buff.stat}
+                        options={BUFF_STAT_OPTIONS}
+                        onChange={(val) => handleUpdateBuff(i, 'stat', val)}
+                        buttonClassName="py-1 px-2.5 text-xs"
+                      />
+                    </div>
 
                     <input
                       type="number"

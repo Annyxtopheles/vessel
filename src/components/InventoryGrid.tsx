@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { InventoryItem, ItemRarity, OwnershipStatus, PaletteColor } from '../types';
 import { matchColorPalette } from '../utils/color';
+import { CustomSelect } from './CustomSelect';
 import {
   Search,
   Lock,
   Check,
   Package,
   History,
-  ChevronDown,
   LayoutGrid,
   List,
   Layers,
@@ -46,75 +46,6 @@ const RARITY_LABELS: Record<ItemRarity, string> = {
   epic: 'Epic',
   masterwork: 'Masterwork',
   legendary: 'Legendary',
-};
-
-const CustomSelect: React.FC<{
-  value: string;
-  options: { id: string; label: string }[];
-  onChange: (val: string) => void;
-  icon?: React.ComponentType<{ className?: string }>;
-}> = ({ value, options, onChange, icon: IconComponent }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const currentOption = options.find((o) => o.id === value) || options[0];
-
-  return (
-    <div className="relative" ref={containerRef}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="ship-input py-1.5 px-3.5 text-[13px] flex items-center justify-between gap-2.5 bg-white cursor-pointer hover:border-[#0891B2]/50 transition-colors shadow-xs"
-      >
-        <div className="flex items-center gap-1.5 truncate">
-          {IconComponent && <IconComponent className="w-3.5 h-3.5 text-[#0891B2]" />}
-          <span className="truncate">{currentOption?.label}</span>
-        </div>
-        <ChevronDown
-          className={`w-3.5 h-3.5 text-[#9A9AA5] transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-1.5 min-w-[190px] bg-white border border-[#ECECF0] rounded-xl shadow-lg p-1.5 z-40 animate-in fade-in zoom-in-95">
-          {options.map((opt) => {
-            const isSelected = opt.id === value;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => {
-                  sfx.playClick();
-                  onChange(opt.id);
-                  setIsOpen(false);
-                }}
-                className={`w-full px-3 py-1.5 rounded-lg text-[13px] text-left transition-colors flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#E6F7F9] text-[#0891B2] font-semibold'
-                    : 'text-[#111113] hover:bg-[#F4F4F6] font-normal'
-                }`}
-              >
-                <span>{opt.label}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#0891B2]" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
 };
 
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
@@ -300,120 +231,98 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Filter, Search & View Controls Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {/* 1. Primary Controls Bar: Segmented Tabs (Left) + Search & View Mode Switcher (Right) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Segmented Control for Lifecycle Status */}
-        <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl self-start">
+        <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl overflow-x-auto max-w-full shrink-0">
           <button
+            type="button"
             onClick={() => {
               sfx.playClick();
               setSelectedStatus('all');
             }}
-            className={`px-4 py-1.5 rounded-lg text-[13px] transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
               selectedStatus === 'all'
-                ? 'bg-white text-[#111113] shadow-xs font-semibold'
-                : 'text-[#6B6B76] hover:text-[#111113] font-medium'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
             }`}
           >
             <span>All</span>
-            <span className="text-[12px] text-[#9A9AA5]">{items.length}</span>
+            <span className="text-[11px] font-semibold text-[#6B6B76] px-1.5 py-0.2 rounded-md bg-[#ECECF0]">
+              {items.length}
+            </span>
           </button>
 
           <button
+            type="button"
             onClick={() => {
               sfx.playClick();
               setSelectedStatus('owned');
             }}
-            className={`px-4 py-1.5 rounded-lg text-[13px] transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
               selectedStatus === 'owned'
-                ? 'bg-white text-[#111113] shadow-xs font-semibold'
-                : 'text-[#6B6B76] hover:text-[#111113] font-medium'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
             }`}
           >
             <span>Currently Owned</span>
-            <span className="text-[12px] text-[#9A9AA5]">{ownedCount}</span>
+            <span className="text-[11px] font-semibold text-[#6B6B76] px-1.5 py-0.2 rounded-md bg-[#ECECF0]">
+              {ownedCount}
+            </span>
           </button>
 
           <button
+            type="button"
             onClick={() => {
               sfx.playClick();
               setSelectedStatus('wishlist');
             }}
-            className={`px-4 py-1.5 rounded-lg text-[13px] transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
               selectedStatus === 'wishlist'
-                ? 'bg-white text-[#111113] shadow-xs font-semibold'
-                : 'text-[#6B6B76] hover:text-[#111113] font-medium'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
             }`}
           >
             <span>Wish to Own</span>
-            <span className="text-[12px] text-[#9A9AA5]">{wishCount}</span>
+            <span className="text-[11px] font-semibold text-[#6B6B76] px-1.5 py-0.2 rounded-md bg-[#ECECF0]">
+              {wishCount}
+            </span>
           </button>
 
           <button
+            type="button"
             onClick={() => {
               sfx.playClick();
               setSelectedStatus('past');
             }}
-            className={`px-4 py-1.5 rounded-lg text-[13px] transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
               selectedStatus === 'past'
-                ? 'bg-white text-[#111113] shadow-xs font-semibold'
-                : 'text-[#6B6B76] hover:text-[#111113] font-medium'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
             }`}
           >
             <span>Parted With</span>
-            <span className="text-[12px] text-[#9A9AA5]">{pastCount}</span>
+            <span className="text-[11px] font-semibold text-[#6B6B76] px-1.5 py-0.2 rounded-md bg-[#ECECF0]">
+              {pastCount}
+            </span>
           </button>
         </div>
 
-        {/* Search, Custom Dropdowns & View Toggle in clean row */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="relative min-w-[210px]">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9A9AA5] pointer-events-none" />
+        {/* Search, View Switcher & Add Item in a locked, aligned cluster */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="relative w-44 sm:w-56">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#9A9AA5] pointer-events-none" />
             <input
               type="text"
               value={activeSearch}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search possessions, locations..."
-              className="ship-input ship-input-search py-1.5 text-[13px] w-full"
+              placeholder="Search possessions..."
+              className="ship-input ship-input-search py-1.5 pl-8 text-xs w-full"
             />
           </div>
 
-          <CustomSelect
-            value={selectedCategory}
-            options={categoryOptions}
-            onChange={(val) => setSelectedCategory(val)}
-          />
-
-          <CustomSelect
-            value={selectedSeason}
-            options={seasonOptions}
-            onChange={(val) => setSelectedSeason(val)}
-          />
-
-          <CustomSelect
-            value={selectedCondition}
-            options={conditionOptions}
-            onChange={(val) => setSelectedCondition(val)}
-          />
-
-          {/* Palette Match Filter */}
-          <CustomSelect
-            value={paletteFilter}
-            options={paletteOptions}
-            onChange={(val) => setPaletteFilter(val as any)}
-            icon={Palette}
-          />
-
-          {/* Group By Dropdown */}
-          <CustomSelect
-            value={groupBy}
-            options={groupByOptions}
-            onChange={(val) => setGroupBy(val as any)}
-            icon={Layers}
-          />
-
           {/* Grid / Table View Mode Switcher */}
-          <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl border border-[#ECECF0]">
+          <div className="inline-flex p-0.5 bg-[#ECECF0] rounded-xl border border-[#ECECF0] shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -446,6 +355,69 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 2. Secondary Filter & Grouping Toolbar Row */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <CustomSelect
+            value={selectedCategory}
+            options={categoryOptions}
+            onChange={(val) => setSelectedCategory(val)}
+            buttonClassName="py-1 px-3 text-xs"
+          />
+
+          <CustomSelect
+            value={selectedSeason}
+            options={seasonOptions}
+            onChange={(val) => setSelectedSeason(val)}
+            buttonClassName="py-1 px-3 text-xs"
+          />
+
+          <CustomSelect
+            value={selectedCondition}
+            options={conditionOptions}
+            onChange={(val) => setSelectedCondition(val)}
+            buttonClassName="py-1 px-3 text-xs"
+          />
+
+          {/* Palette Match Filter */}
+          <CustomSelect
+            value={paletteFilter}
+            options={paletteOptions}
+            onChange={(val) => setPaletteFilter(val as any)}
+            icon={Palette}
+            buttonClassName="py-1 px-3 text-xs"
+          />
+
+          {/* Group By Dropdown */}
+          <CustomSelect
+            value={groupBy}
+            options={groupByOptions}
+            onChange={(val) => setGroupBy(val as any)}
+            icon={Layers}
+            buttonClassName="py-1 px-3 text-xs"
+          />
+        </div>
+
+        {/* Clear filters shortcut */}
+        {(selectedCategory !== 'all' || selectedSeason !== 'all' || selectedCondition !== 'all' || paletteFilter !== 'all' || groupBy !== 'none' || activeSearch.trim() !== '') && (
+          <button
+            type="button"
+            onClick={() => {
+              sfx.playClick();
+              setSelectedCategory('all');
+              setSelectedSeason('all');
+              setSelectedCondition('all');
+              setPaletteFilter('all');
+              setGroupBy('none');
+              handleSearchChange('');
+            }}
+            className="text-xs font-semibold text-[#0891B2] hover:underline cursor-pointer"
+          >
+            Reset filters
+          </button>
+        )}
       </div>
 
       {/* 2. Items Catalog Display (Grid or Table) */}

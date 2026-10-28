@@ -2,6 +2,29 @@ import React, { useState, useEffect } from 'react';
 import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory } from '../types';
 import { X, Lock, Trash2, Scale, History, Edit3, Check, Upload, Copy, Backpack, Sparkles } from 'lucide-react';
 import { sfx } from '../utils/audio';
+import { CustomSelect } from './CustomSelect';
+
+const CATEGORY_OPTIONS = [
+  { id: 'apparel', label: 'Apparel & Wardrobe' },
+  { id: 'tech', label: 'Tech & Hardware' },
+  { id: 'tomes', label: 'Book / Tome' },
+  { id: 'edc', label: 'Everyday Carry (EDC)' },
+];
+
+const CONDITION_OPTIONS = [
+  { id: 'pristine', label: 'Pristine' },
+  { id: 'seasoned', label: 'Seasoned' },
+  { id: 'worn', label: 'Worn' },
+  { id: 'needs_repair', label: 'Needs Repair' },
+];
+
+const PAST_REASON_OPTIONS = [
+  { id: 'sold', label: 'Sold' },
+  { id: 'gifted', label: 'Gifted' },
+  { id: 'donated', label: 'Donated' },
+  { id: 'retired', label: 'Retired / Worn Out' },
+  { id: 'lost', label: 'Lost / Discarded' },
+];
 
 interface ItemInspectModalProps {
   item: InventoryItem | null;
@@ -242,16 +265,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Category
                     </label>
-                    <select
+                    <CustomSelect
                       value={editCategory}
-                      onChange={(e) => setEditCategory(e.target.value as ItemCategory)}
-                      className="ship-input w-full px-3 py-2 text-[13px]"
-                    >
-                      <option value="apparel">Apparel & Wardrobe</option>
-                      <option value="tech">Tech & Hardware</option>
-                      <option value="tomes">Book / Tome</option>
-                      <option value="edc">Everyday Carry (EDC)</option>
-                    </select>
+                      options={CATEGORY_OPTIONS}
+                      onChange={(val) => setEditCategory(val as ItemCategory)}
+                    />
                   </div>
 
                   <div>
@@ -319,16 +337,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Condition
                     </label>
-                    <select
+                    <CustomSelect
                       value={editCondition}
-                      onChange={(e) => setEditCondition(e.target.value as ItemCondition)}
-                      className="ship-input w-full px-3 py-2 text-[13px]"
-                    >
-                      <option value="pristine">Pristine</option>
-                      <option value="seasoned">Seasoned</option>
-                      <option value="worn">Worn</option>
-                      <option value="needs_repair">Needs Repair</option>
-                    </select>
+                      options={CONDITION_OPTIONS}
+                      onChange={(val) => setEditCondition(val as ItemCondition)}
+                    />
                   </div>
                 </div>
 
@@ -555,22 +568,19 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                   {isChoosingPastReason && (
                     <div className="mt-3 pt-3 border-t border-[#ECECF0] flex items-center gap-2">
-                      <span className="text-[13px] text-[#6B6B76] font-medium">Reason:</span>
-                      <select
-                        value={selectedPastReason}
-                        onChange={(e) => setSelectedPastReason(e.target.value as PastReason)}
-                        className="ship-input px-3 py-1 text-[13px]"
-                      >
-                        <option value="sold">Sold</option>
-                        <option value="gifted">Gifted</option>
-                        <option value="donated">Donated</option>
-                        <option value="retired">Retired / Worn Out</option>
-                        <option value="lost">Lost / Discarded</option>
-                      </select>
+                      <span className="text-[13px] text-[#6B6B76] font-medium shrink-0">Reason:</span>
+                      <div className="w-48">
+                        <CustomSelect
+                          value={selectedPastReason}
+                          options={PAST_REASON_OPTIONS}
+                          onChange={(val) => setSelectedPastReason(val as PastReason)}
+                          buttonClassName="py-1 px-2.5 text-xs"
+                        />
+                      </div>
 
                       <button
                         onClick={() => handleSetPast(selectedPastReason)}
-                        className="px-3 py-1 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors"
+                        className="px-3 py-1.5 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors shrink-0"
                       >
                         Confirm Archive
                       </button>

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { InventoryItem, EquipSlot, SavedLoadout } from '../types';
 import {
-  Scale,
   Shirt,
   DollarSign,
   Package,
@@ -66,8 +65,8 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
   onInspectItem,
   onUnequipItem,
   carriedWeight = 0,
-  totalPossessionsWeight = 0,
-  maxEncumbranceKg = 12,
+  totalPossessionsWeight: _totalPossessionsWeight = 0,
+  maxEncumbranceKg: _maxEncumbranceKg = 12,
   vaultValuation = 0,
   wishlistCost = 0,
   ownedCount = 0,
@@ -132,11 +131,6 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
     return equippedItems.find(it => it.equipSlot === slot);
   };
 
-  const encumbrancePercent = Math.min(
-    100,
-    Math.round((carriedWeight / (maxEncumbranceKg || 1)) * 100)
-  );
-
   const activeModifiersSummary = Object.entries(aggregateBuffs)
     .map(([stat, val]) => `+${val} ${FULL_MODIFIER_NAMES[stat] || stat}`)
     .join('  •  ');
@@ -152,135 +146,103 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 4-Card KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* 4-Card KPI Row - ShipNow density: compact, equal-height, zero awkward gaps */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* KPI 1: Carry Load (carried items against capacity) */}
-        <div className="ship-card p-5 lg:p-6 flex flex-col justify-between">
+        {/* KPI 1: Total Possessions */}
+        <div className="ship-card p-4 sm:p-4.5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-normal text-[#6B6B76]">Carry Load</span>
+            <span className="text-[13px] font-medium text-[#6B6B76]">Total Possessions</span>
             <div className="ship-icon-tile">
-              <Scale className="w-5 h-5 text-[#0891B2]" />
+              <Package className="w-4 h-4 text-[#0891B2]" />
             </div>
           </div>
-          <div className="mt-4">
-            <div className="text-[28px] font-semibold text-[#111113] leading-none tracking-tight">
-              {carriedWeight.toFixed(1)}{' '}
-              <span className="text-base font-normal text-[#6B6B76]">/ {maxEncumbranceKg.toFixed(1)} kg</span>
-            </div>
-            <div className="w-full bg-[#ECECF0] h-1.5 rounded-full overflow-hidden mt-3">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${
-                  encumbrancePercent > 90 ? 'bg-[#DC2626]' : 'bg-[#0891B2]'
-                }`}
-                style={{ width: `${encumbrancePercent}%` }}
-              />
-            </div>
-            <div className="text-[12px] text-[#6B6B76] mt-3 truncate">
-              Total possessions weight: <span className="font-semibold text-[#111113]">{totalPossessionsWeight.toFixed(1)} kg</span>
-            </div>
-          </div>
-        </div>
-
-        {/* KPI 2: Equipped Slots */}
-        <div className="ship-card p-5 lg:p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-normal text-[#6B6B76]">Equipped Slots</span>
-            <div className="ship-icon-tile">
-              <Shirt className="w-5 h-5 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-[28px] font-semibold text-[#111113] leading-none tracking-tight">
-              {equippedItems.length}{' '}
-              <span className="text-base font-normal text-[#6B6B76]">/ 8</span>
-            </div>
-            <div className="text-[12px] text-[#16A34A] font-medium mt-3 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-              {equippedItems.length === 8 ? 'Full loadout active' : `${8 - equippedItems.length} slots available`}
-            </div>
-            <div className="text-[12px] text-[#6B6B76] mt-1.5">
-              Active daily modifiers equipped
-            </div>
-          </div>
-        </div>
-
-        {/* KPI 3: Vault Valuation (OWNED ITEMS ONLY + Wishlist Cost) */}
-        <div className="ship-card p-5 lg:p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-normal text-[#6B6B76]">Vault Valuation</span>
-            <div className="ship-icon-tile">
-              <DollarSign className="w-5 h-5 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-[28px] font-semibold text-[#111113] leading-none tracking-tight">
-              {currencySymbol}{vaultValuation.toLocaleString()}
-            </div>
-            <div className="text-[12px] text-[#6B6B76] mt-3">
-              Owned assets • <span className="font-medium text-[#111113]">Wishlist cost: {currencySymbol}{wishlistCost.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* KPI 4: Total Possessions (OWNED ONLY in Headline + breakdown) */}
-        <div className="ship-card p-5 lg:p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-normal text-[#6B6B76]">Total Possessions</span>
-            <div className="ship-icon-tile">
-              <Package className="w-5 h-5 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-[28px] font-semibold text-[#111113] leading-none tracking-tight">
+          <div className="mt-2.5">
+            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
               {ownedCount}
             </div>
-            <div className="text-[12px] text-[#6B6B76] mt-3 truncate">
+            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
               {ownedCount} owned • {wishlistCount} wishlist • {pastCount} parted
             </div>
           </div>
         </div>
 
-        {/* Wardrobe by Color Mini-Chart (Owned Clothing Only) */}
-        {colorDistribution.length > 0 && (
-          <div className="p-4 rounded-2xl bg-white border border-[#ECECF0] space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-[#111113] flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-[#0891B2]" />
-                <span>Wardrobe by Color ({ownedClothing.length} owned garments)</span>
-              </span>
-              <span className="text-[11px] text-[#6B6B76]">
-                Dominant: <strong className="text-[#111113]">{colorDistribution[0]?.name}</strong> ({colorDistribution[0]?.pct}%)
-              </span>
-            </div>
-
-            {/* Stacked segmented color bar */}
-            <div className="h-3 w-full rounded-full overflow-hidden flex bg-[#ECECF0] shadow-2xs">
-              {colorDistribution.map((c) => (
-                <div
-                  key={c.name}
-                  style={{ width: `${c.pct}%`, backgroundColor: c.hex }}
-                  className="h-full transition-all relative group"
-                  title={`${c.name}: ${c.count} items (${c.pct}%)`}
-                />
-              ))}
-            </div>
-
-            {/* Swatch labels row */}
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px]">
-              {colorDistribution.map((c) => (
-                <div key={c.name} className="flex items-center gap-1.5">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full border border-black/10 flex-shrink-0"
-                    style={{ backgroundColor: c.hex }}
-                  />
-                  <span className="font-medium text-[#111113]">{c.name}</span>
-                  <span className="text-[#9A9AA5]">({c.pct}%)</span>
-                </div>
-              ))}
+        {/* KPI 2: Vault Valuation */}
+        <div className="ship-card p-4 sm:p-4.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-medium text-[#6B6B76]">Vault Valuation</span>
+            <div className="ship-icon-tile">
+              <DollarSign className="w-4 h-4 text-[#0891B2]" />
             </div>
           </div>
-        )}
+          <div className="mt-2.5">
+            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
+              {currencySymbol}{vaultValuation.toLocaleString()}
+            </div>
+            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
+              Owned assets • <span className="font-medium text-[#111113]">Wishlist: {currencySymbol}{wishlistCost.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 3: Today's Loadout */}
+        <div className="ship-card p-4 sm:p-4.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-medium text-[#6B6B76]">Today's Loadout</span>
+            <div className="ship-icon-tile">
+              <Shirt className="w-4 h-4 text-[#0891B2]" />
+            </div>
+          </div>
+          <div className="mt-2.5">
+            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight flex items-baseline gap-2">
+              <span>{equippedItems.length}</span>
+              <span className="text-sm font-normal text-[#6B6B76]">/ 8 slots</span>
+            </div>
+            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${equippedItems.length > 0 ? 'bg-[#16A34A]' : 'bg-[#9A9AA5]'}`} />
+              <span>{equippedItems.length === 8 ? 'Full loadout active' : `${equippedItems.length} items equipped`}</span>
+              {carriedWeight > 0 && <span className="text-[#9A9AA5]">({carriedWeight.toFixed(1)} kg)</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 4: Wardrobe Spectrum */}
+        <div className="ship-card p-4 sm:p-4.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-medium text-[#6B6B76]">Wardrobe Spectrum</span>
+            <div className="ship-icon-tile">
+              <Palette className="w-4 h-4 text-[#0891B2]" />
+            </div>
+          </div>
+          <div className="mt-2.5">
+            <div className="flex items-center justify-between">
+              <div className="text-[15px] font-bold text-[#111113] truncate">
+                {colorDistribution[0] ? colorDistribution[0].name : 'Natural'}
+              </div>
+              <span className="text-xs font-semibold text-[#0891B2]">
+                {colorDistribution[0] ? `${colorDistribution[0].pct}%` : '0%'}
+              </span>
+            </div>
+            {/* Sleek inline color distribution bar */}
+            <div className="h-2 w-full rounded-full overflow-hidden flex bg-[#ECECF0] mt-1.5 shadow-2xs">
+              {colorDistribution.length > 0 ? (
+                colorDistribution.slice(0, 5).map((c) => (
+                  <div
+                    key={c.name}
+                    style={{ width: `${c.pct}%`, backgroundColor: c.hex }}
+                    className="h-full"
+                    title={`${c.name}: ${c.count} items (${c.pct}%)`}
+                  />
+                ))
+              ) : (
+                <div className="w-full h-full bg-[#ECECF0]" />
+              )}
+            </div>
+            <div className="text-[11px] text-[#9A9AA5] mt-1 truncate">
+              {ownedClothing.length} owned garments logged
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Today's Loadout Card */}

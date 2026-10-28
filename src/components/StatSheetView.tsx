@@ -29,6 +29,34 @@ import {
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr } from '../utils/date';
+import { CustomSelect } from './CustomSelect';
+
+const MEASUREMENT_TYPE_OPTIONS = [
+  { id: 'weight', label: 'Body Weight' },
+  { id: 'height', label: 'Height' },
+  { id: 'waist', label: 'Waist Circumference' },
+  { id: 'chest', label: 'Chest Circumference' },
+  { id: 'custom', label: 'Custom Metric' },
+];
+
+const PALETTE_VERDICT_OPTIONS = [
+  { id: 'suits', label: 'Suits You (Optimal Harmony)' },
+  { id: 'neutral', label: 'Neutral (Acceptable Contrast)' },
+  { id: 'avoid', label: 'Avoid (Clashes or Washes Out)' },
+];
+
+const TRAIT_KIND_OPTIONS = [
+  { id: 'strength', label: 'Core Strength' },
+  { id: 'working_on', label: 'Deliberate Practice (Working On)' },
+];
+
+const TRAIT_LEVEL_OPTIONS = [
+  { id: '1', label: 'Level 1 (Initiate)' },
+  { id: '2', label: 'Level 2 (Developing)' },
+  { id: '3', label: 'Level 3 (Competent)' },
+  { id: '4', label: 'Level 4 (Strong / Advanced)' },
+  { id: '5', label: 'Level 5 (Mastered / Pinnacle)' },
+];
 
 interface StatSheetViewProps {
   measurements: BodyMeasurement[];
@@ -822,22 +850,16 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                   Metric Type
                 </label>
-                <select
+                <CustomSelect
                   value={mType}
-                  onChange={(e) => {
-                    const t = e.target.value as MeasurementType;
+                  options={MEASUREMENT_TYPE_OPTIONS}
+                  onChange={(val) => {
+                    const t = val as MeasurementType;
                     setMType(t);
                     if (t === 'weight') setMUnit('kg');
                     else setMUnit('cm');
                   }}
-                  className="ship-input w-full px-3 py-2 text-xs"
-                >
-                  <option value="weight">Body Weight</option>
-                  <option value="height">Height</option>
-                  <option value="waist">Waist Circumference</option>
-                  <option value="chest">Chest Circumference</option>
-                  <option value="custom">Custom Metric</option>
-                </select>
+                />
               </div>
 
               {mType === 'custom' && (
@@ -1110,15 +1132,11 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                   Verdict
                 </label>
-                <select
+                <CustomSelect
                   value={colorVerdict}
-                  onChange={(e) => setColorVerdict(e.target.value as PaletteVerdict)}
-                  className="ship-input w-full px-3 py-2 text-xs font-semibold"
-                >
-                  <option value="suits">Suits You (Optimal Harmony)</option>
-                  <option value="neutral">Neutral (Acceptable Contrast)</option>
-                  <option value="avoid">Avoid (Clashes or Washes Out)</option>
-                </select>
+                  options={PALETTE_VERDICT_OPTIONS}
+                  onChange={(val) => setColorVerdict(val as PaletteVerdict)}
+                />
               </div>
 
               <div>
@@ -1295,31 +1313,22 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                     Classification
                   </label>
-                  <select
+                  <CustomSelect
                     value={traitKind}
-                    onChange={(e) => setTraitKind(e.target.value as TraitKind)}
-                    className="ship-input w-full px-3 py-2 text-xs font-semibold"
-                  >
-                    <option value="strength">Core Strength</option>
-                    <option value="working_on">Deliberate Practice (Working On)</option>
-                  </select>
+                    options={TRAIT_KIND_OPTIONS}
+                    onChange={(val) => setTraitKind(val as TraitKind)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                     Mastery Level (1 - 5)
                   </label>
-                  <select
-                    value={traitLevel}
-                    onChange={(e) => setTraitLevel(parseInt(e.target.value, 10))}
-                    className="ship-input w-full px-3 py-2 text-xs font-semibold"
-                  >
-                    <option value="1">Level 1 (Initiate)</option>
-                    <option value="2">Level 2 (Developing)</option>
-                    <option value="3">Level 3 (Competent)</option>
-                    <option value="4">Level 4 (Strong / Advanced)</option>
-                    <option value="5">Level 5 (Mastered / Pinnacle)</option>
-                  </select>
+                  <CustomSelect
+                    value={String(traitLevel)}
+                    options={TRAIT_LEVEL_OPTIONS}
+                    onChange={(val) => setTraitLevel(parseInt(val, 10))}
+                  />
                 </div>
               </div>
 

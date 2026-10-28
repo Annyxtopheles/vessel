@@ -4,6 +4,14 @@ import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw, Compass, AlertCircle, 
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
 import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
+import { CustomSelect } from './CustomSelect';
+
+const HABIT_ATTR_OPTIONS = [
+  { id: 'STR', label: 'Strength (Body)' },
+  { id: 'INT', label: 'Intellect (Craft)' },
+  { id: 'WIS', label: 'Wisdom (Soul)' },
+  { id: 'CHA', label: 'Charisma (Community)' },
+];
 
 interface DailyRitualsProps {
   dayRecords: Record<string, DayRecord>;
@@ -482,16 +490,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               className="ship-input flex-1 text-[13px]"
             />
 
-            <select
-              value={newHabitAttr}
-              onChange={(e) => setNewHabitAttr(e.target.value as AttributeType)}
-              className="ship-input text-[13px] sm:w-48"
-            >
-              <option value="STR">Strength (Body)</option>
-              <option value="INT">Intellect (Craft)</option>
-              <option value="WIS">Wisdom (Soul)</option>
-              <option value="CHA">Charisma (Community)</option>
-            </select>
+            <div className="w-full sm:w-48">
+              <CustomSelect
+                value={newHabitAttr}
+                options={HABIT_ATTR_OPTIONS}
+                onChange={(val) => setNewHabitAttr(val as AttributeType)}
+                buttonClassName="py-2 text-[13px]"
+              />
+            </div>
 
             <div className="flex items-center gap-2">
               <button

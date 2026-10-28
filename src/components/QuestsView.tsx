@@ -33,6 +33,40 @@ import {
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getQuestXp } from '../data/xpConfig';
+import { CustomSelect } from './CustomSelect';
+
+const QUEST_STATUS_FILTER_OPTIONS = [
+  { id: 'ALL', label: 'All Statuses' },
+  { id: 'todo', label: 'To Do' },
+  { id: 'doing', label: 'In Progress' },
+  { id: 'done', label: 'Completed' },
+];
+
+const QUEST_DUE_FILTER_OPTIONS = [
+  { id: 'ALL', label: 'All Deadlines' },
+  { id: 'OVERDUE', label: 'Overdue Only' },
+  { id: 'THIS_WEEK', label: 'Due This Week' },
+  { id: 'NO_DATE', label: 'No Deadline' },
+];
+
+const QUEST_STATUS_OPTIONS = [
+  { id: 'todo', label: 'To Do' },
+  { id: 'doing', label: 'In Progress' },
+  { id: 'done', label: 'Completed' },
+];
+
+const QUEST_PILLAR_OPTIONS = [
+  { id: 'STR', label: 'STR (Physical Body)' },
+  { id: 'INT', label: 'INT (Professional Craft)' },
+  { id: 'WIS', label: 'WIS (Spiritual Soul)' },
+  { id: 'CHA', label: 'CHA (Community Social)' },
+];
+
+const QUEST_DIFFICULTY_OPTIONS = [
+  { id: 'Easy', label: 'Easy (+50 XP)' },
+  { id: 'Medium', label: 'Medium (+100 XP)' },
+  { id: 'Hard', label: 'Hard (+200 XP)' },
+];
 import { getTodayLocalDateStr } from '../utils/date';
 
 interface QuestsViewProps {
@@ -361,29 +395,19 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
           {/* Status & Due Date Filters */}
           <div className="flex flex-wrap items-center gap-2">
-            {/* Status Filter */}
-            <select
+            <CustomSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as QuestStatus | 'ALL')}
-              className="ship-input px-3 py-1.5 text-xs"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="todo">To Do</option>
-              <option value="doing">In Progress</option>
-              <option value="done">Completed</option>
-            </select>
+              options={QUEST_STATUS_FILTER_OPTIONS}
+              onChange={(val) => setStatusFilter(val as QuestStatus | 'ALL')}
+              buttonClassName="py-1 px-3 text-xs"
+            />
 
-            {/* Due Date Filter */}
-            <select
+            <CustomSelect
               value={dueFilter}
-              onChange={(e) => setDueFilter(e.target.value as any)}
-              className="ship-input px-3 py-1.5 text-xs"
-            >
-              <option value="ALL">All Deadlines</option>
-              <option value="OVERDUE">Overdue Only</option>
-              <option value="THIS_WEEK">Due This Week</option>
-              <option value="NO_DATE">No Deadline</option>
-            </select>
+              options={QUEST_DUE_FILTER_OPTIONS}
+              onChange={(val) => setDueFilter(val as any)}
+              buttonClassName="py-1 px-3 text-xs"
+            />
           </div>
         </div>
       </div>
@@ -765,12 +789,12 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                     Status
                   </label>
-                  <select
+                  <CustomSelect
                     value={selectedQuest.status}
-                    onChange={(e) => {
-                      const nextStatus = e.target.value as QuestStatus;
+                    options={QUEST_STATUS_OPTIONS}
+                    onChange={(val) => {
+                      const nextStatus = val as QuestStatus;
                       if (nextStatus === 'done') {
-                        // Check evidence requirement
                         if (selectedQuest.evidenceRequired && selectedEvidence.length === 0) {
                           setEvidenceWarningId(selectedQuest.id);
                           return;
@@ -786,12 +810,8 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                         onUpdateQuest(updated);
                       }
                     }}
-                    className="ship-input w-full px-2.5 py-1.5 text-xs font-medium"
-                  >
-                    <option value="todo">To Do</option>
-                    <option value="doing">In Progress</option>
-                    <option value="done">Completed</option>
-                  </select>
+                    buttonClassName="py-1 px-2.5 text-xs font-medium"
+                  />
                 </div>
 
                 {/* Pillar */}
@@ -799,20 +819,16 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                     Pillar
                   </label>
-                  <select
+                  <CustomSelect
                     value={selectedQuest.pillar}
-                    onChange={(e) => {
-                      const updated = { ...selectedQuest, pillar: e.target.value as AttributeType };
+                    options={QUEST_PILLAR_OPTIONS}
+                    onChange={(val) => {
+                      const updated = { ...selectedQuest, pillar: val as AttributeType };
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-2.5 py-1.5 text-xs font-medium"
-                  >
-                    <option value="STR">STR (Body)</option>
-                    <option value="INT">INT (Craft)</option>
-                    <option value="WIS">WIS (Soul)</option>
-                    <option value="CHA">CHA (Social)</option>
-                  </select>
+                    buttonClassName="py-1 px-2.5 text-xs font-medium"
+                  />
                 </div>
 
                 {/* Difficulty */}
@@ -820,19 +836,16 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
                     Difficulty
                   </label>
-                  <select
+                  <CustomSelect
                     value={selectedQuest.difficulty}
-                    onChange={(e) => {
-                      const updated = { ...selectedQuest, difficulty: e.target.value as QuestDifficulty };
+                    options={QUEST_DIFFICULTY_OPTIONS}
+                    onChange={(val) => {
+                      const updated = { ...selectedQuest, difficulty: val as QuestDifficulty };
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-2.5 py-1.5 text-xs font-medium"
-                  >
-                    <option value="Easy">Easy (50 XP)</option>
-                    <option value="Medium">Medium (100 XP)</option>
-                    <option value="Hard">Hard (200 XP)</option>
-                  </select>
+                    buttonClassName="py-1 px-2.5 text-xs font-medium"
+                  />
                 </div>
 
                 {/* Due Date */}
@@ -884,35 +897,23 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111113] mb-1">
                     Linked Possession (Optional)
                   </label>
-                  <select
+                  <CustomSelect
                     value={selectedQuest.linkedItemId || ''}
-                    onChange={(e) => {
-                      const updated = { ...selectedQuest, linkedItemId: e.target.value || undefined };
+                    options={[
+                      { id: '', label: 'None (Standalone Quest)' },
+                      ...items.map((i) => ({
+                        id: i.id,
+                        label: `${i.ownershipStatus === 'wishlist' ? '★ [Wishlist] ' : ''}${i.name}`,
+                        sublabel: i.ownershipStatus === 'wishlist' ? 'Wishlist Milestone' : 'Owned Item',
+                      })),
+                    ]}
+                    onChange={(val) => {
+                      const updated = { ...selectedQuest, linkedItemId: val || undefined };
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-2.5 py-1 text-xs"
-                  >
-                    <option value="">None (Standalone Quest)</option>
-                    <optgroup label="Wishlist Milestones">
-                      {items
-                        .filter((i) => i.ownershipStatus === 'wishlist')
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            ★ [Wishlist] {item.name}
-                          </option>
-                        ))}
-                    </optgroup>
-                    <optgroup label="Owned Possessions">
-                      {items
-                        .filter((i) => i.ownershipStatus === 'owned')
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                    </optgroup>
-                  </select>
+                    buttonClassName="py-1 px-2.5 text-xs font-medium"
+                  />
                 </div>
               </div>
 
@@ -1168,31 +1169,22 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
                     Target Pillar
                   </label>
-                  <select
+                  <CustomSelect
                     value={newPillar}
-                    onChange={(e) => setNewPillar(e.target.value as AttributeType)}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  >
-                    <option value="STR">STR (Physical Body)</option>
-                    <option value="INT">INT (Professional Craft)</option>
-                    <option value="WIS">WIS (Spiritual Soul)</option>
-                    <option value="CHA">CHA (Community Social)</option>
-                  </select>
+                    options={QUEST_PILLAR_OPTIONS}
+                    onChange={(val) => setNewPillar(val as AttributeType)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
                     Difficulty Tier
                   </label>
-                  <select
+                  <CustomSelect
                     value={newDifficulty}
-                    onChange={(e) => setNewDifficulty(e.target.value as QuestDifficulty)}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  >
-                    <option value="Easy">Easy (+50 XP)</option>
-                    <option value="Medium">Medium (+100 XP)</option>
-                    <option value="Hard">Hard (+200 XP)</option>
-                  </select>
+                    options={QUEST_DIFFICULTY_OPTIONS}
+                    onChange={(val) => setNewDifficulty(val as QuestDifficulty)}
+                  />
                 </div>
               </div>
 
@@ -1213,31 +1205,18 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
                     Linked Possession (Optional)
                   </label>
-                  <select
+                  <CustomSelect
                     value={newLinkedItemId}
-                    onChange={(e) => setNewLinkedItemId(e.target.value)}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  >
-                    <option value="">None</option>
-                    <optgroup label="Wishlist Milestones">
-                      {items
-                        .filter((i) => i.ownershipStatus === 'wishlist')
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            ★ [Wishlist] {item.name}
-                          </option>
-                        ))}
-                    </optgroup>
-                    <optgroup label="Owned Items">
-                      {items
-                        .filter((i) => i.ownershipStatus === 'owned')
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                    </optgroup>
-                  </select>
+                    options={[
+                      { id: '', label: 'None' },
+                      ...items.map((i) => ({
+                        id: i.id,
+                        label: `${i.ownershipStatus === 'wishlist' ? '★ [Wishlist] ' : ''}${i.name}`,
+                        sublabel: i.ownershipStatus === 'wishlist' ? 'Wishlist Milestone' : 'Owned Item',
+                      })),
+                    ]}
+                    onChange={(val) => setNewLinkedItemId(val)}
+                  />
                 </div>
               </div>
 
