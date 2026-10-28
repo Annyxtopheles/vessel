@@ -47,6 +47,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [tempCurrency, setTempCurrency] = useState(settings.currencySymbol || '$');
   const [tempMaxWeight, setTempMaxWeight] = useState(String(settings.maxEncumbranceKg || 12.0));
+  const [tempUnitSystem, setTempUnitSystem] = useState<'metric' | 'imperial'>(settings.unitSystem || 'metric');
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const todayStr = getTodayLocalDateStr();
@@ -55,6 +56,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   useEffect(() => {
     setTempCurrency(settings.currencySymbol || '$');
     setTempMaxWeight(String(settings.maxEncumbranceKg || 12.0));
+    setTempUnitSystem(settings.unitSystem || 'metric');
   }, [settings]);
 
   // Click outside search popover
@@ -135,6 +137,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       onUpdateSettings({
         currencySymbol: tempCurrency.trim() || '$',
         maxEncumbranceKg: Math.max(1, parseFloat(tempMaxWeight) || 12.0),
+        unitSystem: tempUnitSystem,
       });
     }
     sfx.playClick();
@@ -474,6 +477,36 @@ export const TopBar: React.FC<TopBarProps> = ({
                 <span className="text-[11px] text-[#9A9AA5] mt-1 block">
                   Default: 12.0 kg. Used for today's carry load capacity indicator.
                 </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  Body Measurements Unit Preference
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTempUnitSystem('metric')}
+                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      tempUnitSystem === 'metric'
+                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
+                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                    }`}
+                  >
+                    Metric (kg / cm)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTempUnitSystem('imperial')}
+                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      tempUnitSystem === 'imperial'
+                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
+                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                    }`}
+                  >
+                    Imperial (lbs / in)
+                  </button>
+                </div>
               </div>
 
               <div className="pt-4 border-t border-[#ECECF0] flex justify-end gap-2.5">

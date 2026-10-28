@@ -10,6 +10,11 @@ import type {
   AppSettings,
   Quest,
   QuestEvidence,
+  BodyMeasurement,
+  CharacterAppearance,
+  PaletteColor,
+  PersonalityEntry,
+  CharacterTrait,
 } from '../types';
 import {
   INITIAL_ITEMS,
@@ -32,6 +37,11 @@ const STORAGE_KEYS = {
   SETTINGS: 'vessel_app_settings_v1',
   QUESTS: 'vessel_quests_v1',
   QUEST_EVIDENCE: 'vessel_quest_evidence_v1',
+  BODY_MEASUREMENTS: 'vessel_body_measurements_v1',
+  APPEARANCE: 'vessel_character_appearance_v1',
+  COLOR_PALETTE: 'vessel_color_palette_v1',
+  PERSONALITY: 'vessel_personality_v1',
+  TRAITS: 'vessel_character_traits_v1',
 };
 
 export const INITIAL_QUESTS: Quest[] = [
@@ -97,6 +107,7 @@ export const INITIAL_QUEST_EVIDENCE: QuestEvidence[] = [
 export const DEFAULT_SETTINGS: AppSettings = {
   currencySymbol: '$',
   maxEncumbranceKg: 12.0,
+  unitSystem: 'metric',
 };
 
 export const INITIAL_SAVED_LOADOUTS: SavedLoadout[] = [
@@ -525,9 +536,219 @@ export function saveQuestEvidence(evidence: QuestEvidence[]): void {
   }
 }
 
+// 1. Body Measurements
+export const INITIAL_BODY_MEASUREMENTS: BodyMeasurement[] = [
+  { id: 'bm-1', type: 'weight', value: 76.2, unit: 'kg', date: '2026-10-07', note: 'Baseline weight' },
+  { id: 'bm-2', type: 'weight', value: 75.8, unit: 'kg', date: '2026-10-14', note: 'Calisthenics volume increase' },
+  { id: 'bm-3', type: 'weight', value: 75.0, unit: 'kg', date: '2026-10-21', note: 'Fasting day hydration' },
+  { id: 'bm-4', type: 'weight', value: 74.5, unit: 'kg', date: '2026-10-28', note: 'Current target equilibrium' },
+  { id: 'bm-5', type: 'height', value: 178, unit: 'cm', date: '2026-09-01', note: 'Morning measured height' },
+  { id: 'bm-6', type: 'waist', value: 79, unit: 'cm', date: '2026-10-20', note: 'Natural waist circumference' },
+  { id: 'bm-7', type: 'chest', value: 100, unit: 'cm', date: '2026-10-20', note: 'Chest under arms' },
+];
+
+export function loadBodyMeasurements(): BodyMeasurement[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.BODY_MEASUREMENTS);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load body measurements', err);
+  }
+  saveBodyMeasurements(INITIAL_BODY_MEASUREMENTS);
+  return INITIAL_BODY_MEASUREMENTS;
+}
+
+export function saveBodyMeasurements(measurements: BodyMeasurement[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.BODY_MEASUREMENTS, JSON.stringify(measurements));
+  } catch (err) {
+    console.error('Failed to save body measurements', err);
+  }
+}
+
+// 2. Appearance
+export const INITIAL_APPEARANCE: CharacterAppearance = {
+  skinToneHex: '#D7A781',
+  skinToneNote: 'Warm golden olive undertones; thrives in rich earth tones, muted teal, charcoal.',
+  hair: 'Dark Espresso Brown, medium textured crop',
+  eyeColor: 'Deep Hazel / Amber',
+  photoUrl: '/avatar.jpg',
+  updatedAt: '2026-10-28',
+};
+
+export function loadAppearance(): CharacterAppearance {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.APPEARANCE);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load appearance', err);
+  }
+  saveAppearance(INITIAL_APPEARANCE);
+  return INITIAL_APPEARANCE;
+}
+
+export function saveAppearance(appearance: CharacterAppearance): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.APPEARANCE, JSON.stringify(appearance));
+  } catch (err) {
+    console.error('Failed to save appearance', err);
+  }
+}
+
+// 3. Color Palette
+export const INITIAL_COLOR_PALETTE: PaletteColor[] = [
+  { id: 'pal-1', colorHex: '#18181B', label: 'Deep Carbon', verdict: 'suits', note: 'High contrast foundational base' },
+  { id: 'pal-2', colorHex: '#0891B2', label: 'Celeste Teal', verdict: 'suits', note: 'Signature accent & talisman' },
+  { id: 'pal-3', colorHex: '#3F4E28', label: 'Olive Drab', verdict: 'suits', note: 'Harmonizes with warm olive skin' },
+  { id: 'pal-4', colorHex: '#27272A', label: 'Charcoal Heather', verdict: 'suits', note: 'Sophisticated neutral' },
+  { id: 'pal-5', colorHex: '#451A03', label: 'Espresso Brown', verdict: 'suits', note: 'Warm grounding leather tone' },
+  { id: 'pal-6', colorHex: '#064E3B', label: 'Forest Emerald', verdict: 'suits', note: 'Rich jewel tone' },
+  { id: 'pal-7', colorHex: '#F4EFE6', label: 'Natural Linen', verdict: 'neutral', note: 'Gentle contrast against dark outerwear' },
+  { id: 'pal-8', colorHex: '#71717A', label: 'Slate Grey', verdict: 'neutral', note: 'Balanced middle ground' },
+  { id: 'pal-9', colorHex: '#FDE047', label: 'Electric Yellow', verdict: 'avoid', note: 'Washes out warm undertones' },
+  { id: 'pal-10', colorHex: '#F43F5E', label: 'Vivid Magenta', verdict: 'avoid', note: 'Clashes with olive undertones' },
+  { id: 'pal-11', colorHex: '#D97706', label: 'High-Vis Amber', verdict: 'avoid', note: 'Overpowering artificial saturation' },
+];
+
+export function loadColorPalette(): PaletteColor[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.COLOR_PALETTE);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load color palette', err);
+  }
+  saveColorPalette(INITIAL_COLOR_PALETTE);
+  return INITIAL_COLOR_PALETTE;
+}
+
+export function saveColorPalette(palette: PaletteColor[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.COLOR_PALETTE, JSON.stringify(palette));
+  } catch (err) {
+    console.error('Failed to save color palette', err);
+  }
+}
+
+// 4. Personality
+export const INITIAL_PERSONALITY: PersonalityEntry[] = [
+  {
+    id: 'pers-1',
+    system: 'MBTI',
+    result: 'INTJ-A (The Architect)',
+    dateTaken: '2026-05-12',
+    source: '16Personalities',
+    notes: 'Strategic long-range synthesis with pragmatic execution and high independence.',
+  },
+  {
+    id: 'pers-2',
+    system: 'Enneagram',
+    result: 'Type 5w6 (The Investigator with Loyalist Wing)',
+    dateTaken: '2026-06-20',
+    notes: 'Analytical observer focused on mastery, intellectual competence, and clarity.',
+  },
+  {
+    id: 'pers-3',
+    system: 'Big Five',
+    result: 'High Conscientiousness (91%), High Openness (86%), Low Neuroticism (22%)',
+    dateTaken: '2026-07-15',
+    notes: 'Strong executive function, intellectual curiosity, high emotional stability.',
+  },
+];
+
+export function loadPersonality(): PersonalityEntry[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PERSONALITY);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load personality', err);
+  }
+  savePersonality(INITIAL_PERSONALITY);
+  return INITIAL_PERSONALITY;
+}
+
+export function savePersonality(entries: PersonalityEntry[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PERSONALITY, JSON.stringify(entries));
+  } catch (err) {
+    console.error('Failed to save personality', err);
+  }
+}
+
+// 5. Traits
+export const INITIAL_TRAITS: CharacterTrait[] = [
+  {
+    id: 'trait-1',
+    name: 'Deep Focus & Systems Craft',
+    kind: 'strength',
+    level: 5,
+    note: 'Sustained 3+ hour flow states on engineering architecture and UI systems.',
+  },
+  {
+    id: 'trait-2',
+    name: 'Minimalist Restraint',
+    kind: 'strength',
+    level: 4,
+    note: 'Zero tolerance for bloat, clutter, or superfluous tools.',
+  },
+  {
+    id: 'trait-3',
+    name: 'Kinetic Consistency',
+    kind: 'strength',
+    level: 4,
+    note: 'Committed bodyweight pushup & squat discipline.',
+  },
+  {
+    id: 'trait-4',
+    name: 'Circadian Prayer Anchoring',
+    kind: 'strength',
+    level: 4,
+    note: 'Grounding ambition to the five daily prayers.',
+  },
+  {
+    id: 'trait-5',
+    name: 'Verbal Articulation in High Stakes',
+    kind: 'working_on',
+    level: 3,
+    note: 'Framing thoughts into punchy, immediate verbal summaries for stakeholders.',
+  },
+  {
+    id: 'trait-6',
+    name: 'Thoracic Mobility & Spinal Integrity',
+    kind: 'working_on',
+    level: 2,
+    note: 'Overcoming prolonged desk postures with daily hangs and spinal extension.',
+  },
+  {
+    id: 'trait-7',
+    name: 'Asynchronous Delegation',
+    kind: 'working_on',
+    level: 3,
+    note: 'Providing complete architectural specs before delegating tasks.',
+  },
+];
+
+export function loadTraits(): CharacterTrait[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.TRAITS);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load traits', err);
+  }
+  saveTraits(INITIAL_TRAITS);
+  return INITIAL_TRAITS;
+}
+
+export function saveTraits(traits: CharacterTrait[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.TRAITS, JSON.stringify(traits));
+  } catch (err) {
+    console.error('Failed to save traits', err);
+  }
+}
+
 export function exportSaveFile(): string {
   const data = {
-    version: '3.1',
+    version: '3.2',
     exportedAt: new Date().toISOString(),
     profile: loadProfile(),
     items: loadItems(),
@@ -540,6 +761,11 @@ export function exportSaveFile(): string {
     settings: loadSettings(),
     quests: loadQuests(),
     questEvidence: loadQuestEvidence(),
+    bodyMeasurements: loadBodyMeasurements(),
+    appearance: loadAppearance(),
+    colorPalette: loadColorPalette(),
+    personality: loadPersonality(),
+    traits: loadTraits(),
   };
   return JSON.stringify(data, null, 2);
 }
@@ -559,6 +785,11 @@ export function importSaveFile(jsonString: string): boolean {
       if (parsed.settings) saveSettings(parsed.settings);
       if (parsed.quests) saveQuests(parsed.quests);
       if (parsed.questEvidence) saveQuestEvidence(parsed.questEvidence);
+      if (parsed.bodyMeasurements) saveBodyMeasurements(parsed.bodyMeasurements);
+      if (parsed.appearance) saveAppearance(parsed.appearance);
+      if (parsed.colorPalette) saveColorPalette(parsed.colorPalette);
+      if (parsed.personality) savePersonality(parsed.personality);
+      if (parsed.traits) saveTraits(parsed.traits);
       return true;
     }
   } catch (err) {

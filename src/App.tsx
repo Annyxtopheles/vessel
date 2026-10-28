@@ -15,6 +15,11 @@ import type {
   Quest,
   QuestEvidence,
   EvidenceType,
+  BodyMeasurement,
+  CharacterAppearance,
+  PaletteColor,
+  PersonalityEntry,
+  CharacterTrait,
 } from './types';
 import { 
   loadItems, saveItems, 
@@ -28,6 +33,11 @@ import {
   loadSettings, saveSettings,
   loadQuests, saveQuests,
   loadQuestEvidence, saveQuestEvidence,
+  loadBodyMeasurements, saveBodyMeasurements,
+  loadAppearance, saveAppearance,
+  loadColorPalette, saveColorPalette,
+  loadPersonality, savePersonality,
+  loadTraits, saveTraits,
   exportSaveFile, importSaveFile
 } from './utils/storage';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
@@ -56,6 +66,14 @@ export const App: React.FC = () => {
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [quests, setQuests] = useState<Quest[]>(() => loadQuests());
   const [questEvidence, setQuestEvidence] = useState<QuestEvidence[]>(() => loadQuestEvidence());
+
+  // Stat Sheet states
+  const [measurements, setMeasurements] = useState<BodyMeasurement[]>(() => loadBodyMeasurements());
+  const [appearance, setAppearance] = useState<CharacterAppearance>(() => loadAppearance());
+  const [palette, setPalette] = useState<PaletteColor[]>(() => loadColorPalette());
+  const [personality, setPersonality] = useState<PersonalityEntry[]>(() => loadPersonality());
+  const [traits, setTraits] = useState<CharacterTrait[]>(() => loadTraits());
+
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
   const [activeTab, setActiveTab] = useState<'inventory' | 'rituals' | 'quests' | 'codex'>('inventory');
@@ -95,7 +113,12 @@ export const App: React.FC = () => {
     saveSettings(settings);
     saveQuests(quests);
     saveQuestEvidence(questEvidence);
-  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings, quests, questEvidence]);
+    saveBodyMeasurements(measurements);
+    saveAppearance(appearance);
+    saveColorPalette(palette);
+    savePersonality(personality);
+    saveTraits(traits);
+  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings, quests, questEvidence, measurements, appearance, palette, personality, traits]);
 
   // Audio mute state
   useEffect(() => {
@@ -333,7 +356,6 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteQuest = (questId: string) => {
-    // Soft delete
     setQuests(prev =>
       prev.map(q => (q.id === questId ? { ...q, deletedAt: new Date().toISOString() } : q))
     );
@@ -406,6 +428,71 @@ export const App: React.FC = () => {
     });
 
     sfx.playClick();
+  };
+
+  // Stat Sheet Handlers
+  const handleAddMeasurement = (m: Omit<BodyMeasurement, 'id'>) => {
+    const newM: BodyMeasurement = {
+      ...m,
+      id: `bm-${Date.now()}`,
+    };
+    setMeasurements(prev => [...prev, newM]);
+  };
+
+  const handleDeleteMeasurement = (id: string) => {
+    setMeasurements(prev =>
+      prev.map(m => (m.id === id ? { ...m, deletedAt: new Date().toISOString() } : m))
+    );
+  };
+
+  const handleUpdateAppearance = (app: CharacterAppearance) => {
+    setAppearance(app);
+  };
+
+  const handleAddPaletteColor = (p: Omit<PaletteColor, 'id'>) => {
+    const newColor: PaletteColor = {
+      ...p,
+      id: `pal-${Date.now()}`,
+    };
+    setPalette(prev => [...prev, newColor]);
+  };
+
+  const handleUpdatePaletteColor = (p: PaletteColor) => {
+    setPalette(prev => prev.map(c => (c.id === p.id ? p : c)));
+  };
+
+  const handleDeletePaletteColor = (id: string) => {
+    setPalette(prev =>
+      prev.map(c => (c.id === id ? { ...c, deletedAt: new Date().toISOString() } : c))
+    );
+  };
+
+  const handleAddPersonality = (p: Omit<PersonalityEntry, 'id'>) => {
+    const newEntry: PersonalityEntry = {
+      ...p,
+      id: `pers-${Date.now()}`,
+    };
+    setPersonality(prev => [newEntry, ...prev]);
+  };
+
+  const handleDeletePersonality = (id: string) => {
+    setPersonality(prev =>
+      prev.map(p => (p.id === id ? { ...p, deletedAt: new Date().toISOString() } : p))
+    );
+  };
+
+  const handleAddTrait = (t: Omit<CharacterTrait, 'id'>) => {
+    const newTrait: CharacterTrait = {
+      ...t,
+      id: `trait-${Date.now()}`,
+    };
+    setTraits(prev => [...prev, newTrait]);
+  };
+
+  const handleDeleteTrait = (id: string) => {
+    setTraits(prev =>
+      prev.map(t => (t.id === id ? { ...t, deletedAt: new Date().toISOString() } : t))
+    );
   };
 
   // Update specific day's records
@@ -509,6 +596,11 @@ export const App: React.FC = () => {
           setSettings(loadSettings());
           setQuests(loadQuests());
           setQuestEvidence(loadQuestEvidence());
+          setMeasurements(loadBodyMeasurements());
+          setAppearance(loadAppearance());
+          setPalette(loadColorPalette());
+          setPersonality(loadPersonality());
+          setTraits(loadTraits());
           sfx.playRunicHarmonic();
           alert('Vessel state successfully restored.');
         } else {
@@ -592,6 +684,7 @@ export const App: React.FC = () => {
                   onSaveCurrentLoadout={handleSaveLoadout}
                   onLoadPreset={(preset) => handleApplyLoadout(preset.id)}
                   onDeletePreset={handleDeleteLoadout}
+                  allItems={items}
                 />
 
                 <InventoryGrid
@@ -603,6 +696,7 @@ export const App: React.FC = () => {
                   onSearchChange={setSearchQuery}
                   currencySymbol={settings.currencySymbol || '$'}
                   wearCounts={wearCounts}
+                  palette={palette}
                 />
               </div>
             )}
@@ -648,6 +742,22 @@ export const App: React.FC = () => {
                 xpEvents={xpEvents}
                 onUnlockSkill={handleUnlockSkill}
                 onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
+                measurements={measurements}
+                appearance={appearance}
+                palette={palette}
+                personality={personality}
+                traits={traits}
+                settings={settings}
+                onAddMeasurement={handleAddMeasurement}
+                onDeleteMeasurement={handleDeleteMeasurement}
+                onUpdateAppearance={handleUpdateAppearance}
+                onAddPaletteColor={handleAddPaletteColor}
+                onUpdatePaletteColor={handleUpdatePaletteColor}
+                onDeletePaletteColor={handleDeletePaletteColor}
+                onAddPersonality={handleAddPersonality}
+                onDeletePersonality={handleDeletePersonality}
+                onAddTrait={handleAddTrait}
+                onDeleteTrait={handleDeleteTrait}
               />
             )}
           </div>

@@ -90,6 +90,7 @@ export interface XpEvent {
 export interface AppSettings {
   currencySymbol: string;
   maxEncumbranceKg: number;
+  unitSystem?: 'metric' | 'imperial';
 }
 
 export interface SalahStatus {
@@ -181,4 +182,60 @@ export interface QuestEvidence {
   content: string;
   addedAt: string;
 }
+
+// STAT SHEET TYPES
+export type MeasurementType = 'weight' | 'height' | 'waist' | 'chest' | 'custom';
+
+export interface BodyMeasurement {
+  id: string;
+  type: MeasurementType;
+  customLabel?: string;
+  value: number;
+  unit: string;
+  date: string; // YYYY-MM-DD
+  note?: string;
+  deletedAt?: string;
+}
+
+export interface CharacterAppearance {
+  skinToneHex: string;
+  skinToneNote?: string;
+  hair: string;
+  eyeColor: string;
+  photoUrl?: string;
+  updatedAt?: string;
+}
+
+export type PaletteVerdict = 'suits' | 'neutral' | 'avoid';
+
+export interface PaletteColor {
+  id: string;
+  colorHex: string;
+  label: string;
+  verdict: PaletteVerdict;
+  note?: string;
+  deletedAt?: string;
+}
+
+export interface PersonalityEntry {
+  id: string;
+  system: string;
+  result: string;
+  dateTaken: string; // YYYY-MM-DD
+  source?: string;
+  notes?: string;
+  deletedAt?: string;
+}
+
+export type TraitKind = 'strength' | 'working_on';
+
+export interface CharacterTrait {
+  id: string;
+  name: string;
+  kind: TraitKind;
+  level: number; // 1 - 5
+  note?: string;
+  deletedAt?: string;
+}
+
 

@@ -15,6 +15,7 @@ import {
   BookmarkPlus,
   Sparkles,
   Trash2,
+  Palette,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -35,6 +36,7 @@ interface PaperdollViewProps {
   onSaveCurrentLoadout?: (name: string) => void;
   onLoadPreset?: (loadout: SavedLoadout) => void;
   onDeletePreset?: (loadoutId: string) => void;
+  allItems?: InventoryItem[];
 }
 
 const SLOT_CONFIG: { slot: EquipSlot; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -76,12 +78,37 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
   onSaveCurrentLoadout,
   onLoadPreset,
   onDeletePreset,
+  allItems = [],
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isSavingLoadout, setIsSavingLoadout] = useState(false);
   const [newLoadoutName, setNewLoadoutName] = useState('');
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
   const presetsRef = useRef<HTMLDivElement>(null);
+
+  // Wardrobe by color (owned clothing only)
+  const ownedClothing = allItems.filter(
+    (i) => (i.ownershipStatus || 'owned') === 'owned' && i.category === 'apparel'
+  );
+
+  const colorCounts: Record<string, { count: number; hex: string }> = {};
+  ownedClothing.forEach((item) => {
+    const colName = item.colorName || 'Other';
+    if (!colorCounts[colName]) {
+      colorCounts[colName] = { count: 0, hex: item.colorHex || '#18181B' };
+    }
+    colorCounts[colName].count += 1;
+  });
+
+  const totalGarments = ownedClothing.length;
+  const colorDistribution = Object.entries(colorCounts)
+    .map(([name, data]) => ({
+      name,
+      hex: data.hex,
+      count: data.count,
+      pct: totalGarments > 0 ? Math.round((data.count / totalGarments) * 100) : 0,
+    }))
+    .sort((a, b) => b.count - a.count);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -213,6 +240,47 @@ export const PaperdollView: React.FC<PaperdollViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Wardrobe by Color Mini-Chart (Owned Clothing Only) */}
+        {colorDistribution.length > 0 && (
+          <div className="p-4 rounded-2xl bg-white border border-[#ECECF0] space-y-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-[#111113] flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-[#0891B2]" />
+                <span>Wardrobe by Color ({ownedClothing.length} owned garments)</span>
+              </span>
+              <span className="text-[11px] text-[#6B6B76]">
+                Dominant: <strong className="text-[#111113]">{colorDistribution[0]?.name}</strong> ({colorDistribution[0]?.pct}%)
+              </span>
+            </div>
+
+            {/* Stacked segmented color bar */}
+            <div className="h-3 w-full rounded-full overflow-hidden flex bg-[#ECECF0] shadow-2xs">
+              {colorDistribution.map((c) => (
+                <div
+                  key={c.name}
+                  style={{ width: `${c.pct}%`, backgroundColor: c.hex }}
+                  className="h-full transition-all relative group"
+                  title={`${c.name}: ${c.count} items (${c.pct}%)`}
+                />
+              ))}
+            </div>
+
+            {/* Swatch labels row */}
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px]">
+              {colorDistribution.map((c) => (
+                <div key={c.name} className="flex items-center gap-1.5">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full border border-black/10 flex-shrink-0"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span className="font-medium text-[#111113]">{c.name}</span>
+                  <span className="text-[#9A9AA5]">({c.pct}%)</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Today's Loadout Card */}

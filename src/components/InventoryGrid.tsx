@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import type { InventoryItem, ItemRarity, OwnershipStatus } from '../types';
+import type { InventoryItem, ItemRarity, OwnershipStatus, PaletteColor } from '../types';
+import { matchColorPalette } from '../utils/color';
 import {
   Search,
   Lock,
@@ -14,6 +15,7 @@ import {
   ArrowUp,
   ArrowDown,
   Backpack,
+  Palette,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -27,6 +29,7 @@ interface InventoryGridProps {
   onSearchChange?: (q: string) => void;
   currencySymbol?: string;
   wearCounts?: Record<string, number>;
+  palette?: PaletteColor[];
 }
 
 const RARITY_DOT_COLORS: Record<ItemRarity, string> = {
@@ -123,11 +126,13 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   onSearchChange: externalOnSearchChange,
   currencySymbol = '$',
   wearCounts = {},
+  palette = [],
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<OwnershipStatus | 'all'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<string>('all');
+  const [paletteFilter, setPaletteFilter] = useState<'all' | 'suits' | 'avoid'>('all');
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>('');
   
   // View & Grouping Settings
@@ -160,6 +165,13 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
       if (selectedSeason !== 'all' && item.season !== 'all' && item.season !== selectedSeason) return false;
       if (selectedCondition !== 'all' && item.condition !== selectedCondition) return false;
 
+      // Palette match filter
+      if (paletteFilter !== 'all') {
+        const match = matchColorPalette(item.colorHex, palette);
+        if (paletteFilter === 'suits' && match?.verdict !== 'suits') return false;
+        if (paletteFilter === 'avoid' && match?.verdict !== 'avoid') return false;
+      }
+
       if (activeSearch.trim()) {
         const q = activeSearch.toLowerCase();
         const matchName = item.name.toLowerCase().includes(q);
@@ -177,7 +189,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
       return true;
     });
-  }, [items, selectedStatus, selectedCategory, selectedSeason, selectedCondition, activeSearch]);
+  }, [items, selectedStatus, selectedCategory, selectedSeason, selectedCondition, paletteFilter, palette, activeSearch]);
 
   // Sort Pipeline for Table View
   const sortedItems = useMemo(() => {
@@ -280,6 +292,12 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
     { id: 'status', label: 'Group: Status' },
   ];
 
+  const paletteOptions = [
+    { id: 'all', label: 'Palette: All' },
+    { id: 'suits', label: '★ Suits You' },
+    { id: 'avoid', label: '⚠ Avoid' },
+  ];
+
   return (
     <div className="space-y-6">
       {/* 1. Filter, Search & View Controls Bar */}
@@ -376,6 +394,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             value={selectedCondition}
             options={conditionOptions}
             onChange={(val) => setSelectedCondition(val)}
+          />
+
+          {/* Palette Match Filter */}
+          <CustomSelect
+            value={paletteFilter}
+            options={paletteOptions}
+            onChange={(val) => setPaletteFilter(val as any)}
+            icon={Palette}
           />
 
           {/* Group By Dropdown */}
@@ -525,6 +551,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   const wears = wearCounts[item.id] || 0;
                   const costPerWear = wears > 0 ? (item.goldValue / wears).toFixed(2) : '—';
                   const dotColor = RARITY_DOT_COLORS[item.rarity] || '#9A9AA5';
+                  const paletteMatch = matchColorPalette(item.colorHex, palette);
 
                   return (
                     <tr
@@ -551,7 +578,19 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                                 {item.name}
                               </span>
                             </div>
-                            <span className="text-[11px] text-[#6B6B76] truncate block">{item.colorName}</span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[11px] text-[#6B6B76] truncate">{item.colorName}</span>
+                              {paletteMatch?.verdict === 'suits' && (
+                                <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#E6F6EC] text-[#16A34A] border border-[#16A34A]/20">
+                                  Suits you
+                                </span>
+                              )}
+                              {paletteMatch?.verdict === 'avoid' && (
+                                <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FDECEC] text-[#DC2626] border border-[#DC2626]/20">
+                                  Avoid
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -727,8 +766,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                             </div>
                           )}
 
-                          {/* ONE Status Pill */}
-                          <div className="mt-3">
+                          {/* ONE Status Pill + Palette Match Badge */}
+                          <div className="mt-3 flex items-center gap-1.5 flex-wrap">
                             {status === 'wishlist' ? (
                               <span className="ship-pill-accent">
                                 <Lock className="w-3 h-3" /> Wish to Own
@@ -746,6 +785,25 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                                 Owned
                               </span>
                             )}
+
+                            {(() => {
+                              const match = matchColorPalette(item.colorHex, palette);
+                              if (match?.verdict === 'suits') {
+                                return (
+                                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#E6F6EC] text-[#16A34A] border border-[#16A34A]/20">
+                                    Suits you
+                                  </span>
+                                );
+                              }
+                              if (match?.verdict === 'avoid') {
+                                return (
+                                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#FDECEC] text-[#DC2626] border border-[#DC2626]/20">
+                                    Avoid
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
 
                           {/* Attribute Modifier Chips cleanly placed in body with nowrap */}

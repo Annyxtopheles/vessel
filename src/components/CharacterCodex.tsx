@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import type { CharacterProfile, SkillNode, AttributeType, DayRecord, XpEvent } from '../types';
+import type {
+  CharacterProfile,
+  SkillNode,
+  AttributeType,
+  DayRecord,
+  XpEvent,
+  BodyMeasurement,
+  CharacterAppearance,
+  PaletteColor,
+  PersonalityEntry,
+  CharacterTrait,
+  AppSettings,
+} from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
-import { Cpu, Users, Flame, Check, Lock, Sun, Target, ExternalLink, FileText, X } from 'lucide-react';
+import { Cpu, Users, Flame, Check, Lock, Sun, Target, ExternalLink, FileText, X, Scale } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import {
   derivePillarXp,
@@ -9,6 +21,7 @@ import {
   getPillarLevelProgress,
   getOverallLevelProgress,
 } from '../data/xpConfig';
+import { StatSheetView } from './StatSheetView';
 
 interface CharacterCodexProps {
   profile: CharacterProfile;
@@ -17,6 +30,22 @@ interface CharacterCodexProps {
   xpEvents: XpEvent[];
   onUnlockSkill: (skillId: string, evidence?: { note: string; url?: string }) => void;
   onUpdateProfile?: (updated: Partial<CharacterProfile>) => void;
+  measurements?: BodyMeasurement[];
+  appearance?: CharacterAppearance;
+  palette?: PaletteColor[];
+  personality?: PersonalityEntry[];
+  traits?: CharacterTrait[];
+  settings?: AppSettings;
+  onAddMeasurement?: (m: Omit<BodyMeasurement, 'id'>) => void;
+  onDeleteMeasurement?: (id: string) => void;
+  onUpdateAppearance?: (app: CharacterAppearance) => void;
+  onAddPaletteColor?: (p: Omit<PaletteColor, 'id'>) => void;
+  onUpdatePaletteColor?: (p: PaletteColor) => void;
+  onDeletePaletteColor?: (id: string) => void;
+  onAddPersonality?: (p: Omit<PersonalityEntry, 'id'>) => void;
+  onDeletePersonality?: (id: string) => void;
+  onAddTrait?: (t: Omit<CharacterTrait, 'id'>) => void;
+  onDeleteTrait?: (id: string) => void;
 }
 
 const ATTRIBUTE_ICONS: Record<AttributeType, React.ComponentType<{ className?: string }>> = {
@@ -144,7 +173,29 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   dayRecords,
   xpEvents,
   onUnlockSkill,
+  measurements = [],
+  appearance = {
+    skinToneHex: '#D7A781',
+    skinToneNote: 'Warm golden olive undertones',
+    hair: 'Dark Espresso Brown, medium textured crop',
+    eyeColor: 'Deep Hazel / Amber',
+  },
+  palette = [],
+  personality = [],
+  traits = [],
+  settings = { currencySymbol: '$', maxEncumbranceKg: 12.0, unitSystem: 'metric' },
+  onAddMeasurement = () => {},
+  onDeleteMeasurement = () => {},
+  onUpdateAppearance = () => {},
+  onAddPaletteColor = () => {},
+  onUpdatePaletteColor = () => {},
+  onDeletePaletteColor = () => {},
+  onAddPersonality = () => {},
+  onDeletePersonality = () => {},
+  onAddTrait = () => {},
+  onDeleteTrait = () => {},
 }) => {
+  const [codexSubTab, setCodexSubTab] = useState<'pillars' | 'stats'>('pillars');
   const [selectedAttr, setSelectedAttr] = useState<AttributeType | 'ALL'>('ALL');
   const [evidenceModalSkill, setEvidenceModalSkill] = useState<SkillNode | null>(null);
   const [evidenceNote, setEvidenceNote] = useState('');
@@ -225,8 +276,74 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Overview Card: Four Life Pillars */}
-      <div className="ship-card p-6">
+      {/* Top Tab Bar: Pillars vs Stat Sheet */}
+      <div className="flex items-center justify-between bg-white border border-[#ECECF0] rounded-2xl p-2 shadow-xs">
+        <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl">
+          <button
+            type="button"
+            onClick={() => {
+              sfx.playClick();
+              setCodexSubTab('pillars');
+            }}
+            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              codexSubTab === 'pillars'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
+            }`}
+          >
+            <Target className="w-3.5 h-3.5 text-[#0891B2]" />
+            <span>Pillars & Perks</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              sfx.playClick();
+              setCodexSubTab('stats');
+            }}
+            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              codexSubTab === 'stats'
+                ? 'bg-white text-[#111113] shadow-xs'
+                : 'text-[#6B6B76] hover:text-[#111113]'
+            }`}
+          >
+            <Scale className="w-3.5 h-3.5 text-[#0891B2]" />
+            <span>Stat Sheet</span>
+          </button>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-2 text-xs text-[#6B6B76] pr-3 font-medium">
+          {codexSubTab === 'pillars' ? (
+            <span>4 Pillars • {skills.filter((s) => s.unlocked).length}/{skills.length} Perks</span>
+          ) : (
+            <span>Biometrics • Appearance • Palette • Traits</span>
+          )}
+        </div>
+      </div>
+
+      {codexSubTab === 'stats' ? (
+        <StatSheetView
+          measurements={measurements}
+          appearance={appearance}
+          palette={palette}
+          personality={personality}
+          traits={traits}
+          settings={settings}
+          onAddMeasurement={onAddMeasurement}
+          onDeleteMeasurement={onDeleteMeasurement}
+          onUpdateAppearance={onUpdateAppearance}
+          onAddPaletteColor={onAddPaletteColor}
+          onUpdatePaletteColor={onUpdatePaletteColor}
+          onDeletePaletteColor={onDeletePaletteColor}
+          onAddPersonality={onAddPersonality}
+          onDeletePersonality={onDeletePersonality}
+          onAddTrait={onAddTrait}
+          onDeleteTrait={onDeleteTrait}
+        />
+      ) : (
+        <>
+          {/* Overview Card: Four Life Pillars */}
+          <div className="ship-card p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECECF0]">
           <div>
             <div className="flex items-center gap-2.5">
@@ -475,6 +592,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           })}
         </div>
       </div>
+      </>
+      )}
 
       {/* Evidence Submission Modal for Manual Requirements */}
       {evidenceModalSkill && (
