@@ -27,10 +27,11 @@ export const App: React.FC = () => {
   const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('rituals');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -281,7 +282,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#0d0e12] text-[#f3f4f6] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#F4F4F6] text-[#111113] overflow-hidden">
       <input
         type="file"
         ref={fileInputRef}
@@ -290,7 +291,7 @@ export const App: React.FC = () => {
         className="hidden"
       />
 
-      {/* Left Sidebar Dashboard Navigation (Anchored across all views) */}
+      {/* Left Sidebar Dashboard Navigation */}
       <Sidebar
         profile={profile}
         activeTab={activeTab}
@@ -307,7 +308,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#0a0b0e]">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#F4F4F6]">
         
         {/* Consistent Unified TopBar */}
         <TopBar
@@ -316,17 +317,26 @@ export const App: React.FC = () => {
           onShiftDate={handleShiftDate}
           onResetToday={handleResetToday}
           onOpenAddItem={() => setIsAddItemOpen(true)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
-        {/* Scrollable View Content (Exact same starting baseline & padding) */}
-        <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6">
-          <div className="max-w-[1600px] mx-auto">
+        {/* Scrollable View Content */}
+        <div className="flex-1 overflow-y-auto px-8 py-8">
+          <div className="max-w-[1520px] mx-auto space-y-6">
             {activeTab === 'inventory' && (
               <div className="space-y-6">
                 <PaperdollView
                   equippedItems={equippedItems}
                   onInspectItem={setInspectedItem}
                   onUnequipItem={handleUnequipItem}
+                  currentEncumbrance={currentEncumbrance}
+                  maxEncumbranceKg={profile.maxEncumbranceKg}
+                  totalGoldValue={totalGoldValue}
+                  totalItemsCount={items.length}
+                  ownedCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'owned').length}
+                  wishlistCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'wishlist').length}
+                  pastCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'past').length}
                 />
 
                 <InventoryGrid
@@ -334,6 +344,8 @@ export const App: React.FC = () => {
                   onInspectItem={setInspectedItem}
                   onToggleEquip={handleToggleEquip}
                   onOpenAddItem={() => setIsAddItemOpen(true)}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
                 />
               </div>
             )}

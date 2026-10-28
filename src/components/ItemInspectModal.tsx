@@ -14,10 +14,10 @@ interface ItemInspectModalProps {
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
-  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#34d399]' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#38bdf8]' },
-  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#f87171]' },
-  needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#dc2626]' },
+  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#16A34A]' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#7C6CF0]' },
+  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#F59E0B]' },
+  needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#DC2626]' },
 };
 
 const FULL_MODIFIER_NAMES: Record<string, string> = {
@@ -136,29 +136,29 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         sfx.playClick();
         onClose();
       }}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
     >
-      <div 
-        className="w-full max-w-lg bg-[#101217] border border-[#1a1d26] rounded-xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 cursor-default max-h-[90vh] flex flex-col"
+      <div
+        className="w-full max-w-lg bg-white border border-[#ECECF0] rounded-2xl overflow-hidden shadow-xl relative animate-in fade-in zoom-in-95 cursor-default max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header / Actions */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#181b24] bg-[#101217]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECECF0] bg-white">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider font-semibold text-[#94a3b8]">
-              {isEditing ? 'Editing Item Details' : 'Item Codex Record'}
+            <span className="text-[13px] font-semibold text-[#111113]">
+              {isEditing ? 'Editing Item Details' : 'Item Details'}
             </span>
-            <span className="linear-tag font-medium">
+            <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[11px] font-medium capitalize">
               {item.rarity}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {!isEditing ? (
               <>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-1.5 rounded-md text-[#94a3b8] hover:text-white hover:bg-[#151922] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
                   title="Edit item attributes"
                 >
                   <Edit3 className="w-4 h-4" />
@@ -166,7 +166,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 {onDuplicateItem && (
                   <button
                     onClick={handleDuplicate}
-                    className="p-1.5 rounded-md text-[#94a3b8] hover:text-white hover:bg-[#151922] transition-colors"
+                    className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
                     title="Duplicate as new item"
                   >
                     <Copy className="w-4 h-4" />
@@ -176,7 +176,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             ) : (
               <button
                 onClick={handleSaveEdits}
-                className="flex items-center gap-1 px-3 py-1 rounded bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#7C6CF0] hover:bg-[#6A58E8] text-white text-[12px] font-semibold transition-colors"
               >
                 <Check className="w-3.5 h-3.5" /> Save
               </button>
@@ -187,7 +187,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 sfx.playClick();
                 onClose();
               }}
-              className="p-1.5 rounded-md text-[#94a3b8] hover:text-white hover:bg-[#151922] transition-colors"
+              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -197,14 +197,13 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1">
           {/* Item Image Showcase */}
-          {(!isEditing && item.imageUrl) && (
-            <div className="w-full h-52 bg-[#090b0e] relative overflow-hidden border-b border-[#181b24]">
+          {!isEditing && item.imageUrl && (
+            <div className="w-full h-52 bg-[#F4F4F6] relative overflow-hidden border-b border-[#ECECF0] flex items-center justify-center">
               <img
                 src={item.imageUrl}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101217] via-transparent to-transparent" />
             </div>
           )}
 
@@ -213,26 +212,26 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               /* Inline Edit Mode Form */
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                     Item Name
                   </label>
                   <input
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-sm text-white focus:outline-none focus:border-[#0ea5e9]"
+                    className="ship-input w-full px-3 py-2 text-[14px]"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Category
                     </label>
                     <select
                       value={editCategory}
                       onChange={(e) => setEditCategory(e.target.value as ItemCategory)}
-                      className="w-full px-2.5 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white"
+                      className="ship-input w-full px-3 py-2 text-[13px]"
                     >
                       <option value="apparel">Apparel & Wardrobe</option>
                       <option value="tech">Tech & Hardware</option>
@@ -242,21 +241,21 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Subcategory Tag
                     </label>
                     <input
                       type="text"
                       value={editSubCategory}
                       onChange={(e) => setEditSubCategory(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white"
+                      className="ship-input w-full px-3 py-2 text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Weight (kg)
                     </label>
                     <input
@@ -264,30 +263,30 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       step="0.01"
                       value={editWeightKg}
                       onChange={(e) => setEditWeightKg(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white"
+                      className="ship-input w-full px-3 py-2 text-[13px]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Value ($)
                     </label>
                     <input
                       type="number"
                       value={editGoldValue}
                       onChange={(e) => setEditGoldValue(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white"
+                      className="ship-input w-full px-3 py-2 text-[13px]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Condition
                     </label>
                     <select
                       value={editCondition}
                       onChange={(e) => setEditCondition(e.target.value as ItemCondition)}
-                      className="w-full px-2.5 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white"
+                      className="ship-input w-full px-3 py-2 text-[13px]"
                     >
                       <option value="pristine">Pristine</option>
                       <option value="seasoned">Seasoned</option>
@@ -298,7 +297,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
+                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                     Image (URL or Local File Upload)
                   </label>
                   <div className="flex items-center gap-2">
@@ -307,10 +306,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       value={editImageUrl}
                       onChange={(e) => setEditImageUrl(e.target.value)}
                       placeholder="https://... or upload file"
-                      className="flex-1 px-3 py-1.5 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white focus:outline-none focus:border-[#0ea5e9]"
+                      className="ship-input flex-1 px-3 py-2 text-[13px]"
                     />
-                    <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#121620] border border-[#1d222e] text-xs text-[#94a3b8] hover:text-white hover:bg-[#1a202d] transition-colors font-medium">
-                      <Upload className="w-3.5 h-3.5 text-[#38bdf8]" />
+                    <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] text-[#111113] hover:bg-[#EAEAEF] transition-colors font-medium">
+                      <Upload className="w-3.5 h-3.5 text-[#7C6CF0]" />
                       <span>Upload</span>
                       <input
                         type="file"
@@ -323,14 +322,14 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-1">
-                    Lore / Functional Purpose
+                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    Lore / Purpose Note
                   </label>
                   <textarea
                     rows={3}
                     value={editLore}
                     onChange={(e) => setEditLore(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0b0d12] border border-[#1a1d26] rounded-md text-xs text-white focus:outline-none focus:border-[#0ea5e9]"
+                    className="ship-input w-full px-3 py-2 text-[13px]"
                   />
                 </div>
               </div>
@@ -339,19 +338,25 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               <>
                 {/* Top Badges */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="linear-tag">
+                  <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[12px] font-medium">
                     {item.category} • {item.subCategory}
                   </span>
 
                   {/* Ownership Status Badge */}
-                  <span className="linear-tag flex items-center gap-1.5 font-medium">
-                    {currentStatus === 'owned' && <span className="text-[#34d399]">● Owned</span>}
-                    {currentStatus === 'wishlist' && <span className="text-[#38bdf8]">● Wishlist</span>}
-                    {currentStatus === 'past' && <span className="text-[#60a5fa]">● Past Possession ({item.pastReason || 'archived'})</span>}
-                  </span>
+                  {currentStatus === 'owned' && (
+                    <span className="ship-pill-success text-[12px]">● Owned</span>
+                  )}
+                  {currentStatus === 'wishlist' && (
+                    <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] text-[12px] font-medium">● Wishlist</span>
+                  )}
+                  {currentStatus === 'past' && (
+                    <span className="ship-pill bg-[#ECECF0] text-[#6B6B76] text-[12px] font-medium">
+                      ● Past ({item.pastReason || 'archived'})
+                    </span>
+                  )}
 
                   {item.equipSlot && (
-                    <span className="linear-tag">
+                    <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[12px] font-medium">
                       Slot: {item.equipSlot}
                     </span>
                   )}
@@ -359,12 +364,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Title & Metadata */}
                 <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-white tracking-tight">
+                  <h2 className="text-[20px] font-semibold text-[#111113] tracking-tight">
                     {item.name}
                   </h2>
-                  <div className="flex items-center gap-2 text-xs text-[#94a3b8] mt-1 font-medium">
+                  <div className="flex items-center gap-2 text-[13px] text-[#6B6B76] mt-1 font-normal">
                     <span
-                      className="w-2.5 h-2.5 rounded-full"
+                      className="w-2.5 h-2.5 rounded-full border border-black/10"
                       style={{ backgroundColor: item.colorHex }}
                     />
                     <span>{item.colorName}</span>
@@ -374,12 +379,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 {/* Condition Bar */}
-                <div className="mb-4 p-3 rounded-lg bg-[#0b0d12] border border-[#1a1d26]">
-                  <div className="flex justify-between items-center text-xs text-[#94a3b8] mb-1.5 font-medium">
+                <div className="mb-4 p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
+                  <div className="flex justify-between items-center text-[13px] text-[#6B6B76] mb-2 font-medium">
                     <span>Condition Status</span>
-                    <span className="text-white">{conditionInfo.label}</span>
+                    <span className="text-[#111113] font-semibold">{conditionInfo.label}</span>
                   </div>
-                  <div className="h-1.5 w-full bg-[#121620] rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-[#ECECF0] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${conditionInfo.color} transition-all duration-300`}
                       style={{ width: `${conditionInfo.pct}%` }}
@@ -387,29 +392,29 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
                 </div>
 
-                {/* Lore / Description */}
-                <div className="mb-4 p-3.5 rounded-lg bg-[#0b0d12] border border-[#1a1d26] text-xs text-[#94a3b8] leading-relaxed">
+                {/* Description */}
+                <div className="mb-4 p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] text-[#6B6B76] leading-relaxed">
                   {item.lore}
                 </div>
 
                 {/* Wishlist Goal if wishlist */}
                 {currentStatus === 'wishlist' && (
-                  <div className="mb-4 p-3.5 rounded-lg bg-[#081b26] border border-[#075985]/50 text-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#38bdf8] mb-1 text-xs">
+                  <div className="mb-4 p-3.5 rounded-xl bg-[#EDEAFD] border border-[#7C6CF0]/30 text-[13px]">
+                    <div className="flex items-center gap-1.5 font-semibold text-[#7C6CF0] mb-1">
                       <Lock className="w-3.5 h-3.5" /> Acquisition Milestone Goal
                     </div>
-                    <p className="text-[#94a3b8]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
+                    <p className="text-[#111113]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
                   </div>
                 )}
 
                 {/* Past Ownership Memory Notes */}
                 {currentStatus === 'past' && (
-                  <div className="mb-4 p-3.5 rounded-lg bg-[#0f1d2d] border border-[#1e3a5f] text-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#60a5fa] mb-1 text-xs">
-                      <History className="w-3.5 h-3.5" /> Possession Archive
+                  <div className="mb-4 p-3.5 rounded-xl bg-[#ECECF0] border border-[#ECECF0] text-[13px]">
+                    <div className="flex items-center gap-1.5 font-semibold text-[#111113] mb-1">
+                      <History className="w-3.5 h-3.5 text-[#6B6B76]" /> Possession Archive
                     </div>
-                    <p className="text-[#94a3b8]">
-                      Parted with via <strong className="capitalize text-white">{item.pastReason || 'retiring'}</strong>
+                    <p className="text-[#6B6B76]">
+                      Parted with via <strong className="capitalize text-[#111113]">{item.pastReason || 'retiring'}</strong>
                       {item.pastDate ? ` on ${item.pastDate}` : ''}. Preserved in your life history without adding to active wardrobe carry weight.
                     </p>
                   </div>
@@ -417,14 +422,14 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Conferred Buffs */}
                 <div className="mb-4">
-                  <h3 className="text-xs uppercase tracking-wider font-semibold text-[#94a3b8] mb-2">
+                  <h3 className="text-[13px] font-semibold text-[#111113] mb-2">
                     Conferred Life Modifiers
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {item.buffs.map((buff, i) => (
-                      <div key={i} className="p-2.5 rounded-lg bg-[#0b0d12] border border-[#1a1d26] flex items-center justify-between text-xs">
-                        <span className="text-[#94a3b8]">{buff.label}</span>
-                        <span className="linear-tag text-[#38bdf8] bg-[#0c1f2e] border-[#075985]/40 font-semibold">
+                      <div key={i} className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between text-[13px]">
+                        <span className="text-[#6B6B76]">{buff.label}</span>
+                        <span className="ship-pill bg-[#EDEAFD] text-[#7C6CF0] font-semibold text-[12px]">
                           +{buff.value} {FULL_MODIFIER_NAMES[buff.stat] || buff.stat}
                         </span>
                       </div>
@@ -433,8 +438,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 {/* Ownership Lifecycle Transition Control */}
-                <div className="p-3.5 rounded-lg bg-[#0b0d12] border border-[#1a1d26]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[#94a3b8] block mb-2">
+                <div className="p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
+                  <span className="text-[13px] font-semibold text-[#111113] block mb-2.5">
                     Possession State:
                   </span>
 
@@ -445,7 +450,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                           sfx.playEquip();
                           onChangeStatus(item, 'owned');
                         }}
-                        className="px-3 py-1.5 rounded-md bg-[#121620] hover:bg-[#1a202d] text-white border border-[#1d222e] text-xs font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
                       >
                         Mark as Owned
                       </button>
@@ -457,7 +462,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                           sfx.playClick();
                           onChangeStatus(item, 'wishlist');
                         }}
-                        className="px-3 py-1.5 rounded-md bg-[#121620] hover:bg-[#1a202d] text-white border border-[#1d222e] text-xs font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
                       >
                         Move to Wishlist
                       </button>
@@ -466,7 +471,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {currentStatus !== 'past' && !isChoosingPastReason && (
                       <button
                         onClick={() => setIsChoosingPastReason(true)}
-                        className="px-3 py-1.5 rounded-md bg-[#121620] hover:bg-[#1a202d] text-white border border-[#1d222e] text-xs font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
                       >
                         Parted With
                       </button>
@@ -475,12 +480,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                   {/* Sub-form when choosing Parted With reason */}
                   {isChoosingPastReason && (
-                    <div className="mt-3 pt-3 border-t border-[#181b24] flex items-center gap-2">
-                      <span className="text-xs text-[#94a3b8] font-medium">Reason:</span>
+                    <div className="mt-3 pt-3 border-t border-[#ECECF0] flex items-center gap-2">
+                      <span className="text-[13px] text-[#6B6B76] font-medium">Reason:</span>
                       <select
                         value={selectedPastReason}
                         onChange={(e) => setSelectedPastReason(e.target.value as PastReason)}
-                        className="px-2.5 py-1 bg-[#121620] border border-[#1d222e] rounded text-xs text-white"
+                        className="ship-input px-3 py-1 text-[13px]"
                       >
                         <option value="sold">Sold</option>
                         <option value="gifted">Gifted</option>
@@ -491,13 +496,13 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                       <button
                         onClick={() => handleSetPast(selectedPastReason)}
-                        className="px-3 py-1 rounded bg-[#0284c7] text-white text-xs font-semibold hover:bg-[#0369a1]"
+                        className="px-3 py-1 rounded-xl bg-[#7C6CF0] text-white text-[13px] font-medium hover:bg-[#6A58E8] transition-colors"
                       >
                         Confirm Archive
                       </button>
                       <button
                         onClick={() => setIsChoosingPastReason(false)}
-                        className="px-2 py-1 rounded text-[#94a3b8] text-xs hover:text-white"
+                        className="px-2 py-1 rounded-xl text-[#6B6B76] text-[13px] hover:text-[#111113]"
                       >
                         Cancel
                       </button>
@@ -510,12 +515,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
 
         {/* Footer Metrics & Actions */}
-        <div className="p-4 bg-[#0e1015] border-t border-[#181b24] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-xs text-[#94a3b8]">
+        <div className="px-6 py-4 bg-white border-t border-[#ECECF0] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-4 text-[13px] text-[#6B6B76]">
             <span className="flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-[#64748b]" /> {item.weightKg} kg
+              <Scale className="w-4 h-4 text-[#9A9AA5]" /> {item.weightKg} kg
             </span>
-            <span className="text-white font-semibold">
+            <span className="text-[#111113] font-semibold">
               ${item.goldValue.toLocaleString()}
             </span>
           </div>
@@ -530,7 +535,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 }
               }}
               title="Delete item permanently"
-              className="p-2 rounded-md bg-[#121620] hover:bg-rose-950/40 text-[#94a3b8] hover:text-rose-400 border border-[#1d222e] transition-colors"
+              className="p-2 rounded-xl bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8] transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -541,10 +546,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   sfx.playEquip();
                   onToggleEquip(item);
                 }}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all ${
                   item.isEquipped
-                    ? 'bg-[#121620] hover:bg-rose-950/60 text-white hover:text-rose-300 border border-[#1d222e]'
-                    : 'bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-xs'
+                    ? 'bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8]'
+                    : 'bg-[#7C6CF0] hover:bg-[#6A58E8] text-white'
                 }`}
               >
                 {item.isEquipped ? 'Unequip from Loadout' : 'Equip to Loadout'}

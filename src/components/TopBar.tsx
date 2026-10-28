@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { formatHumanDate, getTodayLocalDateStr } from '../utils/date';
 
@@ -9,7 +9,8 @@ interface TopBarProps {
   onShiftDate: (delta: number) => void;
   onResetToday: () => void;
   onOpenAddItem: () => void;
-  onOpenAddHabit?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -18,77 +19,71 @@ export const TopBar: React.FC<TopBarProps> = ({
   onShiftDate,
   onResetToday,
   onOpenAddItem,
-  onOpenAddHabit,
+  searchQuery = '',
+  onSearchChange,
 }) => {
   const todayStr = getTodayLocalDateStr();
   const isToday = selectedDate === todayStr;
 
-  const titles: Record<'rituals' | 'inventory' | 'codex', { title: string; subtitle: string }> = {
-    rituals: {
-      title: 'Daily Cadence & Rituals',
-      subtitle: 'Circadian prayer rhythm, daily disciplines, and physical volume',
-    },
+  const tabConfig: Record<'rituals' | 'inventory' | 'codex', { breadcrumb: string; title: string }> = {
     inventory: {
-      title: 'Life Inventory & Wardrobe',
-      subtitle: 'Active loadout, physical possessions, EDC gear, and wishlists',
+      breadcrumb: 'Personal Inventory / Wardrobe & Relics',
+      title: 'Life Inventory',
+    },
+    rituals: {
+      breadcrumb: 'Daily Practice / Ciradian Anchors',
+      title: 'Daily Cadence',
     },
     codex: {
+      breadcrumb: 'Character System / Four Life Pillars',
       title: 'Character Codex',
-      subtitle: 'Four life pillars, attribute milestones, and trait progression',
     },
   };
 
-  const current = titles[activeTab];
+  const current = tabConfig[activeTab];
 
   return (
-    <header className="h-14 border-b border-[#1a1d26] bg-[#090b0e]/95 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between">
-      {/* Left: View Title & Breadcrumb */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0ea5e9]" />
-            <span className="font-semibold text-xs text-white tracking-tight">
-              {current.title}
-            </span>
-          </div>
-          <p className="text-[11px] text-[#94a3b8] truncate hidden sm:block mt-0.5">
-            {current.subtitle}
-          </p>
+    <header className="bg-white border-b border-[#ECECF0] px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
+      {/* Left: Eyebrow Breadcrumb + Large Page Title */}
+      <div>
+        <div className="text-[13px] text-[#6B6B76] font-medium mb-1">
+          {current.breadcrumb}
         </div>
+        <h1 className="text-[28px] leading-[32px] font-semibold text-[#111113] tracking-tight">
+          {current.title}
+        </h1>
       </div>
 
-      {/* Right: Contextual Controls */}
-      <div className="flex items-center gap-2.5">
+      {/* Right: Search + Primary Action */}
+      <div className="flex items-center gap-3">
+        {/* On Rituals, show date navigator */}
         {activeTab === 'rituals' && (
-          <>
-            {/* Date Navigator */}
-            <div className="flex items-center bg-[#10131a] border border-[#1d222e] rounded-lg p-0.5 text-xs">
-              <button
-                onClick={() => {
-                  sfx.playClick();
-                  onShiftDate(-1);
-                }}
-                className="p-1 rounded text-[#94a3b8] hover:text-white hover:bg-[#181d29] transition-colors"
-                title="Previous Day"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
+          <div className="flex items-center bg-[#F4F4F6] border border-[#ECECF0] rounded-xl p-1 text-xs">
+            <button
+              onClick={() => {
+                sfx.playClick();
+                onShiftDate(-1);
+              }}
+              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-white transition-colors"
+              title="Previous Day"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
 
-              <span className="px-3 py-0.5 text-xs text-[#f1f5f9] font-medium">
-                {formatHumanDate(selectedDate)}
-              </span>
+            <span className="px-3 text-xs text-[#111113] font-semibold">
+              {formatHumanDate(selectedDate)}
+            </span>
 
-              <button
-                onClick={() => {
-                  sfx.playClick();
-                  onShiftDate(1);
-                }}
-                className="p-1 rounded text-[#94a3b8] hover:text-white hover:bg-[#181d29] transition-colors"
-                title="Next Day"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                sfx.playClick();
+                onShiftDate(1);
+              }}
+              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-white transition-colors"
+              title="Next Day"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
 
             {!isToday && (
               <button
@@ -96,36 +91,38 @@ export const TopBar: React.FC<TopBarProps> = ({
                   sfx.playClick();
                   onResetToday();
                 }}
-                className="px-2.5 py-1 rounded-md text-xs bg-[#0c1f2e] hover:bg-[#0e2a3f] text-[#38bdf8] border border-[#075985]/40 transition-colors font-medium"
+                className="ml-1 px-2.5 py-1 rounded-lg text-xs bg-white text-[#7C6CF0] font-semibold shadow-xs"
               >
-                Jump to Today
+                Today
               </button>
             )}
-
-            {onOpenAddHabit && (
-              <button
-                onClick={() => {
-                  sfx.playClick();
-                  onOpenAddHabit();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>New Discipline</span>
-              </button>
-            )}
-          </>
+          </div>
         )}
 
+        {/* Search Bar (if search handler provided) */}
+        {onSearchChange && (
+          <div className="relative w-64 md:w-72">
+            <Search className="w-4 h-4 text-[#9A9AA5] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search possessions, tags..."
+              className="ship-input w-full pl-9 pr-3.5 text-sm py-2"
+            />
+          </div>
+        )}
+
+        {/* Primary Action Button (Single Accent Button on Screen) */}
         {activeTab === 'inventory' && (
           <button
             onClick={() => {
               sfx.playClick();
               onOpenAddItem();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C6CF0] hover:bg-[#6B5AE0] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             <span>Add Item</span>
           </button>
         )}
