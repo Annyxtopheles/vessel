@@ -20,24 +20,24 @@ const ATTRIBUTE_ICONS: Record<AttributeType, React.ComponentType<{ className?: s
 
 const ATTRIBUTE_ACCENTS: Record<AttributeType, { text: string; bar: string; iconColor: string }> = {
   STR: {
-    text: 'text-[#e08279]',
-    bar: 'bg-[#e08279]',
-    iconColor: 'text-[#e08279]',
+    text: 'text-[#f87171]',
+    bar: 'bg-[#f87171]',
+    iconColor: 'text-[#f87171]',
   },
   INT: {
-    text: 'text-[#85a6cf]',
-    bar: 'bg-[#85a6cf]',
-    iconColor: 'text-[#85a6cf]',
+    text: 'text-[#60a5fa]',
+    bar: 'bg-[#60a5fa]',
+    iconColor: 'text-[#60a5fa]',
   },
   WIS: {
-    text: 'text-[#a5b4fc]',
-    bar: 'bg-[#6366f1]',
-    iconColor: 'text-[#a5b4fc]',
+    text: 'text-[#38bdf8]',
+    bar: 'bg-[#0ea5e9]',
+    iconColor: 'text-[#38bdf8]',
   },
   CHA: {
-    text: 'text-[#8ebd9b]',
-    bar: 'bg-[#8ebd9b]',
-    iconColor: 'text-[#8ebd9b]',
+    text: 'text-[#34d399]',
+    bar: 'bg-[#34d399]',
+    iconColor: 'text-[#34d399]',
   },
 };
 
@@ -63,24 +63,24 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
     <div className="space-y-6">
       
       {/* Overview Card: Four Life Pillars */}
-      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#20232c]">
+      <div className="bg-[#101217] border border-[#1a1d26] rounded-xl p-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#181b24]">
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-sm font-semibold text-[#f3f4f6] tracking-tight">
+              <h2 className="text-sm font-semibold text-white tracking-tight">
                 Four Life Pillars & Progression
               </h2>
-              <span className="linear-tag text-[#818cf8]">
+              <span className="linear-tag text-[#38bdf8] bg-[#0c1f2e] border-[#075985]/40 font-semibold">
                 Level {profile.level} Master
               </span>
             </div>
-            <p className="text-xs text-[#8a8f98] mt-0.5">
+            <p className="text-xs text-[#94a3b8] mt-0.5">
               Cumulative character progression calculated across physical, craft, spiritual, and social disciplines.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="linear-tag font-mono text-[#8a8f98]">
+            <span className="linear-tag text-[#94a3b8]">
               {skills.filter(s => s.unlocked).length} of {skills.length} Perks Attuned
             </span>
           </div>
@@ -103,16 +103,16 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 }}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-[#181a26] border-[#444a73]'
-                    : 'bg-[#0d0e12] border-[#20232c] hover:border-[#2e323e]'
+                    ? 'bg-[#0c1f2e] border-[#0ea5e9] shadow-xs'
+                    : 'bg-[#0b0d12] border-[#181c24] hover:border-[#232938]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-[#161822] border border-[#20232c] flex items-center justify-center">
+                    <div className="w-6 h-6 rounded bg-[#10141d] border border-[#1d222e] flex items-center justify-center">
                       <Icon className={`w-3.5 h-3.5 ${accent.iconColor}`} />
                     </div>
-                    <span className={`text-[11px] font-mono uppercase tracking-wider ${accent.text}`}>
+                    <span className={`text-[11px] uppercase tracking-wider font-semibold ${accent.text}`}>
                       {ATTRIBUTE_NAMES[key]}
                     </span>
                   </div>
@@ -121,19 +121,19 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   </span>
                 </div>
 
-                <h4 className="text-xs font-semibold text-[#f3f4f6] mb-0.5">{name}</h4>
-                <div className="text-[11px] text-[#8a8f98] mb-2">{subtitle}</div>
-                <p className="text-[11px] text-[#8a8f98] leading-relaxed line-clamp-2 mb-3">
+                <h4 className="text-xs font-semibold text-white mb-0.5">{name}</h4>
+                <div className="text-[11px] text-[#94a3b8] mb-2">{subtitle}</div>
+                <p className="text-[11px] text-[#64748b] leading-relaxed line-clamp-2 mb-3">
                   {desc}
                 </p>
 
                 {/* Progress bar */}
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] font-mono text-[#8a8f98]">
+                  <div className="flex justify-between text-[10px] text-[#94a3b8] font-medium">
                     <span>EXP</span>
                     <span>{attr.xp % 1000} / 1000</span>
                   </div>
-                  <div className="h-1 w-full bg-[#161822] rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-[#121620] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${accent.bar} rounded-full transition-all`}
                       style={{ width: `${(attr.xp % 1000) / 10}%` }}
@@ -147,23 +147,23 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
       </div>
 
       {/* Skills & Habit Milestones */}
-      <div className="bg-[#12141a] border border-[#20232c] rounded-xl p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#20232c] gap-3 mb-5">
+      <div className="bg-[#101217] border border-[#1a1d26] rounded-xl p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#181b24] gap-3 mb-5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#161824] border border-[#262a38] flex items-center justify-center text-[#818cf8]">
+            <div className="w-8 h-8 rounded-lg bg-[#0c1f2e] border border-[#075985]/50 flex items-center justify-center text-[#38bdf8]">
               <Target className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#f3f4f6] tracking-tight">
+              <h3 className="text-sm font-semibold text-white tracking-tight">
                 Skill Milestones & Progression Trees
               </h3>
-              <p className="text-xs text-[#8a8f98]">
+              <p className="text-xs text-[#94a3b8]">
                 Unlock specific real-life traits as you pass consistency benchmarks
               </p>
             </div>
           </div>
 
-          {/* Filter Pills with Full Clear Names */}
+          {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {[
               { id: 'ALL', label: 'All Attributes' },
@@ -178,10 +178,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   sfx.playClick();
                   setSelectedAttr(id as AttributeType | 'ALL');
                 }}
-                className={`px-2.5 py-1 rounded text-xs font-mono transition-colors border ${
+                className={`px-3 py-1 rounded text-xs transition-colors border font-medium ${
                   selectedAttr === id
-                    ? 'bg-[#1e2233] border-[#373d57] text-[#c7d2fe] font-semibold'
-                    : 'bg-[#0d0e12] border-[#20232c] text-[#8a8f98] hover:text-[#f3f4f6]'
+                    ? 'bg-[#0c1f2e] border-[#075985] text-[#38bdf8] font-semibold'
+                    : 'bg-[#0b0d12] border-[#181c24] text-[#94a3b8] hover:text-white'
                 }`}
               >
                 {label}
@@ -201,52 +201,52 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 key={skill.id}
                 className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
                   skill.unlocked
-                    ? 'bg-[#151722] border-[#25293d]'
-                    : 'bg-[#0d0e12]/60 border-[#1c1e27] opacity-80'
+                    ? 'bg-[#0e1219] border-[#1a1f2b] shadow-xs'
+                    : 'bg-[#0b0d12] border-[#181c24] opacity-80'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="linear-tag flex items-center gap-1">
-                      <Icon className="w-3 h-3 text-[#8a8f98]" />
+                      <Icon className="w-3 h-3 text-[#94a3b8]" />
                       <span className={accent.text}>{ATTRIBUTE_NAMES[skill.attribute]}</span>
-                      <span className="text-[#8a8f98]">• Tier {skill.tier}</span>
+                      <span className="text-[#94a3b8]">• Tier {skill.tier}</span>
                     </span>
 
                     {skill.unlocked ? (
-                      <span className="linear-tag flex items-center gap-1 text-[#8ebd9b] border-[#8ebd9b]/30">
-                        <Check className="w-3 h-3 text-[#8ebd9b]" /> Attuned
+                      <span className="linear-tag flex items-center gap-1 text-[#34d399] border-[#065f46]/50 bg-[#064e3b]/30 font-medium">
+                        <Check className="w-3 h-3 text-[#34d399]" /> Attuned
                       </span>
                     ) : (
-                      <span className="linear-tag flex items-center gap-1 text-[#8a8f98]">
+                      <span className="linear-tag flex items-center gap-1 text-[#64748b]">
                         <Lock className="w-3 h-3" /> Locked
                       </span>
                     )}
                   </div>
 
-                  <h4 className="font-medium text-xs text-[#f3f4f6] mb-1">
+                  <h4 className="font-semibold text-xs text-white mb-1">
                     {skill.title}
                   </h4>
-                  <p className="text-xs text-[#8a8f98] leading-relaxed mb-3">
+                  <p className="text-xs text-[#94a3b8] leading-relaxed mb-3">
                     {skill.description}
                   </p>
 
-                  <div className="p-2.5 rounded-lg bg-[#0d0e12] border border-[#20232c] mb-3 text-xs">
-                    <span className="text-[#8a8f98] font-mono text-[10px] uppercase block mb-0.5">Bonus Modifier:</span>
-                    <span className="font-mono text-[#818cf8]">{skill.bonus}</span>
+                  <div className="p-2.5 rounded-lg bg-[#0b0d12] border border-[#1a1d26] mb-3 text-xs">
+                    <span className="text-[#64748b] text-[10px] uppercase font-semibold block mb-0.5">Bonus Modifier:</span>
+                    <span className="font-semibold text-[#38bdf8]">{skill.bonus}</span>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#20232c]">
-                  <div className="flex justify-between items-center text-xs text-[#8a8f98] mb-1.5">
+                <div className="pt-3 border-t border-[#181b24]">
+                  <div className="flex justify-between items-center text-xs text-[#94a3b8] mb-1.5 font-medium">
                     <span className="truncate mr-2">Goal: {skill.requirement}</span>
-                    <span className="font-mono text-[#f3f4f6]">{skill.progressPercent}%</span>
+                    <span className="text-white">{skill.progressPercent}%</span>
                   </div>
 
-                  <div className="h-1 w-full bg-[#0d0e12] rounded-full overflow-hidden mb-3">
+                  <div className="h-1.5 w-full bg-[#121620] rounded-full overflow-hidden mb-3">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
-                        skill.unlocked ? accent.bar : 'bg-[#3b3f4d]'
+                        skill.unlocked ? accent.bar : 'bg-[#334155]'
                       }`}
                       style={{ width: `${skill.progressPercent}%` }}
                     />
@@ -258,7 +258,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                         sfx.playRunicHarmonic();
                         onUnlockSkill(skill.id);
                       }}
-                      className="w-full py-1.5 rounded-lg text-xs font-medium transition-colors bg-[#181a26] hover:bg-[#222738] text-[#c7d2fe] border border-[#2e334a]"
+                      className="w-full py-1.5 rounded-lg text-xs font-semibold transition-colors bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-xs"
                     >
                       {skill.progressPercent >= 100 ? 'Claim Perk' : 'Mark Requirement Complete'}
                     </button>
