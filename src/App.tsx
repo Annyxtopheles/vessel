@@ -6,8 +6,7 @@ import {
   loadSkills, saveSkills, 
   loadDayRecords, saveDayRecords, 
   loadHabits, saveHabits, 
-  exportSaveFile, importSaveFile,
-  fetchVaultFromDisk, debounceSyncVault
+  exportSaveFile, importSaveFile
 } from './utils/storage';
 import { getTodayLocalDateStr } from './utils/date';
 import { Header } from './components/Header';
@@ -31,23 +30,8 @@ export const App: React.FC = () => {
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [vaultStatus, setVaultStatus] = useState<'saving' | 'saved' | 'idle'>('saved');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  // Path A: Load latest Vault JSON from disk on boot
-  useEffect(() => {
-    fetchVaultFromDisk().then(vault => {
-      if (vault) {
-        if (vault.items && vault.items.length) setItems(vault.items);
-        if (vault.profile) setProfile(vault.profile);
-        if (vault.skills && vault.skills.length) setSkills(vault.skills);
-        if (vault.habits && vault.habits.length) setHabits(vault.habits);
-        if (vault.dayRecords) setDayRecords(vault.dayRecords);
-        setVaultStatus('saved');
-      }
-    });
-  }, []);
 
   // Close modals on Escape key
   useEffect(() => {
@@ -61,21 +45,13 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Sync state to local storage & disk vault (Path A)
+  // Save state to localStorage instantly (zero latency, zero reload)
   useEffect(() => {
     saveItems(items);
     saveProfile(profile);
     saveSkills(skills);
     saveHabits(habits);
     saveDayRecords(dayRecords);
-
-    debounceSyncVault({
-      items,
-      profile,
-      skills,
-      habits,
-      dayRecords,
-    }, setVaultStatus);
   }, [items, profile, skills, habits, dayRecords]);
 
   // Audio mute state
@@ -317,7 +293,6 @@ export const App: React.FC = () => {
         setIsMuted={setIsMuted}
         onExport={handleExport}
         onImport={handleImportClick}
-        vaultStatus={vaultStatus}
       />
 
       {/* Main View Area (Fluid Full Width) */}

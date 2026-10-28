@@ -13,7 +13,6 @@ interface HeaderProps {
   setIsMuted: (muted: boolean) => void;
   onExport: () => void;
   onImport: () => void;
-  vaultStatus?: 'saving' | 'saved' | 'idle';
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,7 +25,6 @@ export const Header: React.FC<HeaderProps> = ({
   setIsMuted,
   onExport,
   onImport,
-  vaultStatus = 'idle',
 }) => {
   const encumbrancePercent = Math.min(100, Math.round((currentEncumbrance / profile.maxEncumbranceKg) * 100));
   const isOverburdened = currentEncumbrance > profile.maxEncumbranceKg;
@@ -41,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="border-b border-[#1c1e26] bg-[#0d0e12]/95 backdrop-blur-md sticky top-0 z-30">
       <div className="w-full max-w-[1720px] mx-auto px-5 lg:px-8 h-14 flex items-center justify-between gap-4">
         
-        {/* Left: Linear-style Breadcrumb Brand & Vault Status */}
+        {/* Left: Linear-style Breadcrumb Brand */}
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded bg-[#181a22] border border-[#262936] flex items-center justify-center font-bold font-mono text-xs text-[#ededed]">
             V
@@ -50,16 +48,6 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="font-semibold text-white tracking-tight">Vessel</span>
             <span className="text-neutral-600 font-mono">/</span>
             <span className="text-[#8a8f98] font-medium hidden sm:inline">{tabLabels[activeTab]}</span>
-          </div>
-
-          {/* Local-First Git Vault Sync Indicator (Path A) */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#12141a] border border-[#20232c] text-[11px] font-mono text-[#8a8f98]">
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              vaultStatus === 'saving'
-                ? 'bg-amber-400 animate-pulse'
-                : 'bg-emerald-400'
-            }`} />
-            <span>{vaultStatus === 'saving' ? 'Syncing vault...' : 'Vault Synced (Git)'}</span>
           </div>
         </div>
 
