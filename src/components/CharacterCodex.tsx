@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
-import type { CharacterProfile, SkillNode, AttributeType } from '../types';
+import type { CharacterProfile, SkillNode, AttributeType, DayRecord, XpEvent } from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
-import { Cpu, Users, Flame, Check, Lock, Sun, Target } from 'lucide-react';
+import { Cpu, Users, Flame, Check, Lock, Sun, Target, ExternalLink, FileText, X } from 'lucide-react';
 import { sfx } from '../utils/audio';
+import {
+  derivePillarXp,
+  deriveTotalXp,
+  getPillarLevelProgress,
+  getOverallLevelProgress,
+} from '../data/xpConfig';
 
 interface CharacterCodexProps {
   profile: CharacterProfile;
   skills: SkillNode[];
-  onUnlockSkill: (skillId: string) => void;
+  dayRecords: Record<string, DayRecord>;
+  xpEvents: XpEvent[];
+  onUnlockSkill: (skillId: string, evidence?: { note: string; url?: string }) => void;
   onUpdateProfile?: (updated: Partial<CharacterProfile>) => void;
 }
 
@@ -45,27 +53,178 @@ const ATTRIBUTE_ACCENTS: Record<AttributeType, { text: string; bg: string; bar: 
   },
 };
 
+function computeSkillProgress(
+  skill: SkillNode,
+  dayRecords: Record<string, DayRecord>,
+  _xpEvents: XpEvent[]
+): {
+  progressPercent: number;
+  hasDataSource: boolean;
+  sourceLabel?: string;
+  isMet: boolean;
+} {
+  const records = Object.values(dayRecords);
+
+  if (skill.id === 'skill-str-1') {
+    // 100 total pushups logged
+    const totalPushups = records.reduce((s, r) => s + (r.pushups || 0), 0);
+    const percent = Math.min(100, Math.round((totalPushups / 100) * 100));
+    return {
+      progressPercent: percent,
+      hasDataSource: true,
+      sourceLabel: `Logged: ${totalPushups} / 100 pushups`,
+      isMet: totalPushups >= 100,
+    };
+  }
+
+  if (skill.id === 'skill-str-2') {
+    // Log 5 workouts in a single week / logged days
+    const totalWorkouts = records.filter(
+      (r) => r.workoutCompleted || (r.pushups >= 50 || r.squats >= 50)
+    ).length;
+    const percent = Math.min(100, Math.round((totalWorkouts / 5) * 100));
+    return {
+      progressPercent: percent,
+      hasDataSource: true,
+      sourceLabel: `Logged: ${totalWorkouts} / 5 workouts`,
+      isMet: totalWorkouts >= 5,
+    };
+  }
+
+  if (skill.id === 'skill-str-3') {
+    // 1,000 pushups
+    const totalPushups = records.reduce((s, r) => s + (r.pushups || 0), 0);
+    const percent = Math.min(100, Math.round((totalPushups / 1000) * 100));
+    return {
+      progressPercent: percent,
+      hasDataSource: true,
+      sourceLabel: `Logged: ${totalPushups} / 1,000 pushups`,
+      isMet: totalPushups >= 1000,
+    };
+  }
+
+  if (skill.id === 'skill-int-2') {
+    // 50 hours of deep work (3000 min)
+    const totalMins = records.reduce((s, r) => s + (r.deepWorkMinutes || 0), 0);
+    const hours = Math.round((totalMins / 60) * 10) / 10;
+    const percent = Math.min(100, Math.round((totalMins / 3000) * 100));
+    return {
+      progressPercent: percent,
+      hasDataSource: true,
+      sourceLabel: `Logged: ${hours} / 50.0 hrs`,
+      isMet: totalMins >= 3000,
+    };
+  }
+
+  if (skill.id === 'skill-wis-1') {
+    // Complete all 5 prayers for 7 logged days
+    const perfectSalahDays = records.filter(
+      (r) => Object.values(r.salah).filter(Boolean).length === 5
+    ).length;
+    const percent = Math.min(100, Math.round((perfectSalahDays / 7) * 100));
+    return {
+      progressPercent: percent,
+      hasDataSource: true,
+      sourceLabel: `Logged: ${perfectSalahDays} / 7 perfect days`,
+      isMet: perfectSalahDays >= 7,
+    };
+  }
+
+  // Fallback: manual requirement with no automated data source
+  return {
+    progressPercent: skill.unlocked ? 100 : (skill.progressPercent || 0),
+    hasDataSource: false,
+    sourceLabel: undefined,
+    isMet: skill.unlocked,
+  };
+}
+
 export const CharacterCodex: React.FC<CharacterCodexProps> = ({
-  profile,
   skills,
+  dayRecords,
+  xpEvents,
   onUnlockSkill,
 }) => {
   const [selectedAttr, setSelectedAttr] = useState<AttributeType | 'ALL'>('ALL');
+  const [evidenceModalSkill, setEvidenceModalSkill] = useState<SkillNode | null>(null);
+  const [evidenceNote, setEvidenceNote] = useState('');
+  const [evidenceUrl, setEvidenceUrl] = useState('');
+
+  // DERIVE ALL LEVELS & XP DIRECTLY FROM APPEND-ONLY EVENT LOG
+  const totalXp = deriveTotalXp(xpEvents);
+  const overallProgress = getOverallLevelProgress(totalXp);
+
+  const strXp = derivePillarXp(xpEvents, 'STR');
+  const intXp = derivePillarXp(xpEvents, 'INT');
+  const wisXp = derivePillarXp(xpEvents, 'WIS');
+  const chaXp = derivePillarXp(xpEvents, 'CHA');
+
+  const strProgress = getPillarLevelProgress(strXp);
+  const intProgress = getPillarLevelProgress(intXp);
+  const wisProgress = getPillarLevelProgress(wisXp);
+  const chaProgress = getPillarLevelProgress(chaXp);
+
+  const pillarData: Record<AttributeType, { xp: number; progress: typeof strProgress }> = {
+    STR: { xp: strXp, progress: strProgress },
+    INT: { xp: intXp, progress: intProgress },
+    WIS: { xp: wisXp, progress: wisProgress },
+    CHA: { xp: chaXp, progress: chaProgress },
+  };
 
   const filteredSkills = skills.filter(
     (skill) => selectedAttr === 'ALL' || skill.attribute === selectedAttr
   );
 
   const attributesList: { key: AttributeType; name: string; subtitle: string; desc: string }[] = [
-    { key: 'STR', name: 'Physical (Body)', subtitle: 'Movement & Posture', desc: 'Bodyweight volume, pushup & squat streaks, spinal endurance.' },
-    { key: 'INT', name: 'Professional (Craft)', subtitle: 'Velocity & Focus', desc: 'Deep work focus hours, architecture, shipped production systems.' },
-    { key: 'WIS', name: 'Spiritual (Soul)', subtitle: 'Salah & Stillness', desc: '5 daily prayers consistency, sacred study, inner calm (Sakinah).' },
-    { key: 'CHA', name: 'Community (Social)', subtitle: 'Mentorship & Support', desc: '1-on-1 enablement sessions, team morale, clear communication.' },
+    {
+      key: 'STR',
+      name: 'Physical (Body)',
+      subtitle: 'Movement & Posture',
+      desc: 'Bodyweight volume, pushup & squat streaks, spinal endurance.',
+    },
+    {
+      key: 'INT',
+      name: 'Professional (Craft)',
+      subtitle: 'Velocity & Focus',
+      desc: 'Deep work focus hours, architecture, shipped production systems.',
+    },
+    {
+      key: 'WIS',
+      name: 'Spiritual (Soul)',
+      subtitle: 'Salah & Stillness',
+      desc: '5 daily prayers consistency, sacred study, inner calm (Sakinah).',
+    },
+    {
+      key: 'CHA',
+      name: 'Community (Social)',
+      subtitle: 'Mentorship & Support',
+      desc: '1-on-1 enablement sessions, team morale, clear communication.',
+    },
   ];
+
+  const handleOpenEvidenceModal = (skill: SkillNode) => {
+    sfx.playClick();
+    setEvidenceModalSkill(skill);
+    setEvidenceNote(skill.evidenceNote || '');
+    setEvidenceUrl(skill.evidenceUrl || '');
+  };
+
+  const handleConfirmEvidence = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!evidenceModalSkill || !evidenceNote.trim()) return;
+
+    sfx.playRunicHarmonic();
+    onUnlockSkill(evidenceModalSkill.id, {
+      note: evidenceNote.trim(),
+      url: evidenceUrl.trim() || undefined,
+    });
+    setEvidenceModalSkill(null);
+    setEvidenceNote('');
+    setEvidenceUrl('');
+  };
 
   return (
     <div className="space-y-6">
-      
       {/* Overview Card: Four Life Pillars */}
       <div className="ship-card p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#ECECF0]">
@@ -75,17 +234,17 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 Four Life Pillars & Progression
               </h2>
               <span className="ship-pill-accent font-semibold">
-                Level {profile.level} Master
+                Level {overallProgress.level} Master ({totalXp.toLocaleString()} Total XP)
               </span>
             </div>
             <p className="text-[13px] text-[#6B6B76] mt-0.5">
-              Cumulative character progression calculated across physical, craft, spiritual, and social disciplines
+              Pillar levels are derived purely from append-only verified discipline event logs
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="ship-pill-neutral">
-              {skills.filter(s => s.unlocked).length} of {skills.length} Perks Attuned
+              {skills.filter((s) => s.unlocked).length} of {skills.length} Perks Attuned
             </span>
           </div>
         </div>
@@ -93,7 +252,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
         {/* 4 Pillars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
           {attributesList.map(({ key, name, subtitle, desc }) => {
-            const attr = profile.attributes[key];
+            const data = pillarData[key];
             const accent = ATTRIBUTE_ACCENTS[key];
             const Icon = ATTRIBUTE_ICONS[key];
             const isSelected = selectedAttr === key;
@@ -121,7 +280,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     </span>
                   </div>
                   <span className="ship-pill bg-[#F4F4F6] text-[#111113] font-semibold text-[11px]">
-                    Lvl {attr.level}
+                    Lvl {data.progress.level}
                   </span>
                 </div>
 
@@ -131,16 +290,18 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   {desc}
                 </p>
 
-                {/* Progress bar */}
+                {/* Progress bar derived from XP events */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-[11px] text-[#9A9AA5] font-medium">
-                    <span>EXP</span>
-                    <span>{attr.xp % 1000} / 1000</span>
+                    <span>CUMULATIVE EXP</span>
+                    <span>
+                      {data.xp.toLocaleString()} / {data.progress.xpNeededForNext.toLocaleString()}
+                    </span>
                   </div>
                   <div className="h-1.5 w-full bg-[#ECECF0] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${accent.bar} rounded-full transition-all duration-300`}
-                      style={{ width: `${(attr.xp % 1000) / 10}%` }}
+                      style={{ width: `${data.progress.progressPercent}%` }}
                     />
                   </div>
                 </div>
@@ -162,7 +323,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 Skill Milestones & Progression Trees
               </h3>
               <p className="text-[13px] text-[#6B6B76]">
-                Unlock specific real-life traits as you pass consistency benchmarks
+                Objective traits unlocked automatically through logged data or verified evidence
               </p>
             </div>
           </div>
@@ -182,7 +343,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   sfx.playClick();
                   setSelectedAttr(id as AttributeType | 'ALL');
                 }}
-                className={`px-3.5 py-1.5 rounded-lg text-[13px] transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-lg text-[13px] transition-all whitespace-nowrap cursor-pointer ${
                   selectedAttr === id
                     ? 'bg-white text-[#111113] shadow-xs font-semibold'
                     : 'text-[#6B6B76] hover:text-[#111113] font-medium'
@@ -199,6 +360,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           {filteredSkills.map((skill) => {
             const accent = ATTRIBUTE_ACCENTS[skill.attribute];
             const Icon = ATTRIBUTE_ICONS[skill.attribute];
+            const derived = computeSkillProgress(skill, dayRecords, xpEvents);
+            const displayPercent = skill.unlocked ? 100 : derived.progressPercent;
 
             return (
               <div
@@ -235,16 +398,38 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     {skill.description}
                   </p>
 
-                  <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] mb-4 text-[12px]">
+                  <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] mb-3 text-[12px]">
                     <span className="text-[#9A9AA5] font-medium block mb-0.5">Bonus Modifier:</span>
                     <span className="font-semibold text-[#0891B2]">{skill.bonus}</span>
                   </div>
+
+                  {/* Evidence note quote if unlocked with evidence */}
+                  {skill.evidenceNote && (
+                    <div className="p-2.5 rounded-xl bg-[#E6F7F9]/50 border border-[#BCE7EB] mb-3 text-[11px] text-[#0891B2]">
+                      <span className="font-semibold block mb-0.5 flex items-center gap-1">
+                        <FileText className="w-3 h-3" /> Verified Evidence:
+                      </span>
+                      <span className="italic">{skill.evidenceNote}</span>
+                      {skill.evidenceUrl && (
+                        <a
+                          href={skill.evidenceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 flex items-center gap-1 underline font-semibold"
+                        >
+                          View Link <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-3 border-t border-[#ECECF0]">
                   <div className="flex justify-between items-center text-[12px] text-[#6B6B76] mb-1.5 font-medium">
-                    <span className="truncate mr-2">Goal: {skill.requirement}</span>
-                    <span className="text-[#111113] font-semibold">{skill.progressPercent}%</span>
+                    <span className="truncate mr-2">
+                      {derived.sourceLabel ? derived.sourceLabel : `Goal: ${skill.requirement}`}
+                    </span>
+                    <span className="text-[#111113] font-semibold">{displayPercent}%</span>
                   </div>
 
                   <div className="h-1.5 w-full bg-[#ECECF0] rounded-full overflow-hidden mb-3">
@@ -252,30 +437,120 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                       className={`h-full rounded-full transition-all duration-300 ${
                         skill.unlocked ? accent.bar : 'bg-[#0891B2]'
                       }`}
-                      style={{ width: `${skill.progressPercent}%` }}
+                      style={{ width: `${displayPercent}%` }}
                     />
                   </div>
 
                   {!skill.unlocked && (
-                    <button
-                      onClick={() => {
-                        sfx.playRunicHarmonic();
-                        onUnlockSkill(skill.id);
-                      }}
-                      className="w-full py-2 rounded-xl text-[13px] font-semibold transition-colors bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs"
-                    >
-                      {skill.progressPercent >= 100 ? 'Claim Perk' : 'Mark Requirement Complete'}
-                    </button>
+                    <>
+                      {derived.hasDataSource ? (
+                        derived.isMet ? (
+                          <button
+                            onClick={() => {
+                              sfx.playRunicHarmonic();
+                              onUnlockSkill(skill.id);
+                            }}
+                            className="w-full py-2 rounded-xl text-[13px] font-semibold transition-colors bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs cursor-pointer"
+                          >
+                            Claim Perk (+150 XP)
+                          </button>
+                        ) : (
+                          <div className="w-full py-2 rounded-xl text-[12px] font-semibold text-center bg-[#F4F4F6] text-[#9A9AA5] border border-[#ECECF0]">
+                            In Progress ({derived.sourceLabel})
+                          </div>
+                        )
+                      ) : (
+                        <button
+                          onClick={() => handleOpenEvidenceModal(skill)}
+                          className="w-full py-2 rounded-xl text-[13px] font-semibold transition-colors bg-white hover:bg-[#F4F4F6] border border-[#ECECF0] text-[#111113] shadow-xs cursor-pointer"
+                        >
+                          Mark Requirement Complete
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
-
               </div>
             );
           })}
         </div>
-
       </div>
 
+      {/* Evidence Submission Modal for Manual Requirements */}
+      {evidenceModalSkill && (
+        <div
+          onClick={() => setEvidenceModalSkill(null)}
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white border border-[#ECECF0] rounded-2xl shadow-xl p-6 cursor-default animate-in fade-in zoom-in-95"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0] mb-4">
+              <div>
+                <h3 className="text-base font-semibold text-[#111113]">
+                  Attune Perk: {evidenceModalSkill.title}
+                </h3>
+                <p className="text-xs text-[#6B6B76] mt-0.5">
+                  Requirement: {evidenceModalSkill.requirement}
+                </p>
+              </div>
+              <button
+                onClick={() => setEvidenceModalSkill(null)}
+                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmEvidence} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  Evidence Note / Verification (Required)
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={evidenceNote}
+                  onChange={(e) => setEvidenceNote(e.target.value)}
+                  placeholder="Describe your achievement, shipped milestone, or reflection proof..."
+                  className="ship-input w-full px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  Evidence URL / Reference Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={evidenceUrl}
+                  onChange={(e) => setEvidenceUrl(e.target.value)}
+                  placeholder="https://github.com/... or PR link, live URL"
+                  className="ship-input w-full px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-[#ECECF0] flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setEvidenceModalSkill(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Attune Perk & Claim +150 XP</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

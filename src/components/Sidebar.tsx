@@ -16,6 +16,7 @@ interface SidebarProps {
   activeTab: 'rituals' | 'inventory' | 'codex';
   setActiveTab: (tab: 'rituals' | 'inventory' | 'codex') => void;
   totalItemsCount: number;
+  ownedCount?: number;
   equippedCount: number;
   currentEncumbrance: number;
   totalGoldValue: number;
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   totalItemsCount,
+  ownedCount,
   isMuted,
   setIsMuted,
   onExport,
@@ -41,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'inventory' as const,
       label: 'Life Inventory',
       icon: Package,
-      badge: `${totalItemsCount}`,
+      badge: `${ownedCount ?? totalItemsCount}`,
     },
     {
       id: 'rituals' as const,

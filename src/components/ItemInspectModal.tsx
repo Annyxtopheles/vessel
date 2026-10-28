@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory } from '../types';
-import { X, Lock, Trash2, Scale, History, Edit3, Check, Upload, Copy } from 'lucide-react';
+import { X, Lock, Trash2, Scale, History, Edit3, Check, Upload, Copy, Backpack, Sparkles } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
 interface ItemInspectModalProps {
@@ -11,11 +11,13 @@ interface ItemInspectModalProps {
   onDeleteItem: (itemId: string) => void;
   onUpdateItem?: (updated: InventoryItem) => void;
   onDuplicateItem?: (item: InventoryItem) => void;
+  currencySymbol?: string;
+  wearCount?: number;
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
   pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#16A34A]' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#7C6CF0]' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#0891B2]' },
   worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#F59E0B]' },
   needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#DC2626]' },
 };
@@ -39,6 +41,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   onDeleteItem,
   onUpdateItem,
   onDuplicateItem,
+  currencySymbol = '$',
+  wearCount = 0,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPastReason, setSelectedPastReason] = useState<PastReason>('sold');
@@ -50,6 +54,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const [editSubCategory, setEditSubCategory] = useState('');
   const [editWeightKg, setEditWeightKg] = useState('0.5');
   const [editGoldValue, setEditGoldValue] = useState('100');
+  const [editTargetPrice, setEditTargetPrice] = useState('100');
+  const [editLocation, setEditLocation] = useState('Vault Wardrobe');
+  const [editCarried, setEditCarried] = useState(false);
   const [editCondition, setEditCondition] = useState<ItemCondition>('pristine');
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editLore, setEditLore] = useState('');
@@ -62,6 +69,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       setEditSubCategory(item.subCategory);
       setEditWeightKg(item.weightKg.toString());
       setEditGoldValue(item.goldValue.toString());
+      setEditTargetPrice((item.targetPrice || item.goldValue).toString());
+      setEditLocation(item.location || 'Vault Wardrobe');
+      setEditCarried(item.carried ?? item.isEquipped ?? false);
       setEditCondition(item.condition);
       setEditImageUrl(item.imageUrl || '');
       setEditLore(item.lore);
@@ -74,6 +84,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
   const currentStatus: OwnershipStatus = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
   const conditionInfo = CONDITION_MAP[item.condition] || CONDITION_MAP.pristine;
+  const costPerWear = wearCount > 0 ? (item.goldValue / wearCount).toFixed(2) : null;
 
   const handleSetPast = (reason: PastReason) => {
     sfx.playClick();
@@ -105,6 +116,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       subCategory: editSubCategory.trim() || 'General',
       weightKg: Math.max(0.01, parseFloat(editWeightKg) || 0.1),
       goldValue: Math.max(0, parseInt(editGoldValue, 10) || 0),
+      targetPrice: Math.max(0, parseInt(editTargetPrice, 10) || 0),
+      location: editLocation.trim() || 'Vault Wardrobe',
+      carried: editCarried,
       condition: editCondition,
       imageUrl: editImageUrl.trim() || undefined,
       lore: editLore.trim() || 'Personal item in inventory.',
@@ -253,6 +267,28 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
                 </div>
 
+                {/* Carried in Pack Toggle */}
+                <div className="p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Backpack className="w-4 h-4 text-[#0891B2]" />
+                    <div>
+                      <div className="text-[13px] font-semibold text-[#111113]">Carried on Pack / Person</div>
+                      <div className="text-[11px] text-[#6B6B76]">Counts toward active Carry Load against capacity</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditCarried(!editCarried)}
+                    className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer ${
+                      editCarried
+                        ? 'bg-[#0891B2] text-white shadow-xs'
+                        : 'bg-white border border-[#ECECF0] text-[#6B6B76]'
+                    }`}
+                  >
+                    {editCarried ? 'Carried' : 'Stored'}
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
@@ -269,7 +305,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                      Value ($)
+                      Value ({currencySymbol})
                     </label>
                     <input
                       type="number"
@@ -294,6 +330,19 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       <option value="needs_repair">Needs Repair</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    Storage Location / Pack
+                  </label>
+                  <input
+                    type="text"
+                    value={editLocation}
+                    onChange={(e) => setEditLocation(e.target.value)}
+                    placeholder="e.g. Closet, Desk, Travel Backpack, EDC Pouch..."
+                    className="ship-input w-full px-3 py-2 text-[13px]"
+                  />
                 </div>
 
                 <div>
@@ -338,28 +387,31 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               <>
                 {/* Top Badges */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[12px] font-medium">
+                  <span className="ship-pill-neutral">
                     {item.category} • {item.subCategory}
                   </span>
 
-                  {/* Ownership Status Badge */}
                   {currentStatus === 'owned' && (
-                    <span className="ship-pill-success text-[12px]">● Owned</span>
+                    <span className="ship-pill-success">● Owned</span>
                   )}
                   {currentStatus === 'wishlist' && (
-                    <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] text-[12px] font-medium">● Wishlist</span>
+                    <span className="ship-pill-accent">● Wishlist</span>
                   )}
                   {currentStatus === 'past' && (
-                    <span className="ship-pill bg-[#ECECF0] text-[#6B6B76] text-[12px] font-medium">
+                    <span className="ship-pill-neutral">
                       ● Past ({item.pastReason || 'archived'})
                     </span>
                   )}
 
-                  {item.equipSlot && (
-                    <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[12px] font-medium">
-                      Slot: {item.equipSlot}
+                  {item.carried && (
+                    <span className="ship-pill-accent">
+                      <Backpack className="w-3 h-3" /> Carried in Pack
                     </span>
                   )}
+
+                  <span className="ship-pill-neutral">
+                    {item.location || 'Vault Wardrobe'}
+                  </span>
                 </div>
 
                 {/* Title & Metadata */}
@@ -377,6 +429,26 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <span className="capitalize">{item.season} season</span>
                   </div>
                 </div>
+
+                {/* Wear Log & Efficiency Box */}
+                {currentStatus === 'owned' && (
+                  <div className="mb-4 p-4 rounded-xl bg-[#E6F7F9]/40 border border-[#BCE7EB] flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#0891B2] uppercase tracking-wider">
+                        <Sparkles className="w-3.5 h-3.5" /> Wear Log & Efficiency
+                      </div>
+                      <div className="text-[17px] font-bold text-[#111113] mt-0.5">
+                        {wearCount} {wearCount === 1 ? 'Wear Logged' : 'Wears Logged'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[11px] text-[#6B6B76]">Cost Per Wear</div>
+                      <div className="text-[17px] font-bold text-[#0891B2]">
+                        {costPerWear ? `${currencySymbol}${costPerWear} / wear` : 'Unworn'}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Condition Bar */}
                 <div className="mb-4 p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
@@ -397,17 +469,20 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   {item.lore}
                 </div>
 
-                {/* Wishlist Goal if wishlist */}
+                {/* Wishlist Goal */}
                 {currentStatus === 'wishlist' && (
                   <div className="mb-4 p-3.5 rounded-xl bg-[#E6F7F9] border border-[#0891B2]/30 text-[13px]">
                     <div className="flex items-center gap-1.5 font-semibold text-[#0891B2] mb-1">
                       <Lock className="w-3.5 h-3.5" /> Acquisition Milestone Goal
                     </div>
                     <p className="text-[#111113]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
+                    <div className="mt-2 text-[12px] text-[#6B6B76]">
+                      Target Price: <span className="font-semibold text-[#111113]">{currencySymbol}{(item.targetPrice || item.goldValue).toLocaleString()}</span>
+                    </div>
                   </div>
                 )}
 
-                {/* Past Ownership Memory Notes */}
+                {/* Past Archive Notes */}
                 {currentStatus === 'past' && (
                   <div className="mb-4 p-3.5 rounded-xl bg-[#ECECF0] border border-[#ECECF0] text-[13px]">
                     <div className="flex items-center gap-1.5 font-semibold text-[#111113] mb-1">
@@ -429,7 +504,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {item.buffs.map((buff, i) => (
                       <div key={i} className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between text-[13px]">
                         <span className="text-[#6B6B76]">{buff.label}</span>
-                        <span className="ship-pill bg-[#E6F7F9] text-[#0891B2] font-semibold text-[12px]">
+                        <span className="ship-pill-accent font-semibold text-[12px]">
                           +{buff.value} {FULL_MODIFIER_NAMES[buff.stat] || buff.stat}
                         </span>
                       </div>
@@ -478,7 +553,6 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     )}
                   </div>
 
-                  {/* Sub-form when choosing Parted With reason */}
                   {isChoosingPastReason && (
                     <div className="mt-3 pt-3 border-t border-[#ECECF0] flex items-center gap-2">
                       <span className="text-[13px] text-[#6B6B76] font-medium">Reason:</span>
@@ -521,7 +595,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               <Scale className="w-4 h-4 text-[#9A9AA5]" /> {item.weightKg} kg
             </span>
             <span className="text-[#111113] font-semibold">
-              ${item.goldValue.toLocaleString()}
+              {currencySymbol}{item.goldValue.toLocaleString()}
             </span>
           </div>
 
@@ -557,7 +631,6 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

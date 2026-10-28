@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit, OwnershipStatus, PastReason } from './types';
+import type {
+  InventoryItem,
+  CharacterProfile,
+  SkillNode,
+  DayRecord,
+  CustomHabit,
+  OwnershipStatus,
+  PastReason,
+  WearEvent,
+  SavedLoadout,
+  XpEvent,
+  AppSettings,
+  AttributeType,
+} from './types';
 import { 
   loadItems, saveItems, 
   loadProfile, saveProfile, 
   loadSkills, saveSkills, 
   loadDayRecords, saveDayRecords, 
-  loadHabits, saveHabits, 
+  loadHabits, saveHabits,
+  loadWearEvents, saveWearEvents,
+  loadSavedLoadouts, saveSavedLoadouts,
+  loadXpEvents, saveXpEvents,
+  loadSettings, saveSettings,
   exportSaveFile, importSaveFile
 } from './utils/storage';
+import { deriveTotalXp, getOverallLevelProgress } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
@@ -25,6 +43,10 @@ export const App: React.FC = () => {
   const [skills, setSkills] = useState<SkillNode[]>(() => loadSkills());
   const [habits, setHabits] = useState<CustomHabit[]>(() => loadHabits());
   const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
+  const [wearEvents, setWearEvents] = useState<WearEvent[]>(() => loadWearEvents());
+  const [savedLoadouts, setSavedLoadouts] = useState<SavedLoadout[]>(() => loadSavedLoadouts());
+  const [xpEvents, setXpEvents] = useState<XpEvent[]>(() => loadXpEvents());
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
   const [activeTab, setActiveTab] = useState<'inventory' | 'codex' | 'rituals'>('inventory');
@@ -54,25 +76,74 @@ export const App: React.FC = () => {
     saveSkills(skills);
     saveHabits(habits);
     saveDayRecords(dayRecords);
-  }, [items, profile, skills, habits, dayRecords]);
+    saveWearEvents(wearEvents);
+    saveSavedLoadouts(savedLoadouts);
+    saveXpEvents(xpEvents);
+    saveSettings(settings);
+  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings]);
 
   // Audio mute state
   useEffect(() => {
     sfx.setMuted(isMuted);
   }, [isMuted]);
 
-  // Derived state: equipped items (only currently owned possessions)
+  // Synchronize overall level with append-only XP events
+  useEffect(() => {
+    const totalXp = deriveTotalXp(xpEvents);
+    const overall = getOverallLevelProgress(totalXp);
+    if (profile.level !== overall.level || profile.currentXp !== overall.currentXp) {
+      setProfile(prev => ({
+        ...prev,
+        level: overall.level,
+        currentXp: overall.currentXp,
+        xpToNextLevel: overall.xpNeededForNext,
+      }));
+    }
+  }, [xpEvents]);
+
+  // Derived state: possessions, carried load, valuations
+  const ownedItems = items.filter(
+    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
+  );
+  const wishlistItems = items.filter(
+    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'wishlist'
+  );
+  const pastItems = items.filter(
+    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'past'
+  );
+
   const equippedItems = items.filter(
     it => it.isEquipped && (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
   );
-  const currentEncumbrance = items
-    .filter(it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned')
-    .reduce((acc, it) => acc + it.weightKg, 0);
-  const totalGoldValue = items
-    .filter(it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned')
-    .reduce((acc, it) => acc + it.goldValue, 0);
 
-  // Equip / Unequip Toggle
+  // 1. Vault Valuation = sum of goldValue of OWNED items only
+  const vaultValuation = ownedItems.reduce((acc, it) => acc + (it.goldValue || 0), 0);
+
+  // Wishlist Cost = sum of targetPrice or goldValue of WANTED items
+  const wishlistCost = wishlistItems.reduce(
+    (acc, it) => acc + (it.targetPrice || it.goldValue || 0),
+    0
+  );
+
+  // 2. Carry Load = sum of weight of items where carried === true against capacity
+  const carriedWeight = ownedItems
+    .filter(it => it.carried)
+    .reduce((acc, it) => acc + (it.weightKg || 0), 0);
+
+  // Total possessions weight = all owned items with no cap
+  const totalPossessionsWeight = ownedItems.reduce((acc, it) => acc + (it.weightKg || 0), 0);
+
+  const ownedCount = ownedItems.length;
+  const wishlistCount = wishlistItems.length;
+  const pastCount = pastItems.length;
+
+  // Wear counts index
+  const wearCounts: Record<string, number> = {};
+  wearEvents.forEach(ev => {
+    wearCounts[ev.itemId] = (wearCounts[ev.itemId] || 0) + 1;
+  });
+
+  // Equip / Unequip Toggle with Wear Event Logging
   const handleToggleEquip = (item: InventoryItem) => {
     const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
     if (status !== 'owned') return;
@@ -93,6 +164,17 @@ export const App: React.FC = () => {
     if (inspectedItem && inspectedItem.id === item.id) {
       setInspectedItem({ ...inspectedItem, isEquipped: nextEquipped });
     }
+
+    // Write wear event { item_id, type: "worn", date } when equipped
+    if (nextEquipped) {
+      const wearEv: WearEvent = {
+        id: `wear-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        itemId: item.id,
+        type: 'worn',
+        date: selectedDate,
+      };
+      setWearEvents(prev => [...prev, wearEv]);
+    }
   };
 
   const handleUnequipItem = (item: InventoryItem) => {
@@ -107,6 +189,53 @@ export const App: React.FC = () => {
     if (inspectedItem && inspectedItem.id === item.id) {
       setInspectedItem({ ...inspectedItem, isEquipped: false });
     }
+  };
+
+  // Saved Loadout Handlers
+  const handleSaveLoadout = (name: string) => {
+    const newPreset: SavedLoadout = {
+      id: `loadout-${Date.now()}`,
+      name: name.trim(),
+      equippedItemIds: equippedItems.map(i => i.id),
+      createdAt: selectedDate,
+    };
+    setSavedLoadouts(prev => [newPreset, ...prev]);
+    sfx.playClick();
+  };
+
+  const handleApplyLoadout = (loadoutId: string) => {
+    const preset = savedLoadouts.find(l => l.id === loadoutId);
+    if (!preset) return;
+
+    const targetIds = new Set(preset.equippedItemIds);
+    const newWearEvents: WearEvent[] = [];
+
+    const updatedItems = items.map(it => {
+      const isTarget = targetIds.has(it.id) && (it.ownershipStatus || 'owned') === 'owned';
+      if (isTarget && !it.isEquipped) {
+        newWearEvents.push({
+          id: `wear-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          itemId: it.id,
+          type: 'worn',
+          date: selectedDate,
+        });
+      }
+      return {
+        ...it,
+        isEquipped: isTarget,
+      };
+    });
+
+    setItems(updatedItems);
+    if (newWearEvents.length > 0) {
+      setWearEvents(prev => [...prev, ...newWearEvents]);
+    }
+    sfx.playEquip();
+  };
+
+  const handleDeleteLoadout = (loadoutId: string) => {
+    setSavedLoadouts(prev => prev.filter(l => l.id !== loadoutId));
+    sfx.playClick();
   };
 
   // Possession Lifecycle: Change Ownership Status (owned <-> wishlist <-> past)
@@ -124,6 +253,7 @@ export const App: React.FC = () => {
           ownershipStatus: newStatus,
           isLocked: isNowLocked,
           isEquipped: newStatus === 'owned' ? it.isEquipped : false,
+          carried: newStatus === 'owned' ? (it.carried ?? true) : false,
           pastReason: newStatus === 'past' ? pastReason : undefined,
           pastDate: newStatus === 'past' ? pastDate : undefined,
         };
@@ -138,6 +268,7 @@ export const App: React.FC = () => {
         ownershipStatus: newStatus,
         isLocked: isNowLocked,
         isEquipped: newStatus === 'owned' ? inspectedItem.isEquipped : false,
+        carried: newStatus === 'owned' ? (inspectedItem.carried ?? true) : false,
         pastReason: newStatus === 'past' ? pastReason : undefined,
         pastDate: newStatus === 'past' ? pastDate : undefined,
       });
@@ -156,57 +287,28 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateItem = (updated: InventoryItem) => {
-    setItems(prev => prev.map(it => it.id === updated.id ? updated : it));
+    setItems(prev => prev.map(it => (it.id === updated.id ? updated : it)));
     setInspectedItem(updated);
   };
 
-  // Grant EXP and handle leveling
-  const grantExperience = (attr: 'STR' | 'INT' | 'WIS' | 'CHA', amount: number) => {
-    setProfile(prev => {
-      const currentAttr = prev.attributes[attr];
-      const newAttrXp = currentAttr.xp + amount;
-      const newAttrLevel = Math.floor(newAttrXp / 1000) + 1;
-
-      const newCurrentXp = prev.currentXp + amount;
-      let newLevel = prev.level;
-      let newXpToNext = prev.xpToNextLevel;
-
-      if (newCurrentXp >= prev.xpToNextLevel) {
-        newLevel += 1;
-        newXpToNext = Math.round(newXpToNext * 1.35);
-        sfx.playRunicHarmonic();
-      }
-
-      return {
-        ...prev,
-        level: newLevel,
-        currentXp: newCurrentXp,
-        xpToNextLevel: newXpToNext,
-        attributes: {
-          ...prev.attributes,
-          [attr]: {
-            ...currentAttr,
-            xp: newAttrXp,
-            level: newAttrLevel,
-          },
-        },
-      };
-    });
+  // Record an append-only XP event
+  const handleRecordXpEvent = (event: Omit<XpEvent, 'id'>) => {
+    const newEvent: XpEvent = {
+      id: `xp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      ...event,
+    };
+    setXpEvents(prev => [...prev, newEvent]);
   };
 
   // Update specific day's records
   const handleUpdateDayRecord = (
     updated: DayRecord,
-    xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }
+    _xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }
   ) => {
     setDayRecords(prev => ({
       ...prev,
       [updated.date]: updated,
     }));
-
-    if (xpGained) {
-      grantExperience(xpGained.attr, xpGained.xp);
-    }
   };
 
   const handleAddHabit = (newHabit: CustomHabit) => {
@@ -217,16 +319,35 @@ export const App: React.FC = () => {
     setHabits(habits.filter(h => h.id !== habitId));
   };
 
-  const handleUnlockSkill = (skillId: string) => {
+  // Unlock Codex Skill
+  const handleUnlockSkill = (skillId: string, evidence?: { note: string; url?: string }) => {
+    let skillTitle = 'Perk';
+    let skillAttr: AttributeType = 'INT';
+
     setSkills(prev =>
       prev.map(skill => {
         if (skill.id === skillId) {
-          return { ...skill, unlocked: true, progressPercent: 100 };
+          skillTitle = skill.title;
+          skillAttr = skill.attribute;
+          return {
+            ...skill,
+            unlocked: true,
+            progressPercent: 100,
+            evidenceNote: evidence?.note || skill.evidenceNote,
+            evidenceUrl: evidence?.url || skill.evidenceUrl,
+          };
         }
         return skill;
       })
     );
-    grantExperience('INT', 150);
+
+    handleRecordXpEvent({
+      action: `Perk Attuned: ${skillTitle}`,
+      pillar: skillAttr,
+      points: 150,
+      date: selectedDate,
+      refId: `skill-${skillId}`,
+    });
   };
 
   const handleShiftDate = (delta: number) => {
@@ -235,6 +356,10 @@ export const App: React.FC = () => {
 
   const handleResetToday = () => {
     setSelectedDate(getTodayLocalDateStr());
+  };
+
+  const handleUpdateSettings = (updated: Partial<AppSettings>) => {
+    setSettings(prev => ({ ...prev, ...updated }));
   };
 
   // Export / Import
@@ -270,6 +395,10 @@ export const App: React.FC = () => {
           setSkills(loadSkills());
           setHabits(loadHabits());
           setDayRecords(loadDayRecords());
+          setWearEvents(loadWearEvents());
+          setSavedLoadouts(loadSavedLoadouts());
+          setXpEvents(loadXpEvents());
+          setSettings(loadSettings());
           sfx.playRunicHarmonic();
           alert('Vessel state successfully restored.');
         } else {
@@ -297,9 +426,10 @@ export const App: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         totalItemsCount={items.length}
+        ownedCount={ownedCount}
         equippedCount={equippedItems.length}
-        currentEncumbrance={currentEncumbrance}
-        totalGoldValue={totalGoldValue}
+        currentEncumbrance={carriedWeight}
+        totalGoldValue={vaultValuation}
         isMuted={isMuted}
         setIsMuted={setIsMuted}
         onExport={handleExport}
@@ -309,8 +439,7 @@ export const App: React.FC = () => {
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#F4F4F6]">
-        
-        {/* Consistent Unified TopBar */}
+        {/* Consistent Unified TopBar with Global Search and Settings */}
         <TopBar
           activeTab={activeTab}
           selectedDate={selectedDate}
@@ -319,6 +448,13 @@ export const App: React.FC = () => {
           onOpenAddItem={() => setIsAddItemOpen(true)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          items={items}
+          habits={habits}
+          skills={skills}
+          onSelectTab={setActiveTab}
+          onInspectItem={setInspectedItem}
+          settings={settings}
+          onUpdateSettings={handleUpdateSettings}
         />
 
         {/* Scrollable View Content */}
@@ -330,13 +466,19 @@ export const App: React.FC = () => {
                   equippedItems={equippedItems}
                   onInspectItem={setInspectedItem}
                   onUnequipItem={handleUnequipItem}
-                  currentEncumbrance={currentEncumbrance}
-                  maxEncumbranceKg={profile.maxEncumbranceKg}
-                  totalGoldValue={totalGoldValue}
-                  totalItemsCount={items.length}
-                  ownedCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'owned').length}
-                  wishlistCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'wishlist').length}
-                  pastCount={items.filter(i => (i.ownershipStatus || (i.isLocked ? 'wishlist' : 'owned')) === 'past').length}
+                  carriedWeight={carriedWeight}
+                  maxEncumbranceKg={settings.maxEncumbranceKg || 12.0}
+                  totalPossessionsWeight={totalPossessionsWeight}
+                  vaultValuation={vaultValuation}
+                  wishlistCost={wishlistCost}
+                  ownedCount={ownedCount}
+                  wishlistCount={wishlistCount}
+                  pastCount={pastCount}
+                  currencySymbol={settings.currencySymbol || '$'}
+                  savedLoadouts={savedLoadouts}
+                  onSaveCurrentLoadout={handleSaveLoadout}
+                  onLoadPreset={(preset) => handleApplyLoadout(preset.id)}
+                  onDeletePreset={handleDeleteLoadout}
                 />
 
                 <InventoryGrid
@@ -346,6 +488,8 @@ export const App: React.FC = () => {
                   onOpenAddItem={() => setIsAddItemOpen(true)}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
+                  currencySymbol={settings.currencySymbol || '$'}
+                  wearCounts={wearCounts}
                 />
               </div>
             )}
@@ -354,6 +498,8 @@ export const App: React.FC = () => {
               <CharacterCodex
                 profile={profile}
                 skills={skills}
+                dayRecords={dayRecords}
+                xpEvents={xpEvents}
                 onUnlockSkill={handleUnlockSkill}
                 onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
               />
@@ -368,6 +514,7 @@ export const App: React.FC = () => {
                 onUpdateDayRecord={handleUpdateDayRecord}
                 onAddHabit={handleAddHabit}
                 onDeleteHabit={handleDeleteHabit}
+                onRecordXpEvent={handleRecordXpEvent}
               />
             )}
           </div>
@@ -383,12 +530,15 @@ export const App: React.FC = () => {
         onDeleteItem={handleDeleteItem}
         onUpdateItem={handleUpdateItem}
         onDuplicateItem={handleAddItem}
+        wearCount={inspectedItem ? (wearCounts[inspectedItem.id] || 0) : 0}
+        currencySymbol={settings.currencySymbol || '$'}
       />
 
       <AddItemModal
         isOpen={isAddItemOpen}
         onClose={() => setIsAddItemOpen(false)}
         onAddItem={handleAddItem}
+        currencySymbol={settings.currencySymbol || '$'}
       />
     </div>
   );

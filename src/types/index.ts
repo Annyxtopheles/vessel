@@ -50,15 +50,46 @@ export interface InventoryItem {
   condition: ItemCondition;
   season: ItemSeason;
   weightKg: number;
-  goldValue: number;
+  goldValue: number; // Purchase price / current value
+  targetPrice?: number; // Target price for wishlist items
+  location?: string; // e.g. Closet, Desk, Travel Pack, Storage
+  carried?: boolean; // Whether actively carried on person/pack
   lockRequirement?: string; // If wishlist
   buffs: ItemBuff[];
   lore: string;
   isEquipped?: boolean;
   dateAcquired?: string;
   imageUrl?: string;
-  // Backward compatibility helper
   isLocked?: boolean;
+}
+
+export interface WearEvent {
+  id: string;
+  itemId: string;
+  type: 'worn';
+  date: string; // ISO or YYYY-MM-DD
+}
+
+export interface SavedLoadout {
+  id: string;
+  name: string;
+  equippedItemIds: string[];
+  createdAt: string;
+}
+
+export interface XpEvent {
+  id: string;
+  action: string;
+  pillar: AttributeType;
+  points: number;
+  date: string; // YYYY-MM-DD
+  refId?: string;
+  note?: string;
+}
+
+export interface AppSettings {
+  currencySymbol: string;
+  maxEncumbranceKg: number;
 }
 
 export interface SalahStatus {
@@ -97,6 +128,10 @@ export interface SkillNode {
   requirement: string;
   bonus: string;
   progressPercent: number;
+  dataSource?: 'pushups' | 'workouts' | 'deepwork' | 'salah' | 'salah_streak' | 'habits_cha' | 'manual';
+  evidenceNote?: string;
+  evidenceUrl?: string;
+  unlockedAt?: string;
 }
 
 export interface CharacterProfile {

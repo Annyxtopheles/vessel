@@ -7,6 +7,7 @@ interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddItem: (item: InventoryItem) => void;
+  currencySymbol?: string;
 }
 
 const COLOR_PRESETS = [
@@ -20,7 +21,12 @@ const COLOR_PRESETS = [
   { name: 'Forest', hex: '#064E3B' },
 ];
 
-export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onAddItem }) => {
+export const AddItemModal: React.FC<AddItemModalProps> = ({
+  isOpen,
+  onClose,
+  onAddItem,
+  currencySymbol = '$',
+}) => {
   const [name, setName] = useState('');
   const [ownershipStatus, setOwnershipStatus] = useState<OwnershipStatus>('owned');
   const [pastReason, setPastReason] = useState<PastReason>('sold');
@@ -35,6 +41,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
   const [season, setSeason] = useState<ItemSeason>('all');
   const [weightKg, setWeightKg] = useState('0.5');
   const [goldValue, setGoldValue] = useState('100');
+  const [targetPrice, setTargetPrice] = useState('');
+  const [carried, setCarried] = useState(true);
+  const [location, setLocation] = useState('Vault Wardrobe');
   const [imageUrl, setImageUrl] = useState('');
   const [lockRequirement, setLockRequirement] = useState('');
   const [lore, setLore] = useState('');
@@ -87,6 +96,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
       season,
       weightKg: Math.max(0.01, parseFloat(weightKg) || 0.1),
       goldValue: Math.max(0, parseInt(goldValue, 10) || 0),
+      targetPrice: targetPrice ? Math.max(0, parseFloat(targetPrice)) : undefined,
+      carried: ownershipStatus === 'owned' ? carried : false,
+      location: location.trim() || 'Vault Wardrobe',
       imageUrl: imageUrl.trim() || undefined,
       lore: lore.trim() || 'Personal item in inventory.',
       buffs,
@@ -394,14 +406,49 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onA
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Value ($)</label>
+                <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                  {ownershipStatus === 'wishlist' ? `Target Price (${currencySymbol})` : `Value (${currencySymbol})`}
+                </label>
                 <input
                   type="number"
                   min="0"
-                  value={goldValue}
-                  onChange={(e) => setGoldValue(e.target.value)}
+                  value={ownershipStatus === 'wishlist' ? (targetPrice || goldValue) : goldValue}
+                  onChange={(e) => {
+                    setGoldValue(e.target.value);
+                    if (ownershipStatus === 'wishlist') setTargetPrice(e.target.value);
+                  }}
                   className="ship-input w-full px-2.5 py-2 text-[13px]"
                 />
+              </div>
+            </div>
+
+            {/* Location & Carried Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-[#F4F4F6] border border-[#ECECF0] rounded-xl">
+              <div>
+                <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Storage Location</label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g. Vault Wardrobe, Desk, Everyday Bag"
+                  className="ship-input w-full px-3 py-1.5 text-[13px]"
+                />
+              </div>
+
+              <div className="flex flex-col justify-center">
+                <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">Carry Load Inclusion</label>
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={carried}
+                    disabled={ownershipStatus !== 'owned'}
+                    onChange={(e) => setCarried(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#0891B2] accent-[#0891B2] focus:ring-0 cursor-pointer"
+                  />
+                  <span className={`text-[13px] ${ownershipStatus !== 'owned' ? 'text-[#9A9AA5]' : 'text-[#111113] font-medium'}`}>
+                    Carried today (counts towards Carry Load)
+                  </span>
+                </label>
               </div>
             </div>
 

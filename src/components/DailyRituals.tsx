@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import type { DayRecord, SalahStatus, CustomHabit, AttributeType } from '../types';
+import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent } from '../types';
 import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
+import { XP_DISCIPLINE_REWARDS } from '../data/xpConfig';
 
 interface DailyRitualsProps {
   dayRecords: Record<string, DayRecord>;
@@ -12,6 +13,7 @@ interface DailyRitualsProps {
   onUpdateDayRecord: (record: DayRecord, xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }) => void;
   onAddHabit: (habit: CustomHabit) => void;
   onDeleteHabit: (habitId: string) => void;
+  onRecordXpEvent?: (event: Omit<XpEvent, 'id'>) => void;
 }
 
 const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] = [
@@ -37,6 +39,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   onUpdateDayRecord,
   onAddHabit,
   onDeleteHabit,
+  onRecordXpEvent,
 }) => {
   const [isAddingHabit, setIsAddingHabit] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
@@ -73,8 +76,30 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
     onUpdateDayRecord(
       updatedRecord,
-      nextVal ? { attr: 'WIS', xp: 50 } : undefined
+      nextVal ? { attr: 'WIS', xp: XP_DISCIPLINE_REWARDS.SALAH_PRAYER } : undefined
     );
+
+    if (nextVal && onRecordXpEvent) {
+      const prayerName = SALAH_LIST.find(s => s.key === key)?.name || key;
+      onRecordXpEvent({
+        action: `Salah: ${prayerName}`,
+        pillar: 'WIS',
+        points: XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
+        date: selectedDate,
+        refId: `salah-${key}-${selectedDate}`,
+      });
+
+      const nextSalahCount = Object.values(updatedRecord.salah).filter(Boolean).length;
+      if (nextSalahCount === 5) {
+        onRecordXpEvent({
+          action: 'Perfect Salah Day (5/5)',
+          pillar: 'WIS',
+          points: XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+          date: selectedDate,
+          refId: `salah-perfect-${selectedDate}`,
+        });
+      }
+    }
   };
 
   const handleToggleHabit = (habitId: string) => {
@@ -101,8 +126,18 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
     onUpdateDayRecord(
       updatedRecord,
-      !isCompleted ? { attr: habitAttr, xp: 35 } : undefined
+      !isCompleted ? { attr: habitAttr, xp: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION } : undefined
     );
+
+    if (!isCompleted && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Habit: ${habitObj?.name || 'Daily Anchor'}`,
+        pillar: habitAttr,
+        points: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION,
+        date: selectedDate,
+        refId: `habit-${habitId}-${selectedDate}`,
+      });
+    }
   };
 
   const handleAdjustPushups = (delta: number) => {
@@ -115,18 +150,36 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     };
     onUpdateDayRecord(
       updatedRecord,
-      delta > 0 ? { attr: 'STR', xp: delta * 2 } : undefined
+      delta > 0 ? { attr: 'STR', xp: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP } : undefined
     );
+
+    if (delta > 0 && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Pushups (+${delta} reps)`,
+        pillar: 'STR',
+        points: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP,
+        date: selectedDate,
+      });
+    }
   };
 
   const handleSetPushupsDirect = (val: number) => {
     const nextVal = Math.max(0, val);
+    const delta = nextVal - currentRecord.pushups;
     const updatedRecord: DayRecord = {
       ...currentRecord,
       pushups: nextVal,
       workoutCompleted: nextVal >= 50 || currentRecord.squats >= 50,
     };
     onUpdateDayRecord(updatedRecord);
+    if (delta > 0 && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Pushups (+${delta} reps)`,
+        pillar: 'STR',
+        points: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP,
+        date: selectedDate,
+      });
+    }
   };
 
   const handleAdjustSquats = (delta: number) => {
@@ -139,26 +192,53 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     };
     onUpdateDayRecord(
       updatedRecord,
-      delta > 0 ? { attr: 'STR', xp: delta * 2 } : undefined
+      delta > 0 ? { attr: 'STR', xp: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP } : undefined
     );
+
+    if (delta > 0 && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Squats (+${delta} reps)`,
+        pillar: 'STR',
+        points: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP,
+        date: selectedDate,
+      });
+    }
   };
 
   const handleSetSquatsDirect = (val: number) => {
     const nextVal = Math.max(0, val);
+    const delta = nextVal - currentRecord.squats;
     const updatedRecord: DayRecord = {
       ...currentRecord,
       squats: nextVal,
       workoutCompleted: currentRecord.pushups >= 50 || nextVal >= 50,
     };
     onUpdateDayRecord(updatedRecord);
+    if (delta > 0 && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Squats (+${delta} reps)`,
+        pillar: 'STR',
+        points: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP,
+        date: selectedDate,
+      });
+    }
   };
 
   const handleDeepWorkChange = (minutes: number) => {
+    const delta = minutes - (currentRecord.deepWorkMinutes || 0);
     const updatedRecord: DayRecord = {
       ...currentRecord,
       deepWorkMinutes: minutes,
     };
     onUpdateDayRecord(updatedRecord);
+    if (delta > 0 && onRecordXpEvent) {
+      onRecordXpEvent({
+        action: `Deep Work Session (+${delta}m)`,
+        pillar: 'INT',
+        points: delta * XP_DISCIPLINE_REWARDS.DEEP_WORK_PER_MINUTE,
+        date: selectedDate,
+      });
+    }
   };
 
   const handleCreateHabit = (e: React.FormEvent) => {
