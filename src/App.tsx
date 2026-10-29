@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type {
   InventoryItem,
   CharacterProfile,
@@ -20,24 +20,24 @@ import type {
   PersonalityEntry,
   CharacterTrait,
 } from './types';
-import { 
-  loadItems, saveItems, 
-  loadProfile, saveProfile, 
-  loadSkills, saveSkills, 
-  loadDayRecords, saveDayRecords, 
-  loadHabits, saveHabits,
-  loadWearEvents, saveWearEvents,
-  loadXpEvents, saveXpEvents,
-  loadSettings, saveSettings,
-  loadQuests, saveQuests,
-  loadQuestEvidence, saveQuestEvidence,
-  loadBodyMeasurements, saveBodyMeasurements,
-  loadAppearance, saveAppearance,
-  loadColorPalette, saveColorPalette,
-  loadPersonality, savePersonality,
-  loadTraits, saveTraits,
-  exportSaveFile, importSaveFile
-} from './utils/storage';
+import {
+  initDatabase,
+  itemRepo,
+  questRepo,
+  questEvidenceRepo,
+  habitRepo,
+  dayRecordRepo,
+  wearEventRepo,
+  xpEventRepo,
+  skillRepo,
+  measurementRepo,
+  appearanceRepo,
+  paletteRepo,
+  personalityRepo,
+  traitRepo,
+  settingsRepo,
+  profileRepo,
+} from './repositories';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
@@ -49,11 +49,14 @@ import { InventoryGrid } from './components/InventoryGrid';
 import { EmptyPageView } from './components/EmptyPageView';
 import { ItemInspectModal } from './components/ItemInspectModal';
 import { AddItemModal } from './components/AddItemModal';
+import { ImportItemsModal } from './components/ImportItemsModal';
+import { BackupModal } from './components/BackupModal';
 import { CharacterCodex } from './components/CharacterCodex';
 import { DailyRituals } from './components/DailyRituals';
 import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
 import { Sparkles, Check } from 'lucide-react';
+import { formatCurrency } from './utils/numberFormat';
 
 const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
   try {
@@ -82,43 +85,68 @@ const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
   }
 };
 
+const DEFAULT_SETTINGS_FALLBACK: AppSettings = {
+  id: 'default_settings',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  deleted_at: null,
+  revision: 1,
+  currencySymbol: '৳',
+  numberGrouping: 'bangladeshi',
+  unitSystem: 'metric',
+  targetWeightKg: 73.0,
+  privacyMode: false,
+};
+
 export const App: React.FC = () => {
-  const [items, setItems] = useState<InventoryItem[]>(() => loadItems());
-  const [profile, setProfile] = useState<CharacterProfile>(() => loadProfile());
-  const [skills, setSkills] = useState<SkillNode[]>(() => loadSkills());
-  const [habits, setHabits] = useState<CustomHabit[]>(() => loadHabits());
-  const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
-  const [wearEvents, setWearEvents] = useState<WearEvent[]>(() => loadWearEvents());
-  const [xpEvents, setXpEvents] = useState<XpEvent[]>(() => loadXpEvents());
-  const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
-  const [quests, setQuests] = useState<Quest[]>(() => loadQuests());
-  const [questEvidence, setQuestEvidence] = useState<QuestEvidence[]>(() => loadQuestEvidence());
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [profile, setProfile] = useState<CharacterProfile>({
+    id: 'default_profile',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    deleted_at: null,
+    revision: 1,
+    name: 'Artificer Wanderer',
+    title: 'Architect of Systems',
+    level: 1,
+    currentXp: 0,
+    xpToNextLevel: 500,
+    attributes: {
+      STR: { level: 1, xp: 0, title: 'Iron Discipline' },
+      INT: { level: 1, xp: 0, title: 'Deep Logic' },
+      WIS: { level: 1, xp: 0, title: 'Quiet Clarity' },
+      CHA: { level: 1, xp: 0, title: 'Resonant Presence' },
+    },
+    streaks: { salahStreak: 0, workoutStreak: 0, craftStreak: 0 },
+  });
+  const [skills, setSkills] = useState<SkillNode[]>([]);
+  const [habits, setHabits] = useState<CustomHabit[]>([]);
+  const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>({});
+  const [wearEvents, setWearEvents] = useState<WearEvent[]>([]);
+  const [xpEvents, setXpEvents] = useState<XpEvent[]>([]);
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS_FALLBACK);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [questEvidence, setQuestEvidence] = useState<QuestEvidence[]>([]);
 
   // Stat Sheet states
-  const [measurements, setMeasurements] = useState<BodyMeasurement[]>(() => loadBodyMeasurements());
-  const [appearance, setAppearance] = useState<CharacterAppearance>(() => loadAppearance());
-  const [palette, setPalette] = useState<PaletteColor[]>(() => loadColorPalette());
-  const [personality, setPersonality] = useState<PersonalityEntry[]>(() => loadPersonality());
-  const [traits, setTraits] = useState<CharacterTrait[]>(() => loadTraits());
+  const [measurements, setMeasurements] = useState<BodyMeasurement[]>([]);
+  const [appearance, setAppearance] = useState<CharacterAppearance>({
+    id: 'default_appearance',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    deleted_at: null,
+    revision: 1,
+    skinToneHex: '#D4AA78',
+    skinToneNote: 'Neutral olive',
+    hair: 'Dark Charcoal (#2C2C2E)',
+    eyeColor: 'Deep Umber Brown',
+  });
+  const [palette, setPalette] = useState<PaletteColor[]>([]);
+  const [personality, setPersonality] = useState<PersonalityEntry[]>([]);
+  const [traits, setTraits] = useState<CharacterTrait[]>([]);
 
   // App-wide Privacy Mode
-  const [privacyMode, setPrivacyMode] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('vessel_privacy_mode') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  const handleTogglePrivacyMode = () => {
-    setPrivacyMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('vessel_privacy_mode', String(next));
-      } catch {}
-      return next;
-    });
-  };
+  const [privacyMode, setPrivacyMode] = useState<boolean>(false);
 
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
@@ -130,11 +158,87 @@ export const App: React.FC = () => {
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [isImportItemsOpen, setIsImportItemsOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [wishlistPromptItem, setWishlistPromptItem] = useState<InventoryItem | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Reload all state from repositories
+  const reloadFromRepositories = useCallback(async () => {
+    try {
+      const [
+        loadedItems,
+        loadedProfile,
+        loadedSkills,
+        loadedHabits,
+        loadedDayRecordsMap,
+        loadedWearEvents,
+        loadedXpEvents,
+        loadedSettings,
+        loadedQuests,
+        loadedEvidence,
+        loadedMeasurements,
+        loadedAppearance,
+        loadedPalette,
+        loadedPersonality,
+        loadedTraits,
+      ] = await Promise.all([
+        itemRepo.list(),
+        profileRepo.getProfile(),
+        skillRepo.list(),
+        habitRepo.list(),
+        dayRecordRepo.getAllAsMap(),
+        wearEventRepo.list(),
+        xpEventRepo.list(),
+        settingsRepo.getSettings(),
+        questRepo.list(),
+        questEvidenceRepo.list(),
+        measurementRepo.list(),
+        appearanceRepo.getAppearance(),
+        paletteRepo.list(),
+        personalityRepo.list(),
+        traitRepo.list(),
+      ]);
+
+      setItems(loadedItems);
+      setProfile(loadedProfile);
+      setSkills(loadedSkills);
+      setHabits(loadedHabits);
+      setDayRecords(loadedDayRecordsMap);
+      setWearEvents(loadedWearEvents);
+      setXpEvents(loadedXpEvents);
+      setSettings(loadedSettings);
+      setQuests(loadedQuests);
+      setQuestEvidence(loadedEvidence);
+      setMeasurements(loadedMeasurements);
+      setAppearance(loadedAppearance);
+      setPalette(loadedPalette);
+      setPersonality(loadedPersonality);
+      setTraits(loadedTraits);
+      if (loadedSettings.privacyMode !== undefined) {
+        setPrivacyMode(loadedSettings.privacyMode);
+      }
+    } catch (err) {
+      console.error('[Vessel App] Error loading from repositories:', err);
+    }
+  }, []);
+
+  // Initialize Dexie and bootstrap data
+  useEffect(() => {
+    initDatabase().then(() => {
+      reloadFromRepositories();
+    });
+  }, [reloadFromRepositories]);
+
+  const handleTogglePrivacyMode = async () => {
+    const next = !privacyMode;
+    setPrivacyMode(next);
+    try {
+      localStorage.setItem('vessel_privacy_mode', String(next));
+    } catch {}
+    await settingsRepo.saveSettings({ privacyMode: next });
+  };
 
   // Sync state changes with URL query string
   useEffect(() => {
@@ -175,31 +279,14 @@ export const App: React.FC = () => {
         setInspectedItem(null);
         setIsAddItemOpen(false);
         setIsAddTaskOpen(false);
+        setIsBackupModalOpen(false);
+        setIsImportItemsOpen(false);
         setWishlistPromptItem(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Save state to localStorage instantly
-  useEffect(() => {
-    saveItems(items);
-    saveProfile(profile);
-    saveSkills(skills);
-    saveHabits(habits);
-    saveDayRecords(dayRecords);
-    saveWearEvents(wearEvents);
-    saveXpEvents(xpEvents);
-    saveSettings(settings);
-    saveQuests(quests);
-    saveQuestEvidence(questEvidence);
-    saveBodyMeasurements(measurements);
-    saveAppearance(appearance);
-    saveColorPalette(palette);
-    savePersonality(personality);
-    saveTraits(traits);
-  }, [items, profile, skills, habits, dayRecords, wearEvents, xpEvents, settings, quests, questEvidence, measurements, appearance, palette, personality, traits]);
 
   // Audio mute state
   useEffect(() => {
@@ -211,24 +298,29 @@ export const App: React.FC = () => {
     const totalXp = deriveTotalXp(xpEvents);
     const overall = getOverallLevelProgress(totalXp);
     if (profile.level !== overall.level || profile.currentXp !== overall.currentXp) {
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
         level: overall.level,
         currentXp: overall.currentXp,
         xpToNextLevel: overall.xpNeededForNext,
       }));
+      profileRepo.saveProfile({
+        level: overall.level,
+        currentXp: overall.currentXp,
+        xpToNextLevel: overall.xpNeededForNext,
+      });
     }
-  }, [xpEvents]);
+  }, [xpEvents, profile.level, profile.currentXp]);
 
   // Derived state: possessions and valuations
   const ownedItems = items.filter(
-    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
+    (it) => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
   );
   const wishlistItems = items.filter(
-    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'wishlist'
+    (it) => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'wishlist'
   );
   const pastItems = items.filter(
-    it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'past'
+    (it) => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'past'
   );
 
   // Vault Valuation = sum of goldValue of OWNED items only
@@ -245,121 +337,110 @@ export const App: React.FC = () => {
   const pastCount = pastItems.length;
 
   // Open Tasks Count for badge
-  const openTasksCount = quests.filter(q => !q.deletedAt && q.status !== 'done').length;
+  const openTasksCount = quests.filter((q) => !q.deletedAt && !q.deleted_at && q.status !== 'done').length;
 
   // Wear counts index
   const wearCounts: Record<string, number> = {};
-  wearEvents.forEach(ev => {
+  wearEvents.forEach((ev) => {
     wearCounts[ev.itemId] = (wearCounts[ev.itemId] || 0) + 1;
   });
 
-  // Record an append-only XP event
-  const handleRecordXpEvent = (event: Omit<XpEvent, 'id'>) => {
-    const newEvent: XpEvent = {
-      id: `xp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      ...event,
-    };
-    setXpEvents(prev => [...prev, newEvent]);
+  // Record an append-only XP event via Repository
+  const handleRecordXpEvent = async (event: Omit<XpEvent, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const saved = await xpEventRepo.create(event);
+    setXpEvents((prev) => [...prev, saved]);
   };
 
   // Possession Lifecycle: Change Ownership Status (owned <-> wishlist <-> past)
-  const handleChangeStatus = (
+  const handleChangeStatus = async (
     item: InventoryItem,
     newStatus: OwnershipStatus,
     pastReason?: PastReason,
     pastDate?: string
   ) => {
     const isNowLocked = newStatus === 'wishlist';
-    const updatedItems = items.map(it => {
-      if (it.id === item.id) {
-        return {
-          ...it,
-          ownershipStatus: newStatus,
-          isLocked: isNowLocked,
-          pastReason: newStatus === 'past' ? pastReason : undefined,
-          pastDate: newStatus === 'past' ? pastDate : undefined,
-        };
-      }
-      return it;
-    });
-    setItems(updatedItems);
+    const patch: Partial<InventoryItem> = {
+      ownershipStatus: newStatus,
+      isLocked: isNowLocked,
+      pastReason: newStatus === 'past' ? pastReason : undefined,
+      pastDate: newStatus === 'past' ? pastDate : undefined,
+    };
+
+    const updated = await itemRepo.update(item.id, patch);
+    setItems((prev) => prev.map((it) => (it.id === item.id ? updated : it)));
 
     if (inspectedItem && inspectedItem.id === item.id) {
-      setInspectedItem({
-        ...inspectedItem,
-        ownershipStatus: newStatus,
-        isLocked: isNowLocked,
-        pastReason: newStatus === 'past' ? pastReason : undefined,
-        pastDate: newStatus === 'past' ? pastDate : undefined,
-      });
+      setInspectedItem(updated);
     }
   };
 
-  const handleDeleteItem = (itemId: string) => {
-    setItems(items.filter(it => it.id !== itemId));
+  const handleDeleteItem = async (itemId: string) => {
+    await itemRepo.softDelete(itemId);
+    setItems((prev) => prev.filter((it) => it.id !== itemId));
     if (inspectedItem && inspectedItem.id === itemId) {
       setInspectedItem(null);
     }
   };
 
-  const handleAddItem = (newItem: InventoryItem) => {
-    setItems([newItem, ...items]);
+  const handleAddItem = async (newItem: InventoryItem) => {
+    const created = await itemRepo.create(newItem);
+    setItems((prev) => [created, ...prev]);
   };
 
-  const handleUpdateItem = (updated: InventoryItem) => {
-    setItems(prev => prev.map(it => (it.id === updated.id ? updated : it)));
-    setInspectedItem(updated);
+  const handleUpdateItem = async (updated: InventoryItem) => {
+    const res = await itemRepo.update(updated.id, updated);
+    setItems((prev) => prev.map((it) => (it.id === updated.id ? res : it)));
+    setInspectedItem(res);
   };
 
   // Tasks (Quests) Management
-  const handleAddTask = (newTaskData: Omit<Quest, 'id' | 'createdAt'>) => {
-    const newTask: Quest = {
+  const handleAddTask = async (newTaskData: Omit<Quest, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const created = await questRepo.create({
       ...newTaskData,
-      id: `task-${Date.now()}`,
       createdAt: getTodayLocalDateStr(),
-    };
-    setQuests(prev => [newTask, ...prev]);
+    });
+    setQuests((prev) => [created, ...prev]);
   };
 
-  const handleUpdateTask = (updated: Quest) => {
-    setQuests(prev => prev.map(q => (q.id === updated.id ? updated : q)));
+  const handleUpdateTask = async (updated: Quest) => {
+    const res = await questRepo.update(updated.id, updated);
+    setQuests((prev) => prev.map((q) => (q.id === updated.id ? res : q)));
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setQuests(prev =>
-      prev.map(q => (q.id === taskId ? { ...q, deletedAt: new Date().toISOString() } : q))
-    );
+  const handleDeleteTask = async (taskId: string) => {
+    await questRepo.softDelete(taskId);
+    setQuests((prev) => prev.filter((q) => q.id !== taskId));
   };
 
-  const handleAddEvidence = (questId: string, type: EvidenceType, content: string) => {
-    const newEv: QuestEvidence = {
-      id: `ev-${Date.now()}`,
+  const handleAddEvidence = async (questId: string, type: EvidenceType, content: string) => {
+    const created = await questEvidenceRepo.create({
       questId,
       type,
       content,
       addedAt: getTodayLocalDateStr(),
-    };
-    setQuestEvidence(prev => [newEv, ...prev]);
+    });
+    setQuestEvidence((prev) => [created, ...prev]);
   };
 
-  const handleDeleteEvidence = (evidenceId: string) => {
-    setQuestEvidence(prev => prev.filter(e => e.id !== evidenceId));
+  const handleDeleteEvidence = async (evidenceId: string) => {
+    await questEvidenceRepo.softDelete(evidenceId);
+    setQuestEvidence((prev) => prev.filter((e) => e.id !== evidenceId));
     sfx.playClick();
   };
 
   // Task Completion with XP Logging and Wishlist Milestone Prompt
-  const handleCompleteTask = (task: Quest) => {
+  const handleCompleteTask = async (task: Quest) => {
     const completedDate = getTodayLocalDateStr();
     const updated: Quest = {
       ...task,
       status: 'done',
       completedAt: completedDate,
     };
-    handleUpdateTask(updated);
+    await handleUpdateTask(updated);
 
     // Write append-only XP event
     const points = getQuestXp(task.difficulty);
-    handleRecordXpEvent({
+    await handleRecordXpEvent({
       action: `Task Complete: ${task.title}`,
       pillar: task.pillar,
       points,
@@ -371,7 +452,7 @@ export const App: React.FC = () => {
 
     // Check if linked to a wishlist item
     if (task.linkedItemId) {
-      const linkedItem = items.find(i => i.id === task.linkedItemId);
+      const linkedItem = items.find((i) => i.id === task.linkedItemId);
       if (linkedItem && linkedItem.ownershipStatus === 'wishlist') {
         setWishlistPromptItem(linkedItem);
       }
@@ -379,17 +460,17 @@ export const App: React.FC = () => {
   };
 
   // Task Reopen from Done with Negative Append-Only XP Event
-  const handleReopenTask = (task: Quest) => {
+  const handleReopenTask = async (task: Quest) => {
     const updated: Quest = {
       ...task,
       status: 'todo',
       completedAt: undefined,
     };
-    handleUpdateTask(updated);
+    await handleUpdateTask(updated);
 
     // Reopening reverses XP by writing a negative event, so log stays append-only
     const points = getQuestXp(task.difficulty);
-    handleRecordXpEvent({
+    await handleRecordXpEvent({
       action: `Task Reopened: ${task.title}`,
       pillar: task.pillar,
       points: -points,
@@ -401,120 +482,119 @@ export const App: React.FC = () => {
   };
 
   // Stat Sheet Handlers
-  const handleAddMeasurement = (m: Omit<BodyMeasurement, 'id'>) => {
-    const newM: BodyMeasurement = {
-      ...m,
-      id: `bm-${Date.now()}`,
-    };
-    setMeasurements(prev => [...prev, newM]);
+  const handleAddMeasurement = async (m: Omit<BodyMeasurement, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const created = await measurementRepo.create(m);
+    setMeasurements((prev) => [...prev, created]);
   };
 
-  const handleDeleteMeasurement = (id: string) => {
-    setMeasurements(prev =>
-      prev.map(m => (m.id === id ? { ...m, deletedAt: new Date().toISOString() } : m))
-    );
+  const handleDeleteMeasurement = async (id: string) => {
+    await measurementRepo.softDelete(id);
+    setMeasurements((prev) => prev.filter((m) => m.id !== id));
   };
 
-  const handleUpdateAppearance = (app: CharacterAppearance) => {
-    setAppearance(app);
+  const handleUpdateAppearance = async (app: CharacterAppearance) => {
+    const updated = await appearanceRepo.saveAppearance(app);
+    setAppearance(updated);
   };
 
-  const handleAddPaletteColor = (p: Omit<PaletteColor, 'id'>) => {
-    const newColor: PaletteColor = {
-      ...p,
-      id: `pal-${Date.now()}`,
-    };
-    setPalette(prev => [...prev, newColor]);
+  const handleAddPaletteColor = async (p: Omit<PaletteColor, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const created = await paletteRepo.create(p);
+    setPalette((prev) => [...prev, created]);
   };
 
-  const handleUpdatePaletteColor = (p: PaletteColor) => {
-    setPalette(prev => prev.map(c => (c.id === p.id ? p : c)));
+  const handleUpdatePaletteColor = async (p: PaletteColor) => {
+    const updated = await paletteRepo.update(p.id, p);
+    setPalette((prev) => prev.map((c) => (c.id === p.id ? updated : c)));
   };
 
-  const handleDeletePaletteColor = (id: string) => {
-    setPalette(prev =>
-      prev.map(c => (c.id === id ? { ...c, deletedAt: new Date().toISOString() } : c))
-    );
+  const handleDeletePaletteColor = async (id: string) => {
+    await paletteRepo.softDelete(id);
+    setPalette((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const handleAddPersonality = (p: Omit<PersonalityEntry, 'id'>) => {
-    const newEntry: PersonalityEntry = {
-      ...p,
-      id: `pers-${Date.now()}`,
-    };
-    setPersonality(prev => [newEntry, ...prev]);
+  const handleAddPersonality = async (p: Omit<PersonalityEntry, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const created = await personalityRepo.create(p);
+    setPersonality((prev) => [created, ...prev]);
   };
 
-  const handleDeletePersonality = (id: string) => {
-    setPersonality(prev =>
-      prev.map(p => (p.id === id ? { ...p, deletedAt: new Date().toISOString() } : p))
-    );
+  const handleDeletePersonality = async (id: string) => {
+    await personalityRepo.softDelete(id);
+    setPersonality((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleAddTrait = (t: Omit<CharacterTrait, 'id'>) => {
-    const newTrait: CharacterTrait = {
-      ...t,
-      id: `trait-${Date.now()}`,
-    };
-    setTraits(prev => [...prev, newTrait]);
+  const handleAddTrait = async (t: Omit<CharacterTrait, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
+    const created = await traitRepo.create(t);
+    setTraits((prev) => [...prev, created]);
   };
 
-  const handleDeleteTrait = (id: string) => {
-    setTraits(prev =>
-      prev.map(t => (t.id === id ? { ...t, deletedAt: new Date().toISOString() } : t))
-    );
+  const handleDeleteTrait = async (id: string) => {
+    await traitRepo.softDelete(id);
+    setTraits((prev) => prev.filter((t) => t.id !== id));
   };
 
   // Update specific day's records
-  const handleUpdateDayRecord = (
+  const handleUpdateDayRecord = async (
     updated: DayRecord,
     _xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }
   ) => {
-    setDayRecords(prev => ({
+    const existing = await dayRecordRepo.getByDate(updated.date);
+    if (existing && existing.id) {
+      await dayRecordRepo.update(existing.id, updated);
+    } else {
+      await dayRecordRepo.create({ ...updated, id: updated.id || updated.date });
+    }
+    setDayRecords((prev) => ({
       ...prev,
       [updated.date]: updated,
     }));
   };
 
-  const handleAddHabit = (newHabit: CustomHabit) => {
-    setHabits([...habits, newHabit]);
+  const handleAddHabit = async (newHabit: CustomHabit) => {
+    const created = await habitRepo.create(newHabit);
+    setHabits((prev) => [...prev, created]);
   };
 
-  const handleArchiveHabit = (habitId: string) => {
-    setHabits(habits.map(h => h.id === habitId ? { ...h, isArchived: true, archivedAt: new Date().toISOString() } : h));
+  const handleArchiveHabit = async (habitId: string) => {
+    await habitRepo.softDelete(habitId);
+    setHabits((prev) =>
+      prev.map((h) => (h.id === habitId ? { ...h, isArchived: true, archivedAt: new Date().toISOString() } : h))
+    );
   };
 
-  const handleRestoreHabit = (habitId: string) => {
-    setHabits(habits.map(h => h.id === habitId ? { ...h, isArchived: false, archivedAt: undefined } : h));
+  const handleRestoreHabit = async (habitId: string) => {
+    const updated = await habitRepo.update(habitId, {
+      isArchived: false,
+      archivedAt: undefined,
+      deleted_at: null,
+      deletedAt: undefined,
+    } as any);
+    setHabits((prev) => prev.map((h) => (h.id === habitId ? updated : h)));
   };
 
-  const handlePermanentDeleteHabit = (habitId: string) => {
-    setHabits(habits.filter(h => h.id !== habitId));
+  const handlePermanentDeleteHabit = async (habitId: string) => {
+    await habitRepo.hardDelete(habitId);
+    setHabits((prev) => prev.filter((h) => h.id !== habitId));
   };
 
   // Unlock Milestone
-  const handleUnlockSkill = (skillId: string, evidence?: { note: string; url?: string }) => {
+  const handleUnlockSkill = async (skillId: string, evidence?: { note: string; url?: string }) => {
     let skillTitle = 'Milestone';
     let skillAttr: AttributeType = 'INT';
 
-    setSkills(prev =>
-      prev.map(skill => {
-        if (skill.id === skillId) {
-          skillTitle = skill.title;
-          skillAttr = skill.attribute;
-          return {
-            ...skill,
-            unlocked: true,
-            progressPercent: 100,
-            evidenceNote: evidence?.note || skill.evidenceNote,
-            evidenceUrl: evidence?.url || skill.evidenceUrl,
-          };
-        }
-        return skill;
-      })
-    );
+    const existing = skills.find((s) => s.id === skillId);
+    if (existing) {
+      skillTitle = existing.title;
+      skillAttr = existing.attribute;
+      const updated = await skillRepo.update(skillId, {
+        unlocked: true,
+        progressPercent: 100,
+        evidenceNote: evidence?.note || existing.evidenceNote,
+        evidenceUrl: evidence?.url || existing.evidenceUrl,
+      });
+      setSkills((prev) => prev.map((s) => (s.id === skillId ? updated : s)));
+    }
 
-    handleRecordXpEvent({
+    await handleRecordXpEvent({
       action: `Milestone Achieved: ${skillTitle}`,
       pillar: skillAttr,
       points: 150,
@@ -524,82 +604,21 @@ export const App: React.FC = () => {
   };
 
   const handleShiftDate = (delta: number) => {
-    setSelectedDate(prev => shiftDate(prev, delta));
+    setSelectedDate((prev) => shiftDate(prev, delta));
   };
 
   const handleResetToday = () => {
     setSelectedDate(getTodayLocalDateStr());
   };
 
-  const handleUpdateSettings = (updated: Partial<AppSettings>) => {
-    setSettings(prev => ({ ...prev, ...updated }));
-  };
-
-  // Export / Import
-  const handleExport = () => {
-    const dataStr = exportSaveFile();
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `vessel-data-${getTodayLocalDateStr()}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        const success = importSaveFile(content);
-        if (success) {
-          setItems(loadItems());
-          setProfile(loadProfile());
-          setSkills(loadSkills());
-          setHabits(loadHabits());
-          setDayRecords(loadDayRecords());
-          setWearEvents(loadWearEvents());
-          setXpEvents(loadXpEvents());
-          setSettings(loadSettings());
-          setQuests(loadQuests());
-          setQuestEvidence(loadQuestEvidence());
-          setMeasurements(loadBodyMeasurements());
-          setAppearance(loadAppearance());
-          setPalette(loadColorPalette());
-          setPersonality(loadPersonality());
-          setTraits(loadTraits());
-          sfx.playRunicHarmonic();
-          alert('Vessel state successfully restored.');
-        } else {
-          alert('Failed to parse Vessel backup file.');
-        }
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
+  const handleUpdateSettings = async (updated: Partial<AppSettings>) => {
+    const saved = await settingsRepo.saveSettings(updated);
+    setSettings((prev) => ({ ...prev, ...saved }));
   };
 
   return (
     <div className="flex h-screen w-full bg-[#F4F4F6] text-[#111113] overflow-hidden">
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept=".json"
-        className="hidden"
-      />
-
-      {/* Left Sidebar Dashboard Navigation */}
+      {/* Sidebar Navigation */}
       <Sidebar
         profile={profile}
         activeTab={activeTab}
@@ -613,13 +632,14 @@ export const App: React.FC = () => {
         openTasksCount={openTasksCount}
         isMuted={isMuted}
         setIsMuted={setIsMuted}
-        onExport={handleExport}
-        onImport={handleImportClick}
+        onExport={() => setIsBackupModalOpen(true)}
+        onImport={() => setIsImportItemsOpen(true)}
+        lastBackupAt={settings.lastBackupAt}
       />
 
-      {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#F4F4F6]">
-        {/* Consistent Unified TopBar with Global Search and Settings */}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Top Header Bar */}
         <TopBar
           activeTab={activeTab}
           selectedDate={selectedDate}
@@ -627,6 +647,8 @@ export const App: React.FC = () => {
           onResetToday={handleResetToday}
           onOpenAddItem={() => setIsAddItemOpen(true)}
           onOpenAddTask={() => setIsAddTaskOpen(true)}
+          onOpenImportItems={() => setIsImportItemsOpen(true)}
+          onOpenBackup={() => setIsBackupModalOpen(true)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           items={items}
@@ -635,17 +657,18 @@ export const App: React.FC = () => {
           quests={quests}
           onSelectTab={setActiveTab}
           onInspectItem={setInspectedItem}
-          onSelectTask={() => setActiveTab('tasks')}
+          onSelectTask={() => {
+            setActiveTab('tasks');
+          }}
           settings={settings}
           onUpdateSettings={handleUpdateSettings}
           privacyMode={privacyMode}
           onTogglePrivacyMode={handleTogglePrivacyMode}
         />
 
-        {/* Scrollable View Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-8">
-          <div className="max-w-[1520px] mx-auto space-y-6">
-            
+        {/* Scrollable View Container */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+          <div className="max-w-6xl mx-auto space-y-6">
             {/* Overview View */}
             {activeTab === 'overview' && (
               <OverviewView
@@ -654,7 +677,8 @@ export const App: React.FC = () => {
                 dayRecords={dayRecords}
                 quests={quests}
                 xpEvents={xpEvents}
-                currencySymbol={settings.currencySymbol || '$'}
+                currencySymbol={settings.currencySymbol || '৳'}
+                numberGrouping={settings.numberGrouping || 'bangladeshi'}
                 onNavigate={setActiveTab}
               />
             )}
@@ -668,7 +692,8 @@ export const App: React.FC = () => {
                   pastCount={pastCount}
                   vaultValuation={vaultValuation}
                   wishlistCost={wishlistCost}
-                  currencySymbol={settings.currencySymbol || '$'}
+                  currencySymbol={settings.currencySymbol || '৳'}
+                  numberGrouping={settings.numberGrouping || 'bangladeshi'}
                   items={items}
                 />
 
@@ -676,9 +701,11 @@ export const App: React.FC = () => {
                   items={items}
                   onInspectItem={setInspectedItem}
                   onOpenAddItem={() => setIsAddItemOpen(true)}
+                  onOpenImport={() => setIsImportItemsOpen(true)}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
-                  currencySymbol={settings.currencySymbol || '$'}
+                  currencySymbol={settings.currencySymbol || '৳'}
+                  numberGrouping={settings.numberGrouping || 'bangladeshi'}
                   wearCounts={wearCounts}
                   palette={palette}
                   filterNode={inventoryFilter}
@@ -723,17 +750,17 @@ export const App: React.FC = () => {
               />
             )}
 
-            {/* Bucket List (New empty page) */}
+            {/* Bucket List */}
             {activeTab === 'bucket-list' && (
               <EmptyPageView title="Bucket List" type="bucket-list" />
             )}
 
-            {/* Money (New empty page) */}
+            {/* Money */}
             {activeTab === 'money' && (
               <EmptyPageView title="Money" type="money" />
             )}
 
-            {/* Character (formerly Character Codex) */}
+            {/* Character */}
             {activeTab === 'character' && (
               <CharacterCodex
                 profile={profile}
@@ -741,7 +768,7 @@ export const App: React.FC = () => {
                 dayRecords={dayRecords}
                 xpEvents={xpEvents}
                 onUnlockSkill={handleUnlockSkill}
-                onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
+                onUpdateProfile={(updated) => setProfile((prev) => ({ ...prev, ...updated }))}
                 measurements={measurements}
                 appearance={appearance}
                 palette={palette}
@@ -765,7 +792,7 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Item Inspect Modal */}
       <ItemInspectModal
         item={inspectedItem}
         onClose={() => setInspectedItem(null)}
@@ -773,15 +800,40 @@ export const App: React.FC = () => {
         onDeleteItem={handleDeleteItem}
         onUpdateItem={handleUpdateItem}
         onDuplicateItem={handleAddItem}
-        wearCount={inspectedItem ? (wearCounts[inspectedItem.id] || 0) : 0}
-        currencySymbol={settings.currencySymbol || '$'}
+        wearCount={inspectedItem ? wearCounts[inspectedItem.id] || 0 : 0}
+        currencySymbol={settings.currencySymbol || '৳'}
+        numberGrouping={settings.numberGrouping || 'bangladeshi'}
       />
 
+      {/* Add Item Modal */}
       <AddItemModal
         isOpen={isAddItemOpen}
         onClose={() => setIsAddItemOpen(false)}
         onAddItem={handleAddItem}
-        currencySymbol={settings.currencySymbol || '$'}
+        currencySymbol={settings.currencySymbol || '৳'}
+      />
+
+      {/* Item Import Modal (JSON / CSV Schema Validation & Dry-Run) */}
+      <ImportItemsModal
+        isOpen={isImportItemsOpen}
+        onClose={() => setIsImportItemsOpen(false)}
+        onSuccess={() => {
+          reloadFromRepositories();
+        }}
+        settings={settings}
+      />
+
+      {/* Backup Modal (ZIP Export, Dry-Run Restore, File System Access) */}
+      <BackupModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        settings={settings}
+        onSettingsChange={(newSettings) => {
+          setSettings(newSettings);
+        }}
+        onDataRestored={() => {
+          reloadFromRepositories();
+        }}
       />
 
       {/* Wishlist Claim Confirmation Modal */}
@@ -806,15 +858,24 @@ export const App: React.FC = () => {
 
             <div className="py-4 space-y-2">
               <p className="text-xs text-[#6B6B76] leading-relaxed">
-                You successfully achieved the objective linked to your wishlist item <strong className="text-[#111113]">{wishlistPromptItem.name}</strong>.
+                You successfully achieved the objective linked to your wishlist item{' '}
+                <strong className="text-[#111113]">{wishlistPromptItem.name}</strong>.
               </p>
               <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-[#111113] block">{wishlistPromptItem.name}</span>
-                  <span className="text-[11px] text-[#9A9AA5]">{wishlistPromptItem.subCategory}</span>
+                  <span className="text-xs font-semibold text-[#111113] block">
+                    {wishlistPromptItem.name}
+                  </span>
+                  <span className="text-[11px] text-[#9A9AA5]">
+                    {wishlistPromptItem.subCategory}
+                  </span>
                 </div>
                 <span className="text-xs font-semibold text-[#0891B2]">
-                  {settings.currencySymbol}{wishlistPromptItem.targetPrice || wishlistPromptItem.goldValue}
+                  {formatCurrency(
+                    wishlistPromptItem.targetPrice || wishlistPromptItem.goldValue,
+                    settings.currencySymbol || '৳',
+                    settings.numberGrouping || 'bangladeshi'
+                  )}
                 </span>
               </div>
               <p className="text-xs font-medium text-[#111113]">

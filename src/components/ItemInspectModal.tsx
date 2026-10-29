@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory } from '../types';
+import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory, NumberGroupingOption } from '../types';
 import { X, Trash2, History, Edit3, Check, Upload, Copy, Sparkles, MapPin } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
+import { processAndStorePhoto, getPhotoBlobUrl } from '../services/photoService';
+import { formatCurrency } from '../utils/numberFormat';
 
 const CATEGORY_OPTIONS = [
   { id: 'apparel', label: 'Apparel & Wardrobe' },
@@ -34,6 +36,7 @@ interface ItemInspectModalProps {
   onUpdateItem?: (updated: InventoryItem) => void;
   onDuplicateItem?: (item: InventoryItem) => void;
   currencySymbol?: string;
+  numberGrouping?: NumberGroupingOption;
   wearCount?: number;
 }
 
@@ -51,7 +54,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   onDeleteItem,
   onUpdateItem,
   onDuplicateItem,
-  currencySymbol = '$',
+  currencySymbol = '৳',
+  numberGrouping = 'bangladeshi',
   wearCount = 0,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -67,6 +71,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const [editLocation, setEditLocation] = useState('Closet');
   const [editCondition, setEditCondition] = useState<ItemCondition>('pristine');
   const [editImageUrl, setEditImageUrl] = useState('');
+  const [editPhotoId, setEditPhotoId] = useState<string | undefined>(undefined);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [editLore, setEditLore] = useState('');
 
   // Sync edit state when item changes
@@ -80,6 +86,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       setEditLocation(item.location || 'Closet');
       setEditCondition(item.condition);
       setEditImageUrl(item.imageUrl || '');
+      setEditPhotoId(item.photoId);
       setEditLore(item.lore);
       setIsEditing(false);
       setIsChoosingPastReason(false);
@@ -99,15 +106,22 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     setIsChoosingPastReason(false);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setEditImageUrl(result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    try {
+      const record = await processAndStorePhoto(file, item.id);
+      setEditPhotoId(record.id);
+      const fullUrl = await getPhotoBlobUrl(record.id, 'full');
+      if (fullUrl) {
+        setEditImageUrl(fullUrl);
+      }
+    } catch (err: any) {
+      alert(`Photo upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -115,6 +129,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     if (!editName.trim()) return;
     sfx.playClick();
 
+    const now = new Date().toISOString();
     const updated: InventoryItem = {
       ...item,
       name: editName.trim(),
@@ -124,8 +139,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       targetPrice: Math.max(0, parseInt(editTargetPrice, 10) || 0),
       location: editLocation.trim() || 'Closet',
       condition: editCondition,
+      photoId: editPhotoId,
       imageUrl: editImageUrl.trim() || undefined,
       lore: editLore.trim() || 'Personal item in inventory.',
+      updated_at: now,
+      revision: (item.revision || 1) + 1,
     };
 
     if (onUpdateItem) {
@@ -216,11 +234,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             {isEditing && (
               <label className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs text-[#111113] border border-[#ECECF0] hover:bg-white px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer shadow-xs flex items-center gap-1.5 transition-all">
                 <Upload className="w-3.5 h-3.5" />
-                <span>Upload Photo</span>
+                <span>{isUploadingPhoto ? 'Optimizing...' : 'Upload Photo'}</span>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
+                  disabled={isUploadingPhoto}
                   className="hidden"
                 />
               </label>
@@ -367,11 +386,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                   <div className="text-right">
                     <span className="text-xl font-bold text-[#111113] block">
-                      {currencySymbol}{item.goldValue.toLocaleString()}
+                      {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                     </span>
                     {currentStatus === 'wishlist' && item.targetPrice && (
                       <span className="text-[11px] text-[#6B6B76]">
-                        Target: {currencySymbol}{item.targetPrice.toLocaleString()}
+                        Target: {formatCurrency(item.targetPrice, currencySymbol, numberGrouping)}
                       </span>
                     )}
                   </div>
@@ -392,7 +411,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <div className="text-right">
                       <div className="text-[11px] text-[#6B6B76]">Cost Per Wear</div>
                       <div className="text-[15px] font-bold text-[#0891B2]">
-                        {costPerWear ? `${currencySymbol}${costPerWear} / wear` : 'Unworn'}
+                        {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)} / wear` : 'Unworn'}
                       </div>
                     </div>
                   </div>
@@ -510,7 +529,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
           <div className="flex items-center gap-2 text-[13px] text-[#6B6B76]">
             <span>Value:</span>
             <span className="text-[#111113] font-semibold">
-              {currencySymbol}{item.goldValue.toLocaleString()}
+              {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
             </span>
           </div>
 

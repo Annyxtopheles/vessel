@@ -176,6 +176,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   onUnlockSkill,
   measurements = [],
   appearance = {
+    id: 'default_appearance',
     skinToneHex: '#D7A781',
     skinToneNote: 'Warm golden olive undertones',
     hair: 'Dark Espresso Brown, medium textured crop',
@@ -184,7 +185,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   palette = [],
   personality = [],
   traits = [],
-  settings = { currencySymbol: '$', unitSystem: 'metric' },
+  settings = { id: 'default_settings', currencySymbol: '৳', numberGrouping: 'bangladeshi', unitSystem: 'metric' },
   privacyMode = false,
   onAddMeasurement = () => {},
   onDeleteMeasurement = () => {},

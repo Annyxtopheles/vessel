@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import type { InventoryItem, ItemRarity, PaletteColor } from '../types';
+import type { InventoryItem, ItemRarity, PaletteColor, NumberGroupingOption } from '../types';
 import type { InventoryTreeNode } from './Sidebar';
 import { matchColorPalette } from '../utils/color';
+import { formatCurrency } from '../utils/numberFormat';
 import { CustomSelect } from './CustomSelect';
 import {
   Search,
@@ -24,9 +25,11 @@ interface InventoryGridProps {
   items: InventoryItem[];
   onInspectItem: (item: InventoryItem) => void;
   onOpenAddItem: () => void;
+  onOpenImport?: () => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
   currencySymbol?: string;
+  numberGrouping?: NumberGroupingOption;
   wearCounts?: Record<string, number>;
   palette?: PaletteColor[];
   filterNode?: InventoryTreeNode;
@@ -51,9 +54,11 @@ const RARITY_LABELS: Record<ItemRarity, string> = {
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
   items,
   onInspectItem,
+  onOpenImport,
   searchQuery: externalSearchQuery,
   onSearchChange: externalOnSearchChange,
-  currencySymbol = '$',
+  currencySymbol = '৳',
+  numberGrouping = 'bangladeshi',
   wearCounts = {},
   palette = [],
   filterNode = { type: 'all' },
@@ -329,6 +334,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         <div className="ship-card p-12 text-center">
           <p className="text-[15px] font-semibold text-[#111113]">No possessions found</p>
           <p className="text-[13px] text-[#6B6B76] mt-1">Try selecting another sidebar node or clearing search filters.</p>
+          {onOpenImport && (
+            <button
+              onClick={onOpenImport}
+              className="mt-3 px-3 py-1.5 rounded-xl border border-[#ECECF0] text-xs font-semibold text-[#0891B2] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+            >
+              Import from JSON or CSV
+            </button>
+          )}
         </div>
       ) : viewMode === 'table' ? (
         /* DENSE TABLE VIEW WITH SORTABLE COLUMNS */
@@ -458,7 +471,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       </td>
 
                       <td className="py-2.5 px-3 text-right font-semibold text-[#111113] whitespace-nowrap">
-                        {currencySymbol}{item.goldValue.toLocaleString()}
+                        {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                       </td>
 
                       <td className="py-2.5 px-3 text-right text-[#6B6B76] whitespace-nowrap">
@@ -466,7 +479,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       </td>
 
                       <td className="py-2.5 px-3 text-right text-[#6B6B76] whitespace-nowrap font-medium">
-                        {wears > 0 ? `${currencySymbol}${costPerWear}` : <span className="text-[#9A9AA5]">Unworn</span>}
+                        {wears > 0 && costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}` : <span className="text-[#9A9AA5]">Unworn</span>}
                       </td>
 
                       <td className="py-2.5 px-4 whitespace-nowrap">
@@ -529,8 +542,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     >
                       {/* Top Part: Image & Content */}
                       <div>
-                        {/* Image Container */}
-                        <div className="h-44 w-full bg-[#F4F4F6] relative overflow-hidden flex items-center justify-center border-b border-[#ECECF0]">
+                        {/* Image Container: Consistent 4:5 Crop */}
+                        <div className="aspect-[4/5] w-full bg-[#F4F4F6] relative overflow-hidden flex items-center justify-center border-b border-[#ECECF0]">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -565,7 +578,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
                           {/* Category + Price + Location in Secondary Text */}
                           <p className="text-[13px] text-[#6B6B76] mt-1 truncate">
-                            {item.subCategory || item.category} • {currencySymbol}{item.goldValue.toLocaleString()}
+                            {item.subCategory || item.category} • {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                           </p>
 
                           {/* Wear Count & Cost Per Wear Metric Line */}
@@ -574,7 +587,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                               <span>{wears} wears</span>
                               <span>•</span>
                               <span className="text-[#0891B2] font-semibold">
-                                {costPerWear ? `${currencySymbol}${costPerWear}/wear` : 'Unworn'}
+                                {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}/wear` : 'Unworn'}
                               </span>
                             </div>
                           )}

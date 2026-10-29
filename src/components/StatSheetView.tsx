@@ -395,6 +395,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   const handleSaveAppearance = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateAppearance({
+      ...appearance,
       skinToneHex: appSkinHex,
       skinToneNote: appSkinNote.trim() || undefined,
       hair: appHair.trim(),

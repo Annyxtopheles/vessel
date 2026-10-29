@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest } from '../types';
+import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest, NumberGroupingOption } from '../types';
 import type { NavTab } from './Sidebar';
 import { 
   Search, 
@@ -14,7 +14,9 @@ import {
   CheckSquare, 
   Target,
   Eye,
-  EyeOff
+  EyeOff,
+  Archive,
+  Upload
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -25,6 +27,8 @@ interface TopBarProps {
   onResetToday: () => void;
   onOpenAddItem: () => void;
   onOpenAddTask?: () => void;
+  onOpenImportItems?: () => void;
+  onOpenBackup?: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   items: InventoryItem[];
@@ -47,6 +51,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   onResetToday,
   onOpenAddItem,
   onOpenAddTask,
+  onOpenImportItems,
+  onOpenBackup,
   searchQuery,
   onSearchChange,
   items,
@@ -63,7 +69,8 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [tempCurrency, setTempCurrency] = useState(settings.currencySymbol || '$');
+  const [tempCurrency, setTempCurrency] = useState(settings.currencySymbol || '৳');
+  const [tempNumberGrouping, setTempNumberGrouping] = useState<NumberGroupingOption>(settings.numberGrouping || 'bangladeshi');
   const [tempUnitSystem, setTempUnitSystem] = useState<'metric' | 'imperial'>(settings.unitSystem || 'metric');
   const [tempTargetWeight, setTempTargetWeight] = useState(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
 
@@ -71,7 +78,8 @@ export const TopBar: React.FC<TopBarProps> = ({
 
   // Sync settings when opened
   useEffect(() => {
-    setTempCurrency(settings.currencySymbol || '$');
+    setTempCurrency(settings.currencySymbol || '৳');
+    setTempNumberGrouping(settings.numberGrouping || 'bangladeshi');
     setTempUnitSystem(settings.unitSystem || 'metric');
     setTempTargetWeight(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
   }, [settings, isSettingsOpen]);
@@ -143,7 +151,8 @@ export const TopBar: React.FC<TopBarProps> = ({
     e.preventDefault();
     if (onUpdateSettings) {
       onUpdateSettings({
-        currencySymbol: tempCurrency.trim() || '$',
+        currencySymbol: tempCurrency.trim() || '৳',
+        numberGrouping: tempNumberGrouping,
         unitSystem: tempUnitSystem,
         targetWeightKg: tempTargetWeight.trim() ? parseFloat(tempTargetWeight) : undefined,
       });
@@ -423,16 +432,31 @@ export const TopBar: React.FC<TopBarProps> = ({
 
         {/* Primary Action Button */}
         {activeTab === 'inventory' && (
-          <button
-            onClick={() => {
-              sfx.playClick();
-              onOpenAddItem();
-            }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Item</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenImportItems && (
+              <button
+                onClick={() => {
+                  sfx.playClick();
+                  onOpenImportItems();
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#111113] text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Import Items (JSON / CSV)"
+              >
+                <Upload className="w-4 h-4 text-[#6B6B76]" />
+                <span>Import</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                sfx.playClick();
+                onOpenAddItem();
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Item</span>
+            </button>
+          </div>
         )}
 
         {activeTab === 'tasks' && onOpenAddTask && (
@@ -478,7 +502,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   Currency Symbol
                 </label>
                 <div className="flex items-center gap-2 mb-2">
-                  {['$', '€', '£', '৳', '¥', 'CHF'].map(sym => (
+                  {['৳', '$', '€', '£', '¥', 'CHF'].map(sym => (
                     <button
                       key={sym}
                       type="button"
@@ -498,9 +522,41 @@ export const TopBar: React.FC<TopBarProps> = ({
                   maxLength={5}
                   value={tempCurrency}
                   onChange={(e) => setTempCurrency(e.target.value)}
-                  placeholder="$"
+                  placeholder="৳"
                   className="ship-input w-full px-3 py-2 text-sm"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  Number Grouping
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTempNumberGrouping('bangladeshi')}
+                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left ${
+                      tempNumberGrouping === 'bangladeshi'
+                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
+                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                    }`}
+                  >
+                    <div>Bangladeshi</div>
+                    <div className="text-[10px] font-normal opacity-80">1,00,000 (Lakh/Crore)</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTempNumberGrouping('international')}
+                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left ${
+                      tempNumberGrouping === 'international'
+                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
+                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                    }`}
+                  >
+                    <div>International</div>
+                    <div className="text-[10px] font-normal opacity-80">100,000 (Standard)</div>
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -548,6 +604,28 @@ export const TopBar: React.FC<TopBarProps> = ({
                   </button>
                 </div>
               </div>
+
+              {onOpenBackup && (
+                <div className="pt-2 border-t border-[#ECECF0]">
+                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                    Data & Storage
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(false);
+                      onOpenBackup();
+                    }}
+                    className="w-full flex items-center justify-between p-3 rounded-xl border border-[#ECECF0] hover:bg-[#F4F4F6] text-xs font-medium text-[#111113] transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Archive className="w-4 h-4 text-[#0891B2]" />
+                      <span>Backups & Folder Auto-Save</span>
+                    </div>
+                    <span className="text-[#6B6B76]">Manage →</span>
+                  </button>
+                </div>
+              )}
 
               <div className="pt-4 border-t border-[#ECECF0] flex justify-end gap-2.5">
                 <button

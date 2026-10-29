@@ -3,6 +3,7 @@ import type { InventoryItem, ItemCategory, ItemRarity, ItemCondition, ItemSeason
 import { X, Upload, Package } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
+import { processAndStorePhoto, getPhotoBlobUrl } from '../services/photoService';
 
 const CATEGORY_OPTIONS = [
   { id: 'apparel', label: 'Clothing & Wardrobe' },
@@ -82,20 +83,29 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
   const [targetPrice, setTargetPrice] = useState('');
   const [location, setLocation] = useState('Closet');
   const [imageUrl, setImageUrl] = useState('');
+  const [photoId, setPhotoId] = useState<string | undefined>(undefined);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [lockRequirement, setLockRequirement] = useState('');
   const [lore, setLore] = useState('');
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setImageUrl(result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    try {
+      const record = await processAndStorePhoto(file);
+      setPhotoId(record.id);
+      const thumbUrl = await getPhotoBlobUrl(record.id, 'thumb');
+      if (thumbUrl) {
+        setImageUrl(thumbUrl);
+      }
+    } catch (err: any) {
+      alert(`Photo upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -103,8 +113,13 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
+    const now = new Date().toISOString();
     const newItem: InventoryItem = {
       id: `item-${Date.now()}`,
+      created_at: now,
+      updated_at: now,
+      deleted_at: null,
+      revision: 1,
       name: name.trim(),
       category,
       subCategory: subCategory.trim() || 'General',
@@ -116,6 +131,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
       goldValue: Math.max(0, parseInt(goldValue, 10) || 0),
       targetPrice: targetPrice ? Math.max(0, parseFloat(targetPrice)) : undefined,
       location: location.trim() || 'Closet',
+      photoId,
       imageUrl: imageUrl.trim() || undefined,
       lore: lore.trim() || 'Personal item in inventory.',
       ownershipStatus,
@@ -279,11 +295,12 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
                 <label className="px-3.5 py-2 rounded-xl border border-[#ECECF0] text-xs font-medium text-[#111113] hover:bg-[#F4F4F6] transition-colors cursor-pointer flex items-center gap-1.5">
                   <Upload className="w-3.5 h-3.5 text-[#6B6B76]" />
-                  <span>Choose Photo</span>
+                  <span>{isUploadingPhoto ? 'Optimizing...' : 'Choose Photo'}</span>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileUpload}
+                    disabled={isUploadingPhoto}
                     className="hidden"
                   />
                 </label>

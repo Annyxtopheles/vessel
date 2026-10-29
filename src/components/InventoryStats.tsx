@@ -1,6 +1,7 @@
 import React from 'react';
-import type { InventoryItem } from '../types';
+import type { InventoryItem, NumberGroupingOption } from '../types';
 import { Package, DollarSign, Bookmark, Palette } from 'lucide-react';
+import { formatCurrency } from '../utils/numberFormat';
 
 interface InventoryStatsProps {
   ownedCount: number;
@@ -9,6 +10,7 @@ interface InventoryStatsProps {
   vaultValuation: number;
   wishlistCost: number;
   currencySymbol?: string;
+  numberGrouping?: NumberGroupingOption;
   items: InventoryItem[];
 }
 
@@ -18,7 +20,8 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
   pastCount,
   vaultValuation,
   wishlistCost,
-  currencySymbol = '$',
+  currencySymbol = '৳',
+  numberGrouping = 'bangladeshi',
   items,
 }) => {
   // Wardrobe by color (owned clothing only)
@@ -78,7 +81,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
           </div>
           <div className="mt-2">
             <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
-              {currencySymbol}{vaultValuation.toLocaleString()}
+              {formatCurrency(vaultValuation, currencySymbol, numberGrouping)}
             </div>
             <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
               Owned items
@@ -96,7 +99,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
           </div>
           <div className="mt-2">
             <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
-              {currencySymbol}{wishlistCost.toLocaleString()}
+              {formatCurrency(wishlistCost, currencySymbol, numberGrouping)}
             </div>
             <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
               {wishlistCount} wanted items
@@ -113,26 +116,40 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
             <Palette className="w-4 h-4 text-[#0891B2]" />
             <span className="text-[13px] font-semibold text-[#111113]">Wardrobe Spectrum</span>
           </div>
-          <div className="text-[12px] text-[#6B6B76]">
-            {totalGarments} owned garments • Top: <span className="font-semibold text-[#111113]">{colorDistribution[0] ? `${colorDistribution[0].name} (${colorDistribution[0].pct}%)` : 'None'}</span>
-          </div>
+          <span className="text-[12px] text-[#6B6B76]">{totalGarments} garments</span>
         </div>
 
-        {/* Color distribution bar */}
-        <div className="h-2 w-full rounded-full overflow-hidden flex bg-[#ECECF0]">
-          {colorDistribution.length > 0 ? (
-            colorDistribution.map((c) => (
-              <div
-                key={c.name}
-                style={{ width: `${c.pct}%`, backgroundColor: c.hex }}
-                className="h-full transition-all"
-                title={`${c.name}: ${c.count} items (${c.pct}%)`}
-              />
-            ))
-          ) : (
-            <div className="w-full h-full bg-[#ECECF0]" />
-          )}
-        </div>
+        {totalGarments === 0 ? (
+          <p className="text-xs text-[#9A9AA5] italic py-2">No owned clothing recorded.</p>
+        ) : (
+          <div className="space-y-2">
+            {/* Multi-segment bar */}
+            <div className="h-3 w-full rounded-full overflow-hidden flex bg-[#ECECF0]">
+              {colorDistribution.map((c) => (
+                <div
+                  key={c.name}
+                  style={{ width: `${c.pct}%`, backgroundColor: c.hex }}
+                  title={`${c.name}: ${c.count} (${c.pct}%)`}
+                  className="h-full transition-all duration-300"
+                />
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-3 overflow-x-auto py-1">
+              {colorDistribution.slice(0, 6).map((c) => (
+                <div key={c.name} className="flex items-center gap-1.5 shrink-0 text-xs">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span className="text-[#111113] font-medium">{c.name}</span>
+                  <span className="text-[#9A9AA5]">({c.count})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

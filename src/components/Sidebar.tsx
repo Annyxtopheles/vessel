@@ -26,6 +26,7 @@ import {
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr } from '../utils/date';
 import { deriveTotalXp, getOverallLevelProgress } from '../data/xpConfig';
+import { isBackupDue } from '../services/backupService';
 
 export type NavTab = 'overview' | 'inventory' | 'routine' | 'tasks' | 'bucket-list' | 'money' | 'character';
 
@@ -50,6 +51,7 @@ interface SidebarProps {
   setIsMuted: (muted: boolean) => void;
   onExport: () => void;
   onImport: () => void;
+  lastBackupAt?: string;
 }
 
 const CATEGORY_NAMES: Record<string, string> = {
@@ -74,6 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setIsMuted,
   onExport,
   onImport,
+  lastBackupAt,
 }) => {
   const [isInventoryTreeOpen, setIsInventoryTreeOpen] = useState(true);
   const [isCategoriesSubTreeOpen, setIsCategoriesSubTreeOpen] = useState(true);
@@ -543,10 +546,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 sfx.playClick();
                 onExport();
               }}
-              className="p-1.5 rounded-lg bg-white text-[#6B6B76] hover:text-[#111113] border border-[#ECECF0] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
-              title="Export Vault JSON"
+              className="relative p-1.5 rounded-lg bg-white text-[#6B6B76] hover:text-[#111113] border border-[#ECECF0] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+              title={isBackupDue(lastBackupAt) ? "Backups & Archives (Backup recommended)" : "Backups & Archives (ZIP)"}
             >
               <Download className="w-3.5 h-3.5" />
+              {isBackupDue(lastBackupAt) && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              )}
             </button>
 
             <button
@@ -555,7 +561,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onImport();
               }}
               className="p-1.5 rounded-lg bg-white text-[#6B6B76] hover:text-[#111113] border border-[#ECECF0] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
-              title="Import Backup JSON"
+              title="Import Items (JSON / CSV)"
             >
               <Upload className="w-3.5 h-3.5" />
             </button>

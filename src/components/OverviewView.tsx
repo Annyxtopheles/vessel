@@ -18,6 +18,8 @@ import {
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr } from '../utils/date';
 import { deriveTotalXp, getOverallLevelProgress } from '../data/xpConfig';
+import { formatCurrency } from '../utils/numberFormat';
+import type { NumberGroupingOption } from '../types';
 
 interface OverviewViewProps {
   items: InventoryItem[];
@@ -26,6 +28,7 @@ interface OverviewViewProps {
   quests: Quest[];
   xpEvents: XpEvent[];
   currencySymbol?: string;
+  numberGrouping?: NumberGroupingOption;
   onNavigate: (tab: NavTab) => void;
 }
 
@@ -35,7 +38,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   dayRecords,
   quests,
   xpEvents,
-  currencySymbol = '$',
+  currencySymbol = '৳',
+  numberGrouping = 'bangladeshi',
   onNavigate,
 }) => {
   const todayStr = getTodayLocalDateStr();
@@ -89,7 +93,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               {ownedCount}
             </div>
             <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
-              {currencySymbol}{vaultValuation.toLocaleString()} Total value
+              {formatCurrency(vaultValuation, currencySymbol, numberGrouping)} Total value
             </div>
           </div>
         </div>
