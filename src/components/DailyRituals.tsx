@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest } from '../types';
-import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw, Compass, AlertCircle, ChevronRight } from 'lucide-react';
+import { Check, Plus, Dumbbell, Clock, Trash2, RotateCcw, Compass, AlertCircle, ChevronRight, Archive, ChevronDown } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
 import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
@@ -21,7 +21,8 @@ interface DailyRitualsProps {
   onUpdateDayRecord: (record: DayRecord, xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }) => void;
   onAddHabit: (habit: CustomHabit) => void;
   onDeleteHabit: (habitId: string) => void;
-  onRestoreDefaultHabits?: () => void;
+  onRestoreHabit?: (habitId: string) => void;
+  onPermanentDeleteHabit?: (habitId: string) => void;
   onRecordXpEvent?: (event: Omit<XpEvent, 'id'>) => void;
   quests?: Quest[];
   onNavigateToQuests?: () => void;
@@ -51,17 +52,22 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   onUpdateDayRecord,
   onAddHabit,
   onDeleteHabit,
-  onRestoreDefaultHabits,
+  onRestoreHabit,
+  onPermanentDeleteHabit,
   onRecordXpEvent,
   quests = [],
   onNavigateToQuests,
   onCompleteQuest: _onCompleteQuest,
 }) => {
   const [isAddingHabit, setIsAddingHabit] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitAttr, setNewHabitAttr] = useState<AttributeType>('WIS');
 
   const todayStr = getTodayLocalDateStr();
+
+  const activeHabits = habits.filter((h) => !h.isArchived);
+  const archivedHabits = habits.filter((h) => h.isArchived);
 
   // Quests due soon: open quests with due date within 7 days or overdue
   const questsDueSoon = quests
@@ -472,31 +478,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {onRestoreDefaultHabits && (
-              <button
-                type="button"
-                onClick={() => {
-                  sfx.playClick();
-                  onRestoreDefaultHabits();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#6B6B76] hover:text-[#111113] rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-                title="Restore default starter disciplines without removing custom ones"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-[#0891B2]" />
-                <span className="hidden sm:inline">Restore Starter Habits</span>
-                <span className="sm:hidden">Restore</span>
-              </button>
-            )}
-
-            <button
-              onClick={() => setIsAddingHabit(!isAddingHabit)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0891B2] hover:bg-[#0E7490] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>New Discipline</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsAddingHabit(!isAddingHabit)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0891B2] hover:bg-[#0E7490] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Discipline</span>
+          </button>
         </div>
 
         {/* Add Habit Form */}
@@ -538,67 +526,142 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
           </form>
         )}
 
-        {/* Habits List */}
+        {/* Active Habits List */}
         <div className="space-y-2">
-          {habits.map((habit) => {
-            const isCompleted = currentRecord.completedHabitIds.includes(habit.id);
+          {activeHabits.length === 0 ? (
+            <div className="py-6 text-center text-xs text-[#9A9AA5]">
+              No active disciplines. Add a new discipline above or restore from archive below.
+            </div>
+          ) : (
+            activeHabits.map((habit) => {
+              const isCompleted = currentRecord.completedHabitIds.includes(habit.id);
 
-            return (
-              <div
-                key={habit.id}
-                onClick={() => handleToggleHabit(habit.id)}
-                className={`group px-4 py-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                  isCompleted
-                    ? 'bg-[#E6F7F9]/40 border-[#BCE7EB]'
-                    : 'bg-white border-[#ECECF0] hover:bg-[#F4F4F6] hover:border-[#BEBEC6]'
-                }`}
-              >
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all ${
-                      isCompleted
-                        ? 'bg-[#0891B2] border-[#0891B2] text-white shadow-xs'
-                        : 'bg-white border-[#ECECF0] text-transparent group-hover:border-[#BEBEC6]'
-                    }`}
-                  >
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  </div>
+              return (
+                <div
+                  key={habit.id}
+                  onClick={() => handleToggleHabit(habit.id)}
+                  className={`group px-4 py-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    isCompleted
+                      ? 'bg-[#E6F7F9]/40 border-[#BCE7EB]'
+                      : 'bg-white border-[#ECECF0] hover:bg-[#F4F4F6] hover:border-[#BEBEC6]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all ${
+                        isCompleted
+                          ? 'bg-[#0891B2] border-[#0891B2] text-white shadow-xs'
+                          : 'bg-white border-[#ECECF0] text-transparent group-hover:border-[#BEBEC6]'
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    </div>
 
-                  <div>
-                    <span className={`text-[14px] font-medium block transition-colors ${
-                      isCompleted ? 'line-through text-[#9A9AA5]' : 'text-[#111113]'
-                    }`}>
-                      {habit.name}
-                    </span>
-                    {habit.description && (
-                      <span className="text-[12px] text-[#6B6B76] line-clamp-1">
-                        {habit.description}
+                    <div>
+                      <span className={`text-[14px] font-medium block transition-colors ${
+                        isCompleted ? 'line-through text-[#9A9AA5]' : 'text-[#111113]'
+                      }`}>
+                        {habit.name}
                       </span>
-                    )}
+                      {habit.description && (
+                        <span className="text-[12px] text-[#6B6B76] line-clamp-1">
+                          {habit.description}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${HABIT_ATTR_BADGES[habit.attribute]}`}>
+                      {habit.attribute}
+                    </span>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sfx.playClick();
+                        onDeleteHabit(habit.id);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-[#9A9AA5] hover:text-[#DC2626] transition-opacity cursor-pointer"
+                      title="Archive discipline"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2.5">
-                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${HABIT_ATTR_BADGES[habit.attribute]}`}>
-                    {habit.attribute}
-                  </span>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      sfx.playClick();
-                      onDeleteHabit(habit.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-[#9A9AA5] hover:text-[#DC2626] transition-opacity"
-                    title="Delete discipline"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
+
+        {/* Archived Disciplines Drawer */}
+        {archivedHabits.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-[#ECECF0]">
+            <button
+              type="button"
+              onClick={() => {
+                sfx.playClick();
+                setShowArchived(!showArchived);
+              }}
+              className="flex items-center justify-between w-full text-xs font-semibold text-[#6B6B76] hover:text-[#111113] py-1 cursor-pointer transition-colors"
+            >
+              <span className="flex items-center gap-1.5">
+                <Archive className="w-3.5 h-3.5 text-[#0891B2]" />
+                <span>Archived Disciplines ({archivedHabits.length})</span>
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showArchived ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showArchived && (
+              <div className="mt-2.5 space-y-2 animate-in fade-in">
+                {archivedHabits.map((habit) => (
+                  <div
+                    key={habit.id}
+                    className="px-3.5 py-2.5 rounded-xl border border-dashed border-[#ECECF0] bg-[#F4F4F6]/70 flex items-center justify-between text-xs"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className={`text-[10px] px-2 py-0.2 rounded-full border font-semibold ${HABIT_ATTR_BADGES[habit.attribute]}`}>
+                        {habit.attribute}
+                      </span>
+                      <span className="font-medium text-[#6B6B76] line-through">{habit.name}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {onRestoreHabit && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sfx.playClick();
+                            onRestoreHabit(habit.id);
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-[#ECECF0] text-[#0891B2] hover:bg-[#E6F7F9] font-semibold transition-colors cursor-pointer"
+                          title="Restore discipline to active list"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Restore</span>
+                        </button>
+                      )}
+
+                      {onPermanentDeleteHabit && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sfx.playClick();
+                            onPermanentDeleteHabit(habit.id);
+                          }}
+                          className="p-1 text-[#9A9AA5] hover:text-[#DC2626] transition-colors cursor-pointer"
+                          title="Permanently remove"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 3. Physical Training Volume & Deep Work */}

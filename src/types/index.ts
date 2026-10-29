@@ -106,6 +106,8 @@ export interface CustomHabit {
   name: string;
   attribute: AttributeType;
   description?: string;
+  isArchived?: boolean;
+  archivedAt?: string;
 }
 
 export interface DayRecord {

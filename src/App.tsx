@@ -41,7 +41,6 @@ import {
   exportSaveFile, importSaveFile
 } from './utils/storage';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
-import { INITIAL_HABITS } from './data/mockData';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
@@ -511,18 +510,16 @@ export const App: React.FC = () => {
     setHabits([...habits, newHabit]);
   };
 
-  const handleDeleteHabit = (habitId: string) => {
-    setHabits(habits.filter(h => h.id !== habitId));
+  const handleArchiveHabit = (habitId: string) => {
+    setHabits(habits.map(h => h.id === habitId ? { ...h, isArchived: true, archivedAt: new Date().toISOString() } : h));
   };
 
-  const handleRestoreDefaultHabits = () => {
-    const existingNames = new Set(habits.map(h => h.name.toLowerCase().trim()));
-    const missingDefaults = INITIAL_HABITS.filter(h => !existingNames.has(h.name.toLowerCase().trim()));
-    if (missingDefaults.length === 0) {
-      setHabits(INITIAL_HABITS);
-    } else {
-      setHabits([...habits, ...missingDefaults]);
-    }
+  const handleRestoreHabit = (habitId: string) => {
+    setHabits(habits.map(h => h.id === habitId ? { ...h, isArchived: false, archivedAt: undefined } : h));
+  };
+
+  const handlePermanentDeleteHabit = (habitId: string) => {
+    setHabits(habits.filter(h => h.id !== habitId));
   };
 
   // Unlock Codex Skill
@@ -720,8 +717,9 @@ export const App: React.FC = () => {
                 setSelectedDate={setSelectedDate}
                 onUpdateDayRecord={handleUpdateDayRecord}
                 onAddHabit={handleAddHabit}
-                onDeleteHabit={handleDeleteHabit}
-                onRestoreDefaultHabits={handleRestoreDefaultHabits}
+                onDeleteHabit={handleArchiveHabit}
+                onRestoreHabit={handleRestoreHabit}
+                onPermanentDeleteHabit={handlePermanentDeleteHabit}
                 onRecordXpEvent={handleRecordXpEvent}
                 quests={quests}
                 onNavigateToQuests={() => setActiveTab('quests')}
