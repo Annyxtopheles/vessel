@@ -1,0 +1,385 @@
+import { db } from '../services/db';
+import { BaseRepository, generateUuid } from './base';
+import type {
+  InventoryItem,
+  PhotoRecord,
+  Quest,
+  QuestEvidence,
+  CustomHabit,
+  DayRecord,
+  WearEvent,
+  XpEvent,
+  SkillNode,
+  BodyMeasurement,
+  CharacterAppearance,
+  PaletteColor,
+  PersonalityEntry,
+  CharacterTrait,
+  AppSettings,
+  CharacterProfile,
+} from '../types';
+import {
+  INITIAL_ITEMS,
+  INITIAL_PROFILE,
+  INITIAL_SKILLS,
+  INITIAL_DAY_RECORDS,
+  INITIAL_HABITS,
+} from '../data/mockData';
+import {
+  INITIAL_QUESTS,
+  INITIAL_QUEST_EVIDENCE,
+  DEFAULT_SETTINGS,
+} from '../utils/storage';
+
+export class ItemRepository extends BaseRepository<InventoryItem> {
+  async findByExternalId(externalId: string): Promise<InventoryItem | undefined> {
+    if (!externalId) return undefined;
+    const match = await this.table.where('external_id').equals(externalId).first();
+    if (match && !match.deleted_at && !(match as unknown as { deletedAt?: string }).deletedAt) {
+      return match;
+    }
+    return undefined;
+  }
+}
+
+export class PhotoRepository extends BaseRepository<PhotoRecord> {
+  async getByItemId(itemId: string): Promise<PhotoRecord[]> {
+    const photos = await this.list();
+    return photos.filter((p) => p.itemId === itemId);
+  }
+}
+
+export class QuestRepository extends BaseRepository<Quest> {}
+
+export class QuestEvidenceRepository extends BaseRepository<QuestEvidence> {
+  async getByQuestId(questId: string): Promise<QuestEvidence[]> {
+    const list = await this.list();
+    return list.filter((e) => e.questId === questId);
+  }
+}
+
+export class HabitRepository extends BaseRepository<CustomHabit> {}
+
+export class DayRecordRepository extends BaseRepository<DayRecord> {
+  async getByDate(date: string): Promise<DayRecord | undefined> {
+    const all = await this.list();
+    return all.find((r) => r.date === date);
+  }
+
+  async getAllAsMap(): Promise<Record<string, DayRecord>> {
+    const records = await this.list();
+    const map: Record<string, DayRecord> = {};
+    records.forEach((r) => {
+      map[r.date] = r;
+    });
+    return map;
+  }
+}
+
+export class WearEventRepository extends BaseRepository<WearEvent> {
+  async getByItemId(itemId: string): Promise<WearEvent[]> {
+    const events = await this.list();
+    return events.filter((e) => e.itemId === itemId);
+  }
+}
+
+export class XpEventRepository extends BaseRepository<XpEvent> {}
+
+export class SkillRepository extends BaseRepository<SkillNode> {}
+
+export class MeasurementRepository extends BaseRepository<BodyMeasurement> {}
+
+export class PaletteRepository extends BaseRepository<PaletteColor> {}
+
+export class PersonalityRepository extends BaseRepository<PersonalityEntry> {}
+
+export class TraitRepository extends BaseRepository<CharacterTrait> {}
+
+export class AppearanceRepository extends BaseRepository<CharacterAppearance> {
+  private SINGLETON_ID = 'default_appearance';
+
+  async getAppearance(): Promise<CharacterAppearance> {
+    const existing = await this.get(this.SINGLETON_ID);
+    if (existing) return existing;
+
+    const initial: CharacterAppearance = {
+      id: this.SINGLETON_ID,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+      revision: 1,
+      skinToneHex: '#D4AA78',
+      skinToneNote: 'Neutral olive / warm undertone',
+      hair: 'Dark Charcoal (#2C2C2E)',
+      eyeColor: 'Deep Umber Brown',
+      photoUrl: undefined,
+    };
+    await this.table.put(initial);
+    return initial;
+  }
+
+  async saveAppearance(patch: Partial<CharacterAppearance>): Promise<CharacterAppearance> {
+    await this.getAppearance();
+    return this.update(this.SINGLETON_ID, patch);
+  }
+}
+
+export class SettingsRepository extends BaseRepository<AppSettings> {
+  private SINGLETON_ID = 'default_settings';
+
+  async getSettings(): Promise<AppSettings> {
+    const existing = await this.get(this.SINGLETON_ID);
+    if (existing) return existing;
+
+    const initial: AppSettings = {
+      id: this.SINGLETON_ID,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+      revision: 1,
+      currencySymbol: '৳',
+      numberGrouping: 'bangladeshi',
+      unitSystem: 'metric',
+      targetWeightKg: 73.0,
+      privacyMode: false,
+    };
+    await this.table.put(initial);
+    return initial;
+  }
+
+  async saveSettings(patch: Partial<AppSettings>): Promise<AppSettings> {
+    await this.getSettings();
+    return this.update(this.SINGLETON_ID, patch);
+  }
+}
+
+export class ProfileRepository extends BaseRepository<CharacterProfile> {
+  private SINGLETON_ID = 'default_profile';
+
+  async getProfile(): Promise<CharacterProfile> {
+    const existing = await this.get(this.SINGLETON_ID);
+    if (existing) return existing;
+
+    const now = new Date().toISOString();
+    const initial: CharacterProfile = {
+      ...INITIAL_PROFILE,
+      id: this.SINGLETON_ID,
+      created_at: now,
+      updated_at: now,
+      deleted_at: null,
+      revision: 1,
+    };
+    await this.table.put(initial);
+    return initial;
+  }
+
+  async saveProfile(patch: Partial<CharacterProfile>): Promise<CharacterProfile> {
+    await this.getProfile();
+    return this.update(this.SINGLETON_ID, patch);
+  }
+}
+
+// Repositories singletons
+export const itemRepo = new ItemRepository(db.items);
+export const photoRepo = new PhotoRepository(db.photos);
+export const questRepo = new QuestRepository(db.quests);
+export const questEvidenceRepo = new QuestEvidenceRepository(db.questEvidence);
+export const habitRepo = new HabitRepository(db.habits);
+export const dayRecordRepo = new DayRecordRepository(db.dayRecords);
+export const wearEventRepo = new WearEventRepository(db.wearEvents);
+export const xpEventRepo = new XpEventRepository(db.xpEvents);
+export const skillRepo = new SkillRepository(db.skills);
+export const measurementRepo = new MeasurementRepository(db.measurements);
+export const appearanceRepo = new AppearanceRepository(db.appearance);
+export const paletteRepo = new PaletteRepository(db.palette);
+export const personalityRepo = new PersonalityRepository(db.personality);
+export const traitRepo = new TraitRepository(db.traits);
+export const settingsRepo = new SettingsRepository(db.settings);
+export const profileRepo = new ProfileRepository(db.profile);
+
+export * from './base';
+
+// Helper to normalize any record to BaseEntity
+function normalizeRecord<T extends { id?: string }>(item: T, defaultId?: string): T & {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  revision: number;
+} {
+  const now = new Date().toISOString();
+  return {
+    ...item,
+    id: item.id || defaultId || generateUuid(),
+    created_at: (item as any).created_at || (item as any).createdAt || now,
+    updated_at: (item as any).updated_at || now,
+    deleted_at: (item as any).deleted_at || (item as any).deletedAt || null,
+    revision: typeof (item as any).revision === 'number' ? (item as any).revision : 1,
+  };
+}
+
+/**
+ * Initializes database from localStorage or mock data if IndexedDB is empty.
+ * Runs once smoothly on first boot.
+ */
+export async function initDatabase(): Promise<void> {
+  const itemsCount = await db.items.count();
+  if (itemsCount > 0) {
+    // Already populated
+    return;
+  }
+
+  console.log('[Vessel DB] Populating Dexie database with initial records...');
+  const now = new Date().toISOString();
+
+  // 1. Items
+  let loadedItems: InventoryItem[] = [];
+  try {
+    const raw = localStorage.getItem('vessel_inventory_items_v5') ||
+      localStorage.getItem('vessel_inventory_items_v4') ||
+      localStorage.getItem('vessel_inventory_items_v3');
+    if (raw) {
+      loadedItems = JSON.parse(raw);
+    }
+  } catch {}
+  if (!loadedItems || loadedItems.length === 0) {
+    loadedItems = INITIAL_ITEMS;
+  }
+  await itemRepo.batchPut(loadedItems.map((i) => normalizeRecord(i)));
+
+  // 2. Profile
+  let loadedProfile: CharacterProfile = INITIAL_PROFILE as unknown as CharacterProfile;
+  try {
+    const raw = localStorage.getItem('vessel_character_profile_v3');
+    if (raw) loadedProfile = JSON.parse(raw);
+  } catch {}
+  await profileRepo.batchPut([normalizeRecord(loadedProfile, 'default_profile')]);
+
+  // 3. Skills
+  let loadedSkills: SkillNode[] = INITIAL_SKILLS as unknown as SkillNode[];
+  try {
+    const raw = localStorage.getItem('vessel_skill_tree_v3');
+    if (raw) loadedSkills = JSON.parse(raw);
+  } catch {}
+  await skillRepo.batchPut(loadedSkills.map((s) => normalizeRecord(s)));
+
+  // 4. Habits
+  let loadedHabits: CustomHabit[] = INITIAL_HABITS as unknown as CustomHabit[];
+  try {
+    const raw = localStorage.getItem('vessel_custom_habits_v3');
+    if (raw) loadedHabits = JSON.parse(raw);
+  } catch {}
+  await habitRepo.batchPut(loadedHabits.map((h) => normalizeRecord(h)));
+
+  // 5. Day Records
+  let loadedDayRecords: DayRecord[] = Object.values(INITIAL_DAY_RECORDS) as unknown as DayRecord[];
+  try {
+    const raw = localStorage.getItem('vessel_day_records_v3');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      loadedDayRecords = Object.values(parsed);
+    }
+  } catch {}
+  await dayRecordRepo.batchPut(loadedDayRecords.map((r) => normalizeRecord(r, r.date)));
+
+  // 6. Settings
+  let loadedSettings: AppSettings = {
+    ...DEFAULT_SETTINGS,
+    currencySymbol: '৳',
+    numberGrouping: 'bangladeshi',
+    id: 'default_settings',
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    revision: 1,
+  };
+  try {
+    const raw = localStorage.getItem('vessel_app_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      loadedSettings = {
+        ...loadedSettings,
+        ...parsed,
+        currencySymbol: parsed.currencySymbol || '৳',
+        numberGrouping: parsed.numberGrouping || 'bangladeshi',
+      };
+    }
+  } catch {}
+  await settingsRepo.batchPut([normalizeRecord(loadedSettings, 'default_settings')]);
+
+  // 7. Quests & Evidence
+  let loadedQuests: Quest[] = INITIAL_QUESTS;
+  try {
+    const raw = localStorage.getItem('vessel_quests_v1');
+    if (raw) loadedQuests = JSON.parse(raw);
+  } catch {}
+  await questRepo.batchPut(loadedQuests.map((q) => normalizeRecord(q)));
+
+  let loadedEvidence: QuestEvidence[] = INITIAL_QUEST_EVIDENCE;
+  try {
+    const raw = localStorage.getItem('vessel_quest_evidence_v1');
+    if (raw) loadedEvidence = JSON.parse(raw);
+  } catch {}
+  await questEvidenceRepo.batchPut(loadedEvidence.map((e) => normalizeRecord(e)));
+
+  // 8. Body measurements
+  try {
+    const raw = localStorage.getItem('vessel_body_measurements_v1');
+    if (raw) {
+      const parsed: BodyMeasurement[] = JSON.parse(raw);
+      await measurementRepo.batchPut(parsed.map((m) => normalizeRecord(m)));
+    }
+  } catch {}
+
+  // 9. Appearance
+  try {
+    const raw = localStorage.getItem('vessel_character_appearance_v1');
+    if (raw) {
+      const parsed: CharacterAppearance = JSON.parse(raw);
+      await appearanceRepo.batchPut([normalizeRecord(parsed, 'default_appearance')]);
+    }
+  } catch {}
+
+  // 10. Palette
+  try {
+    const raw = localStorage.getItem('vessel_color_palette_v1');
+    if (raw) {
+      const parsed: PaletteColor[] = JSON.parse(raw);
+      await paletteRepo.batchPut(parsed.map((p) => normalizeRecord(p)));
+    }
+  } catch {}
+
+  // 11. Personality
+  try {
+    const raw = localStorage.getItem('vessel_personality_v1');
+    if (raw) {
+      const parsed: PersonalityEntry[] = JSON.parse(raw);
+      await personalityRepo.batchPut(parsed.map((p) => normalizeRecord(p)));
+    }
+  } catch {}
+
+  // 12. Traits
+  try {
+    const raw = localStorage.getItem('vessel_character_traits_v1');
+    if (raw) {
+      const parsed: CharacterTrait[] = JSON.parse(raw);
+      await traitRepo.batchPut(parsed.map((t) => normalizeRecord(t)));
+    }
+  } catch {}
+
+  // 13. Wear and XP Events
+  try {
+    const rawWear = localStorage.getItem('vessel_wear_events_v1');
+    if (rawWear) {
+      const parsed: WearEvent[] = JSON.parse(rawWear);
+      await wearEventRepo.batchPut(parsed.map((w) => normalizeRecord(w)));
+    }
+    const rawXp = localStorage.getItem('vessel_xp_events_v1');
+    if (rawXp) {
+      const parsed: XpEvent[] = JSON.parse(rawXp);
+      await xpEventRepo.batchPut(parsed.map((x) => normalizeRecord(x)));
+    }
+  } catch {}
+
+  console.log('[Vessel DB] Dexie database initialized successfully.');
+}
