@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory } from '../types';
-import { X, Lock, Trash2, Scale, History, Edit3, Check, Upload, Copy, Backpack, Sparkles } from 'lucide-react';
+import { X, Trash2, History, Edit3, Check, Upload, Copy, Sparkles, MapPin } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
 
@@ -29,7 +29,6 @@ const PAST_REASON_OPTIONS = [
 interface ItemInspectModalProps {
   item: InventoryItem | null;
   onClose: () => void;
-  onToggleEquip: (item: InventoryItem) => void;
   onChangeStatus: (item: InventoryItem, newStatus: OwnershipStatus, pastReason?: PastReason, pastDate?: string) => void;
   onDeleteItem: (itemId: string) => void;
   onUpdateItem?: (updated: InventoryItem) => void;
@@ -45,21 +44,9 @@ const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: 
   needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#DC2626]' },
 };
 
-const FULL_MODIFIER_NAMES: Record<string, string> = {
-  STR: 'Strength',
-  INT: 'Intellect',
-  WIS: 'Wisdom',
-  CHA: 'Charisma',
-  FOCUS: 'Focus',
-  STYLE: 'Style',
-  COMFORT: 'Comfort',
-  WARMTH: 'Warmth',
-};
-
 export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   item,
   onClose,
-  onToggleEquip,
   onChangeStatus,
   onDeleteItem,
   onUpdateItem,
@@ -75,11 +62,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const [editName, setEditName] = useState('');
   const [editCategory, setEditCategory] = useState<ItemCategory>('apparel');
   const [editSubCategory, setEditSubCategory] = useState('');
-  const [editWeightKg, setEditWeightKg] = useState('0.5');
   const [editGoldValue, setEditGoldValue] = useState('100');
   const [editTargetPrice, setEditTargetPrice] = useState('100');
-  const [editLocation, setEditLocation] = useState('Vault Wardrobe');
-  const [editCarried, setEditCarried] = useState(false);
+  const [editLocation, setEditLocation] = useState('Closet');
   const [editCondition, setEditCondition] = useState<ItemCondition>('pristine');
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editLore, setEditLore] = useState('');
@@ -90,11 +75,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       setEditName(item.name);
       setEditCategory(item.category);
       setEditSubCategory(item.subCategory);
-      setEditWeightKg(item.weightKg.toString());
       setEditGoldValue(item.goldValue.toString());
       setEditTargetPrice((item.targetPrice || item.goldValue).toString());
-      setEditLocation(item.location || 'Vault Wardrobe');
-      setEditCarried(item.carried ?? item.isEquipped ?? false);
+      setEditLocation(item.location || 'Closet');
       setEditCondition(item.condition);
       setEditImageUrl(item.imageUrl || '');
       setEditLore(item.lore);
@@ -137,11 +120,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       name: editName.trim(),
       category: editCategory,
       subCategory: editSubCategory.trim() || 'General',
-      weightKg: Math.max(0.01, parseFloat(editWeightKg) || 0.1),
       goldValue: Math.max(0, parseInt(editGoldValue, 10) || 0),
       targetPrice: Math.max(0, parseInt(editTargetPrice, 10) || 0),
-      location: editLocation.trim() || 'Vault Wardrobe',
-      carried: editCarried,
+      location: editLocation.trim() || 'Closet',
       condition: editCondition,
       imageUrl: editImageUrl.trim() || undefined,
       lore: editLore.trim() || 'Personal item in inventory.',
@@ -153,77 +134,61 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     setIsEditing(false);
   };
 
-  const handleDuplicate = () => {
-    sfx.playClick();
-    if (onDuplicateItem) {
-      const clone: InventoryItem = {
-        ...item,
-        id: `item-${Date.now()}`,
-        name: `${item.name} (Copy)`,
-        isEquipped: false,
-      };
-      onDuplicateItem(clone);
-      onClose();
-    }
-  };
-
   return (
     <div
-      onClick={() => {
-        sfx.playClick();
-        onClose();
-      }}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+      onClick={onClose}
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto cursor-pointer"
     >
       <div
-        className="w-full max-w-lg bg-white border border-[#ECECF0] rounded-2xl overflow-hidden shadow-xl relative animate-in fade-in zoom-in-95 cursor-default max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-xl bg-white border border-[#ECECF0] rounded-2xl shadow-xl overflow-hidden cursor-default animate-in fade-in zoom-in-95 my-8"
       >
-        {/* Top Header / Actions */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECECF0] bg-white">
+        {/* Top Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECECF0]">
           <div className="flex items-center gap-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: item.colorHex || '#9A9AA5' }}
+            />
             <span className="text-[13px] font-semibold text-[#111113]">
-              {isEditing ? 'Editing Item Details' : 'Item Details'}
-            </span>
-            <span className="ship-pill bg-[#F4F4F6] text-[#6B6B76] text-[11px] font-medium capitalize">
-              {item.rarity}
+              {item.category.toUpperCase()} • {item.subCategory || 'General'}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            {!isEditing ? (
-              <>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
-                  title="Edit item attributes"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
-                {onDuplicateItem && (
-                  <button
-                    onClick={handleDuplicate}
-                    className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
-                    title="Duplicate as new item"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                )}
-              </>
-            ) : (
+            {onDuplicateItem && (
               <button
-                onClick={handleSaveEdits}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0891B2] hover:bg-[#0E7490] text-white text-[12px] font-semibold transition-colors"
+                onClick={() => {
+                  sfx.playClick();
+                  const dup: InventoryItem = {
+                    ...item,
+                    id: `item-${Date.now()}`,
+                    name: `${item.name} (Copy)`,
+                  };
+                  onDuplicateItem(dup);
+                  onClose();
+                }}
+                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
+                title="Duplicate possession"
               >
-                <Check className="w-3.5 h-3.5" /> Save
+                <Copy className="w-4 h-4" />
               </button>
             )}
 
             <button
-              onClick={() => {
-                sfx.playClick();
-                onClose();
-              }}
+              onClick={() => setIsEditing(!isEditing)}
+              className={`p-1.5 rounded-lg transition-colors ${
+                isEditing
+                  ? 'bg-[#E6F7F9] text-[#0891B2]'
+                  : 'text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]'
+              }`}
+              title="Edit details"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onClose}
               className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
             >
               <X className="w-4 h-4" />
@@ -231,36 +196,54 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1">
-          {/* Item Image Showcase */}
-          {!isEditing && item.imageUrl && (
-            <div className="w-full h-52 bg-[#F4F4F6] relative overflow-hidden border-b border-[#ECECF0] flex items-center justify-center">
+        {/* Modal Body */}
+        <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+          {/* Main Visual Banner */}
+          <div className="h-60 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] relative overflow-hidden flex items-center justify-center">
+            {(isEditing ? editImageUrl : item.imageUrl) ? (
               <img
-                src={item.imageUrl}
+                src={isEditing ? editImageUrl : item.imageUrl}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
-            </div>
-          )}
+            ) : (
+              <div className="text-center text-[#9A9AA5]">
+                <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <span className="text-xs">No visual photo logged</span>
+              </div>
+            )}
 
-          <div className="p-6">
+            {isEditing && (
+              <label className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs text-[#111113] border border-[#ECECF0] hover:bg-white px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer shadow-xs flex items-center gap-1.5 transition-all">
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload Photo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Form Content / View Content */}
+          <div>
             {isEditing ? (
-              /* Inline Edit Mode Form */
               <div className="space-y-4">
                 <div>
                   <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Item Name
+                    Possession Name
                   </label>
                   <input
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="ship-input w-full px-3 py-2 text-[14px]"
+                    className="ship-input w-full"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Category
@@ -271,56 +254,20 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       onChange={(val) => setEditCategory(val as ItemCategory)}
                     />
                   </div>
-
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                      Subcategory Tag
+                      Sub-Category / Type
                     </label>
                     <input
                       type="text"
                       value={editSubCategory}
                       onChange={(e) => setEditSubCategory(e.target.value)}
-                      className="ship-input w-full px-3 py-2 text-[13px]"
+                      className="ship-input w-full"
                     />
                   </div>
                 </div>
 
-                {/* Carried in Pack Toggle */}
-                <div className="p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Backpack className="w-4 h-4 text-[#0891B2]" />
-                    <div>
-                      <div className="text-[13px] font-semibold text-[#111113]">Carried on Pack / Person</div>
-                      <div className="text-[11px] text-[#6B6B76]">Counts toward active Carry Load against capacity</div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditCarried(!editCarried)}
-                    className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer ${
-                      editCarried
-                        ? 'bg-[#0891B2] text-white shadow-xs'
-                        : 'bg-white border border-[#ECECF0] text-[#6B6B76]'
-                    }`}
-                  >
-                    {editCarried ? 'Carried' : 'Stored'}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                      Weight (kg)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editWeightKg}
-                      onChange={(e) => setEditWeightKg(e.target.value)}
-                      className="ship-input w-full px-3 py-2 text-[13px]"
-                    />
-                  </div>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Value ({currencySymbol})
@@ -329,10 +276,35 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       type="number"
                       value={editGoldValue}
                       onChange={(e) => setEditGoldValue(e.target.value)}
-                      className="ship-input w-full px-3 py-2 text-[13px]"
+                      className="ship-input w-full"
                     />
                   </div>
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                      Target Price ({currencySymbol})
+                    </label>
+                    <input
+                      type="number"
+                      value={editTargetPrice}
+                      onChange={(e) => setEditTargetPrice(e.target.value)}
+                      className="ship-input w-full"
+                    />
+                  </div>
+                </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                      Storage Location
+                    </label>
+                    <input
+                      type="text"
+                      value={editLocation}
+                      onChange={(e) => setEditLocation(e.target.value)}
+                      placeholder="e.g. Closet, Desk, Storage"
+                      className="ship-input w-full"
+                    />
+                  </div>
                   <div>
                     <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
                       Condition
@@ -347,155 +319,107 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div>
                   <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Storage Location / Pack
-                  </label>
-                  <input
-                    type="text"
-                    value={editLocation}
-                    onChange={(e) => setEditLocation(e.target.value)}
-                    placeholder="e.g. Closet, Desk, Travel Backpack, EDC Pouch..."
-                    className="ship-input w-full px-3 py-2 text-[13px]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Image (URL or Local File Upload)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={editImageUrl}
-                      onChange={(e) => setEditImageUrl(e.target.value)}
-                      placeholder="https://... or upload file"
-                      className="ship-input flex-1 px-3 py-2 text-[13px]"
-                    />
-                    <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] text-[#111113] hover:bg-[#EAEAEF] transition-colors font-medium">
-                      <Upload className="w-3.5 h-3.5 text-[#0891B2]" />
-                      <span>Upload</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Lore / Purpose Note
+                    Notes & Lore
                   </label>
                   <textarea
                     rows={3}
                     value={editLore}
                     onChange={(e) => setEditLore(e.target.value)}
-                    className="ship-input w-full px-3 py-2 text-[13px]"
+                    className="ship-input w-full text-[13px]"
                   />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveEdits}
+                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Save Changes</span>
+                  </button>
                 </div>
               </div>
             ) : (
-              /* View Mode */
               <>
-                {/* Top Badges */}
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="ship-pill-neutral">
-                    {item.category} • {item.subCategory}
-                  </span>
+                {/* Title & Category Bar */}
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-[#111113] tracking-tight">
+                      {item.name}
+                    </h2>
+                    <div className="text-[13px] text-[#6B6B76] mt-0.5 flex items-center gap-2">
+                      <span>{item.subCategory}</span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-[#9A9AA5]" />
+                        <span>{item.location || 'Vault'}</span>
+                      </span>
+                    </div>
+                  </div>
 
-                  {currentStatus === 'owned' && (
-                    <span className="ship-pill-success">● Owned</span>
-                  )}
-                  {currentStatus === 'wishlist' && (
-                    <span className="ship-pill-accent">● Wishlist</span>
-                  )}
-                  {currentStatus === 'past' && (
-                    <span className="ship-pill-neutral">
-                      ● Past ({item.pastReason || 'archived'})
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-[#111113] block">
+                      {currencySymbol}{item.goldValue.toLocaleString()}
                     </span>
-                  )}
-
-                  {item.carried && (
-                    <span className="ship-pill-accent">
-                      <Backpack className="w-3 h-3" /> Carried in Pack
-                    </span>
-                  )}
-
-                  <span className="ship-pill-neutral">
-                    {item.location || 'Vault Wardrobe'}
-                  </span>
-                </div>
-
-                {/* Title & Metadata */}
-                <div className="mb-4">
-                  <h2 className="text-[20px] font-semibold text-[#111113] tracking-tight">
-                    {item.name}
-                  </h2>
-                  <div className="flex items-center gap-2 text-[13px] text-[#6B6B76] mt-1 font-normal">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full border border-black/10"
-                      style={{ backgroundColor: item.colorHex }}
-                    />
-                    <span>{item.colorName}</span>
-                    <span>•</span>
-                    <span className="capitalize">{item.season} season</span>
+                    {currentStatus === 'wishlist' && item.targetPrice && (
+                      <span className="text-[11px] text-[#6B6B76]">
+                        Target: {currencySymbol}{item.targetPrice.toLocaleString()}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Wear Log & Efficiency Box */}
                 {currentStatus === 'owned' && (
-                  <div className="mb-4 p-4 rounded-xl bg-[#E6F7F9]/40 border border-[#BCE7EB] flex items-center justify-between">
+                  <div className="mb-4 p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#0891B2] uppercase tracking-wider">
-                        <Sparkles className="w-3.5 h-3.5" /> Wear Log & Efficiency
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[#111113] mb-0.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#0891B2]" /> Wear Log
                       </div>
-                      <div className="text-[17px] font-bold text-[#111113] mt-0.5">
+                      <div className="text-[13px] text-[#6B6B76]">
                         {wearCount} {wearCount === 1 ? 'Wear Logged' : 'Wears Logged'}
                       </div>
                     </div>
+
                     <div className="text-right">
                       <div className="text-[11px] text-[#6B6B76]">Cost Per Wear</div>
-                      <div className="text-[17px] font-bold text-[#0891B2]">
+                      <div className="text-[15px] font-bold text-[#0891B2]">
                         {costPerWear ? `${currencySymbol}${costPerWear} / wear` : 'Unworn'}
                       </div>
                     </div>
                   </div>
                 )}
 
+                {/* Lore / Description */}
+                <div className="p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] mb-4">
+                  <p className="text-[13px] text-[#6B6B76] leading-relaxed italic">
+                    "{item.lore}"
+                  </p>
+                </div>
+
                 {/* Condition Bar */}
-                <div className="mb-4 p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
-                  <div className="flex justify-between items-center text-[13px] text-[#6B6B76] mb-2 font-medium">
-                    <span>Condition Status</span>
-                    <span className="text-[#111113] font-semibold">{conditionInfo.label}</span>
+                <div className="mb-4 p-4 rounded-xl border border-[#ECECF0]">
+                  <div className="flex items-center justify-between text-[13px] mb-2">
+                    <span className="font-semibold text-[#111113]">Physical Condition</span>
+                    <span className="text-[#6B6B76]">{conditionInfo.label}</span>
                   </div>
-                  <div className="h-1.5 w-full bg-[#ECECF0] rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-[#ECECF0] rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${conditionInfo.color} transition-all duration-300`}
+                      className={`h-full ${conditionInfo.color} rounded-full transition-all`}
                       style={{ width: `${conditionInfo.pct}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="mb-4 p-3.5 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] text-[13px] text-[#6B6B76] leading-relaxed">
-                  {item.lore}
-                </div>
-
-                {/* Wishlist Goal */}
-                {currentStatus === 'wishlist' && (
-                  <div className="mb-4 p-3.5 rounded-xl bg-[#E6F7F9] border border-[#0891B2]/30 text-[13px]">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#0891B2] mb-1">
-                      <Lock className="w-3.5 h-3.5" /> Acquisition Milestone Goal
-                    </div>
-                    <p className="text-[#111113]">{item.lockRequirement || 'Target purchase / discipline milestone.'}</p>
-                    <div className="mt-2 text-[12px] text-[#6B6B76]">
-                      Target Price: <span className="font-semibold text-[#111113]">{currencySymbol}{(item.targetPrice || item.goldValue).toLocaleString()}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Past Archive Notes */}
+                {/* Past Relic Notice if Parted */}
                 {currentStatus === 'past' && (
                   <div className="mb-4 p-3.5 rounded-xl bg-[#ECECF0] border border-[#ECECF0] text-[13px]">
                     <div className="flex items-center gap-1.5 font-semibold text-[#111113] mb-1">
@@ -503,27 +427,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     </div>
                     <p className="text-[#6B6B76]">
                       Parted with via <strong className="capitalize text-[#111113]">{item.pastReason || 'retiring'}</strong>
-                      {item.pastDate ? ` on ${item.pastDate}` : ''}. Preserved in your life history without adding to active wardrobe carry weight.
+                      {item.pastDate ? ` on ${item.pastDate}` : ''}. Preserved in your life history.
                     </p>
                   </div>
                 )}
-
-                {/* Conferred Buffs */}
-                <div className="mb-4">
-                  <h3 className="text-[13px] font-semibold text-[#111113] mb-2">
-                    Conferred Life Modifiers
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {item.buffs.map((buff, i) => (
-                      <div key={i} className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between text-[13px]">
-                        <span className="text-[#6B6B76]">{buff.label}</span>
-                        <span className="ship-pill-accent font-semibold text-[12px]">
-                          +{buff.value} {FULL_MODIFIER_NAMES[buff.stat] || buff.stat}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Ownership Lifecycle Transition Control */}
                 <div className="p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
@@ -535,10 +442,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {currentStatus !== 'owned' && (
                       <button
                         onClick={() => {
-                          sfx.playEquip();
+                          sfx.playClick();
                           onChangeStatus(item, 'owned');
                         }}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
                       >
                         Mark as Owned
                       </button>
@@ -550,7 +457,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                           sfx.playClick();
                           onChangeStatus(item, 'wishlist');
                         }}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
                       >
                         Move to Wishlist
                       </button>
@@ -559,7 +466,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     {currentStatus !== 'past' && !isChoosingPastReason && (
                       <button
                         onClick={() => setIsChoosingPastReason(true)}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
                       >
                         Parted With
                       </button>
@@ -580,13 +487,13 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                       <button
                         onClick={() => handleSetPast(selectedPastReason)}
-                        className="px-3 py-1.5 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors shrink-0"
+                        className="px-3 py-1.5 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors shrink-0 cursor-pointer"
                       >
                         Confirm Archive
                       </button>
                       <button
                         onClick={() => setIsChoosingPastReason(false)}
-                        className="px-2 py-1 rounded-xl text-[#6B6B76] text-[13px] hover:text-[#111113]"
+                        className="px-2 py-1 rounded-xl text-[#6B6B76] text-[13px] hover:text-[#111113] cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -599,11 +506,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
 
         {/* Footer Metrics & Actions */}
-        <div className="px-6 py-4 bg-white border-t border-[#ECECF0] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-[13px] text-[#6B6B76]">
-            <span className="flex items-center gap-1.5">
-              <Scale className="w-4 h-4 text-[#9A9AA5]" /> {item.weightKg} kg
-            </span>
+        <div className="px-6 py-4 bg-white border-t border-[#ECECF0] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[13px] text-[#6B6B76]">
+            <span>Value:</span>
             <span className="text-[#111113] font-semibold">
               {currencySymbol}{item.goldValue.toLocaleString()}
             </span>
@@ -619,26 +524,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 }
               }}
               title="Delete item permanently"
-              className="p-2 rounded-xl bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8] transition-colors"
+              className="p-2 rounded-xl bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8] transition-colors cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
             </button>
-
-            {currentStatus === 'owned' && (
-              <button
-                onClick={() => {
-                  sfx.playEquip();
-                  onToggleEquip(item);
-                }}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all ${
-                  item.isEquipped
-                    ? 'bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8]'
-                    : 'bg-[#0891B2] hover:bg-[#0E7490] text-white'
-                }`}
-              >
-                {item.isEquipped ? 'Unequip from Loadout' : 'Equip to Loadout'}
-              </button>
-            )}
           </div>
         </div>
       </div>

@@ -306,15 +306,12 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                Quest Log & Actionable Milestones
+                Tasks
               </h2>
               <span className="ship-pill-accent font-semibold">
-                {activeQuests.filter((q) => q.status !== 'done').length} open quests
+                {activeQuests.filter((q) => q.status !== 'done').length} open
               </span>
             </div>
-            <p className="text-[13px] text-[#6B6B76] mt-0.5">
-              One-off tactical missions granting calibrated character XP upon completion
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
@@ -350,7 +347,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
               </button>
             </div>
 
-            {/* New Quest Button */}
+            {/* New Task Button */}
             <button
               onClick={() => {
                 sfx.playClick();
@@ -359,7 +356,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
               className="px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>New Quest</span>
+              <span>New Task</span>
             </button>
           </div>
         </div>

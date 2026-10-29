@@ -297,14 +297,11 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-[#111113]">Tactical Quests Due Soon</h3>
+                  <h3 className="text-sm font-semibold text-[#111113]">Due soon</h3>
                   <span className="ship-pill-accent text-[11px] font-semibold">
                     {questsDueSoon.length} pending
                   </span>
                 </div>
-                <p className="text-xs text-[#6B6B76]">
-                  Immediate milestone deadlines required to unblock progression
-                </p>
               </div>
             </div>
 
@@ -317,7 +314,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 }}
                 className="text-xs font-semibold text-[#0891B2] hover:text-[#0E7490] flex items-center gap-1 self-start sm:self-center transition-colors cursor-pointer"
               >
-                <span>Open Quests Board</span>
+                <span>Open Tasks</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             )}
@@ -412,15 +409,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             <div>
               <div className="flex items-center gap-2.5">
                 <h3 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                  Five Daily Prayers (Salah Cadence)
+                  Daily Prayers
                 </h3>
                 <span className="ship-pill-accent font-semibold">
                   {completedSalahCount} of 5 completed
                 </span>
               </div>
-              <p className="text-[13px] text-[#6B6B76] mt-0.5">
-                Circadian spiritual anchor imparting +50 Wisdom XP per prayer
-              </p>
             </div>
 
             {isAllSalahCompleted && (
@@ -466,16 +460,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
       </div>
 
-      {/* 2. Daily Disciplines Checklist */}
+      {/* 2. Habits Checklist */}
       <div className="ship-card p-6">
         <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0] mb-4">
           <div>
             <h3 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-              Daily Disciplines & Habits
+              Habits
             </h3>
-            <p className="text-[13px] text-[#6B6B76] mt-0.5">
-              Consistency rituals across physical, professional, and spiritual disciplines
-            </p>
           </div>
 
           <button
@@ -483,7 +474,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0891B2] hover:bg-[#0E7490] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>New Discipline</span>
+            <span>New Habit</span>
           </button>
         </div>
 
@@ -676,9 +667,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               </div>
               <div>
                 <h3 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                  Bodyweight Movement (Strength)
+                  Movement (Strength)
                 </h3>
-                <p className="text-[12px] text-[#6B6B76]">Daily physical conditioning</p>
               </div>
             </div>
 
@@ -821,9 +811,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               </div>
               <div>
                 <h3 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                  Deep Work Focus (Intellect)
+                  Deep Work (Intellect)
                 </h3>
-                <p className="text-[12px] text-[#6B6B76]">Architecture & uninterrupted build cycles</p>
               </div>
             </div>
 

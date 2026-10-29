@@ -184,7 +184,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   palette = [],
   personality = [],
   traits = [],
-  settings = { currencySymbol: '$', maxEncumbranceKg: 12.0, unitSystem: 'metric' },
+  settings = { currencySymbol: '$', unitSystem: 'metric' },
   privacyMode = false,
   onAddMeasurement = () => {},
   onDeleteMeasurement = () => {},
@@ -282,7 +282,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#111113] tracking-tight">
-            Character Codex
+            Character
           </h2>
         </div>
 
@@ -300,7 +300,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             }`}
           >
             <Target className="w-3.5 h-3.5 text-[#0891B2]" />
-            <span>Pillars & Perks</span>
+            <span>Pillars</span>
           </button>
 
           <button
@@ -349,20 +349,17 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                Four Life Pillars & Progression
+                Pillars
               </h2>
               <span className="ship-pill-accent font-semibold">
-                Level {overallProgress.level} Master ({totalXp.toLocaleString()} Total XP)
+                Level {overallProgress.level} ({totalXp.toLocaleString()} Total XP)
               </span>
             </div>
-            <p className="text-[13px] text-[#6B6B76] mt-0.5">
-              Pillar levels are derived purely from append-only verified discipline event logs
-            </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="ship-pill-neutral">
-              {skills.filter((s) => s.unlocked).length} of {skills.length} Perks Attuned
+              {skills.filter((s) => s.unlocked).length} of {skills.length} Milestones Achieved
             </span>
           </div>
         </div>
@@ -517,7 +514,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   </p>
 
                   <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] mb-3 text-[12px]">
-                    <span className="text-[#9A9AA5] font-medium block mb-0.5">Bonus Modifier:</span>
+                    <span className="text-[#9A9AA5] font-medium block mb-0.5">Bonus:</span>
                     <span className="font-semibold text-[#0891B2]">{skill.bonus}</span>
                   </div>
 
@@ -570,7 +567,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                             }}
                             className="w-full py-2 rounded-xl text-[13px] font-semibold transition-colors bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs cursor-pointer"
                           >
-                            Claim Perk (+150 XP)
+                            Claim Milestone (+150 XP)
                           </button>
                         ) : (
                           <div className="w-full py-2 rounded-xl text-[12px] font-semibold text-center bg-[#F4F4F6] text-[#9A9AA5] border border-[#ECECF0]">
@@ -609,7 +606,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0] mb-4">
               <div>
                 <h3 className="text-base font-semibold text-[#111113]">
-                  Attune Perk: {evidenceModalSkill.title}
+                  Complete Milestone: {evidenceModalSkill.title}
                 </h3>
                 <p className="text-xs text-[#6B6B76] mt-0.5">
                   Requirement: {evidenceModalSkill.requirement}
@@ -664,7 +661,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                   className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  <span>Attune Perk & Claim +150 XP</span>
+                  <span>Complete Milestone (+150 XP)</span>
                 </button>
               </div>
             </form>

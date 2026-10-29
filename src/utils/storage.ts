@@ -5,7 +5,6 @@ import type {
   DayRecord,
   CustomHabit,
   WearEvent,
-  SavedLoadout,
   XpEvent,
   AppSettings,
   Quest,
@@ -26,13 +25,12 @@ import {
 import { XP_DISCIPLINE_REWARDS } from '../data/xpConfig';
 
 const STORAGE_KEYS = {
-  ITEMS: 'vessel_inventory_items_v4',
+  ITEMS: 'vessel_inventory_items_v5',
   PROFILE: 'vessel_character_profile_v3',
   SKILLS: 'vessel_skill_tree_v3',
   DAY_RECORDS: 'vessel_day_records_v3',
   HABITS: 'vessel_custom_habits_v3',
   WEAR_EVENTS: 'vessel_wear_events_v1',
-  LOADOUTS: 'vessel_saved_loadouts_v1',
   XP_EVENTS: 'vessel_xp_events_v1',
   SETTINGS: 'vessel_app_settings_v1',
   QUESTS: 'vessel_quests_v1',
@@ -106,40 +104,9 @@ export const INITIAL_QUEST_EVIDENCE: QuestEvidence[] = [
 
 export const DEFAULT_SETTINGS: AppSettings = {
   currencySymbol: '$',
-  maxEncumbranceKg: 12.0,
   unitSystem: 'metric',
   targetWeightKg: 73.0,
 };
-
-export const INITIAL_SAVED_LOADOUTS: SavedLoadout[] = [
-  {
-    id: 'loadout-office',
-    name: 'Office & Deep Work',
-    equippedItemIds: [
-      'item-apparel-1',
-      'item-apparel-2',
-      'item-apparel-3',
-      'item-apparel-4',
-      'item-apparel-5',
-      'item-tech-1',
-      'item-tome-1',
-      'item-edc-1',
-    ],
-    createdAt: '2026-10-25',
-  },
-  {
-    id: 'loadout-travel',
-    name: 'Minimal Travel Pack',
-    equippedItemIds: [
-      'item-apparel-2',
-      'item-apparel-3',
-      'item-apparel-4',
-      'item-tech-2',
-      'item-edc-1',
-    ],
-    createdAt: '2026-10-26',
-  },
-];
 
 // Seed initial authentic wear events for default owned items
 function generateInitialWearEvents(): WearEvent[] {
@@ -264,9 +231,35 @@ function generateInitialXpEvents(): XpEvent[] {
   return events;
 }
 
+function cleanAndMigrateItem(rawItem: any): InventoryItem {
+  const {
+    equipSlot: _equipSlot,
+    weightKg: _weightKg,
+    buffs: _buffs,
+    isEquipped: _isEquipped,
+    carried: _carried,
+    ...rest
+  } = rawItem;
+  const match = INITIAL_ITEMS.find(init => init.id === rest.id);
+  const status = rest.ownershipStatus || (rest.isLocked ? 'wishlist' : match?.ownershipStatus || 'owned');
+  const img = rest.imageUrl || match?.imageUrl;
+  return {
+    ...rest,
+    ownershipStatus: status,
+    imageUrl: img,
+    pastReason: rest.pastReason || match?.pastReason,
+    pastDate: rest.pastDate || match?.pastDate,
+    targetPrice: rest.targetPrice || rest.goldValue || match?.goldValue,
+    location: rest.location || (status === 'owned' ? (match?.location || 'Closet') : (status === 'past' ? 'Archived' : 'Wishlist')),
+  };
+}
+
 export function loadItems(): InventoryItem[] {
   try {
     let raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
+    if (!raw) {
+      raw = localStorage.getItem('vessel_inventory_items_v4');
+    }
     if (!raw) {
       raw = localStorage.getItem('vessel_inventory_items_v3');
     }
@@ -275,33 +268,21 @@ export function loadItems(): InventoryItem[] {
     }
 
     if (raw) {
-      const parsed: InventoryItem[] = JSON.parse(raw);
-      const healed: InventoryItem[] = parsed.map((item: InventoryItem) => {
-        const match = INITIAL_ITEMS.find(init => init.id === item.id);
-        const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : match?.ownershipStatus || 'owned');
-        const img = item.imageUrl || match?.imageUrl;
-        return {
-          ...item,
-          ownershipStatus: status,
-          imageUrl: img,
-          pastReason: item.pastReason || match?.pastReason,
-          pastDate: item.pastDate || match?.pastDate,
-          carried: item.carried !== undefined ? item.carried : (item.isEquipped ?? (status === 'owned')),
-          targetPrice: item.targetPrice || item.goldValue || match?.goldValue,
-          location: item.location || (status === 'owned' ? (item.isEquipped ? 'On Person' : 'Vault Wardrobe') : 'Wishlist'),
-        };
-      });
+      const parsed: any[] = JSON.parse(raw);
+      const healed: InventoryItem[] = parsed.map(cleanAndMigrateItem);
 
       const existingIds = new Set(healed.map(i => i.id));
       INITIAL_ITEMS.forEach(init => {
         if (!existingIds.has(init.id)) {
-          healed.push({
-            ...init,
-            carried: init.isEquipped ?? true,
-            location: init.isEquipped ? 'On Person' : 'Vault Wardrobe',
-          });
+          healed.push(init);
         }
       });
+
+      // Persist migrated dataset and clean up deprecated loadout cache
+      saveItems(healed);
+      try {
+        localStorage.removeItem('vessel_saved_loadouts_v1');
+      } catch {}
 
       return healed;
     }
@@ -309,11 +290,7 @@ export function loadItems(): InventoryItem[] {
     console.error('Failed to load items', err);
   }
 
-  return INITIAL_ITEMS.map(i => ({
-    ...i,
-    carried: i.isEquipped ?? (i.ownershipStatus === 'owned'),
-    location: i.isEquipped ? 'On Person' : 'Vault Wardrobe',
-  }));
+  return INITIAL_ITEMS;
 }
 
 export function saveItems(items: InventoryItem[]): void {
@@ -437,26 +414,6 @@ export function recordWearEvent(itemId: string, date?: string): WearEvent {
   return newEvent;
 }
 
-// Saved Loadouts
-export function loadSavedLoadouts(): SavedLoadout[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LOADOUTS);
-    if (raw) return JSON.parse(raw);
-  } catch (err) {
-    console.error('Failed to load saved loadouts', err);
-  }
-  saveSavedLoadouts(INITIAL_SAVED_LOADOUTS);
-  return INITIAL_SAVED_LOADOUTS;
-}
-
-export function saveSavedLoadouts(loadouts: SavedLoadout[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.LOADOUTS, JSON.stringify(loadouts));
-  } catch (err) {
-    console.error('Failed to save loadouts', err);
-  }
-}
-
 // Append-only XP Events Log
 export function loadXpEvents(): XpEvent[] {
   try {
@@ -482,7 +439,11 @@ export function saveXpEvents(events: XpEvent[]): void {
 export function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      delete parsed.maxEncumbranceKg;
+      return { ...DEFAULT_SETTINGS, ...parsed };
+    }
   } catch (err) {
     console.error('Failed to load settings', err);
   }
@@ -757,7 +718,6 @@ export function exportSaveFile(): string {
     habits: loadHabits(),
     dayRecords: loadDayRecords(),
     wearEvents: loadWearEvents(),
-    savedLoadouts: loadSavedLoadouts(),
     xpEvents: loadXpEvents(),
     settings: loadSettings(),
     quests: loadQuests(),
@@ -775,15 +735,23 @@ export function importSaveFile(jsonString: string): boolean {
   try {
     const parsed = JSON.parse(jsonString);
     if (parsed.profile && parsed.items && parsed.skills) {
-      saveProfile(parsed.profile);
-      saveItems(parsed.items);
+      if (parsed.profile) {
+        delete (parsed.profile as any).maxEncumbranceKg;
+        saveProfile(parsed.profile);
+      }
+      const migratedItems = Array.isArray(parsed.items)
+        ? parsed.items.map(cleanAndMigrateItem)
+        : INITIAL_ITEMS;
+      saveItems(migratedItems);
       saveSkills(parsed.skills);
       if (parsed.habits) saveHabits(parsed.habits);
       if (parsed.dayRecords) saveDayRecords(parsed.dayRecords);
       if (parsed.wearEvents) saveWearEvents(parsed.wearEvents);
-      if (parsed.savedLoadouts) saveSavedLoadouts(parsed.savedLoadouts);
       if (parsed.xpEvents) saveXpEvents(parsed.xpEvents);
-      if (parsed.settings) saveSettings(parsed.settings);
+      if (parsed.settings) {
+        delete (parsed.settings as any).maxEncumbranceKg;
+        saveSettings(parsed.settings);
+      }
       if (parsed.quests) saveQuests(parsed.quests);
       if (parsed.questEvidence) saveQuestEvidence(parsed.questEvidence);
       if (parsed.bodyMeasurements) saveBodyMeasurements(parsed.bodyMeasurements);
@@ -791,6 +759,9 @@ export function importSaveFile(jsonString: string): boolean {
       if (parsed.colorPalette) saveColorPalette(parsed.colorPalette);
       if (parsed.personality) savePersonality(parsed.personality);
       if (parsed.traits) saveTraits(parsed.traits);
+      try {
+        localStorage.removeItem('vessel_saved_loadouts_v1');
+      } catch {}
       return true;
     }
   } catch (err) {

@@ -13,27 +13,11 @@ export type OwnershipStatus = 'owned' | 'wishlist' | 'past';
 
 export type PastReason = 'sold' | 'gifted' | 'donated' | 'retired' | 'lost';
 
-export type EquipSlot = 
-  | 'head'
-  | 'outerwear'
-  | 'innerwear'
-  | 'legs'
-  | 'footwear'
-  | 'wrist_edc'
-  | 'tech_relic'
-  | 'tome';
-
 export type ItemRarity = 'common' | 'rare' | 'epic' | 'masterwork' | 'legendary';
 
 export type ItemCondition = 'pristine' | 'seasoned' | 'worn' | 'needs_repair';
 
 export type ItemSeason = 'all' | 'summer' | 'winter' | 'transitional';
-
-export interface ItemBuff {
-  stat: 'STR' | 'INT' | 'WIS' | 'CHA' | 'FOCUS' | 'COMFORT' | 'WARMTH' | 'STYLE';
-  value: number;
-  label: string;
-}
 
 export interface InventoryItem {
   id: string;
@@ -43,21 +27,16 @@ export interface InventoryItem {
   ownershipStatus: OwnershipStatus; // 'owned' | 'wishlist' | 'past'
   pastReason?: PastReason; // If used to own
   pastDate?: string;
-  equipSlot?: EquipSlot;
   rarity: ItemRarity;
   colorName: string;
   colorHex: string;
   condition: ItemCondition;
   season: ItemSeason;
-  weightKg: number;
   goldValue: number; // Purchase price / current value
   targetPrice?: number; // Target price for wishlist items
   location?: string; // e.g. Closet, Desk, Travel Pack, Storage
-  carried?: boolean; // Whether actively carried on person/pack
   lockRequirement?: string; // If wishlist
-  buffs: ItemBuff[];
   lore: string;
-  isEquipped?: boolean;
   dateAcquired?: string;
   imageUrl?: string;
   isLocked?: boolean;
@@ -68,13 +47,6 @@ export interface WearEvent {
   itemId: string;
   type: 'worn';
   date: string; // ISO or YYYY-MM-DD
-}
-
-export interface SavedLoadout {
-  id: string;
-  name: string;
-  equippedItemIds: string[];
-  createdAt: string;
 }
 
 export interface XpEvent {
@@ -89,7 +61,6 @@ export interface XpEvent {
 
 export interface AppSettings {
   currencySymbol: string;
-  maxEncumbranceKg: number;
   unitSystem?: 'metric' | 'imperial';
   targetWeightKg?: number;
 }
@@ -150,7 +121,6 @@ export interface CharacterProfile {
     WIS: { level: number; xp: number; title: string };
     CHA: { level: number; xp: number; title: string };
   };
-  maxEncumbranceKg: number;
   streaks: {
     salahStreak: number;
     workoutStreak: number;

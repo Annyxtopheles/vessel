@@ -8,7 +8,6 @@ import type {
   OwnershipStatus,
   PastReason,
   WearEvent,
-  SavedLoadout,
   XpEvent,
   AppSettings,
   AttributeType,
@@ -28,7 +27,6 @@ import {
   loadDayRecords, saveDayRecords, 
   loadHabits, saveHabits,
   loadWearEvents, saveWearEvents,
-  loadSavedLoadouts, saveSavedLoadouts,
   loadXpEvents, saveXpEvents,
   loadSettings, saveSettings,
   loadQuests, saveQuests,
@@ -43,9 +41,12 @@ import {
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
+import type { NavTab, InventoryTreeNode } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
-import { PaperdollView } from './components/PaperdollView';
+import { OverviewView } from './components/OverviewView';
+import { InventoryStats } from './components/InventoryStats';
 import { InventoryGrid } from './components/InventoryGrid';
+import { EmptyPageView } from './components/EmptyPageView';
 import { ItemInspectModal } from './components/ItemInspectModal';
 import { AddItemModal } from './components/AddItemModal';
 import { CharacterCodex } from './components/CharacterCodex';
@@ -54,6 +55,33 @@ import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
 import { Sparkles, Check } from 'lucide-react';
 
+const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab') as NavTab | null;
+    const tab: NavTab = (tabParam && ['overview', 'inventory', 'routine', 'tasks', 'bucket-list', 'money', 'character'].includes(tabParam))
+      ? tabParam
+      : 'overview';
+
+    const status = params.get('status');
+    const category = params.get('category');
+    const location = params.get('location');
+
+    let filter: InventoryTreeNode = { type: 'all' };
+    if (status && ['owned', 'wishlist', 'past'].includes(status)) {
+      filter = { type: 'status', status: status as 'owned' | 'wishlist' | 'past' };
+    } else if (category) {
+      filter = { type: 'category', category };
+    } else if (location) {
+      filter = { type: 'location', location };
+    }
+
+    return { tab, filter };
+  } catch {
+    return { tab: 'overview', filter: { type: 'all' } };
+  }
+};
+
 export const App: React.FC = () => {
   const [items, setItems] = useState<InventoryItem[]>(() => loadItems());
   const [profile, setProfile] = useState<CharacterProfile>(() => loadProfile());
@@ -61,7 +89,6 @@ export const App: React.FC = () => {
   const [habits, setHabits] = useState<CustomHabit[]>(() => loadHabits());
   const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>(() => loadDayRecords());
   const [wearEvents, setWearEvents] = useState<WearEvent[]>(() => loadWearEvents());
-  const [savedLoadouts, setSavedLoadouts] = useState<SavedLoadout[]>(() => loadSavedLoadouts());
   const [xpEvents, setXpEvents] = useState<XpEvent[]>(() => loadXpEvents());
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [quests, setQuests] = useState<Quest[]>(() => loadQuests());
@@ -95,15 +122,51 @@ export const App: React.FC = () => {
 
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
-  const [activeTab, setActiveTab] = useState<'inventory' | 'rituals' | 'quests' | 'codex'>('inventory');
+  // Navigation & Tree Filter State
+  const initialNav = useRef(getInitialUrlState()).current;
+  const [activeTab, setActiveTab] = useState<NavTab>(initialNav.tab);
+  const [inventoryFilter, setInventoryFilter] = useState<InventoryTreeNode>(initialNav.filter);
+
   const [inspectedItem, setInspectedItem] = useState<InventoryItem | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
-  const [isAddQuestOpen, setIsAddQuestOpen] = useState(false);
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [wishlistPromptItem, setWishlistPromptItem] = useState<InventoryItem | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Sync state changes with URL query string
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams();
+      params.set('tab', activeTab);
+      if (activeTab === 'inventory') {
+        if (inventoryFilter.type === 'status') {
+          params.set('status', inventoryFilter.status);
+        } else if (inventoryFilter.type === 'category') {
+          params.set('category', inventoryFilter.category);
+        } else if (inventoryFilter.type === 'location') {
+          params.set('location', inventoryFilter.location);
+        } else {
+          params.set('filter', 'all');
+        }
+      }
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState(null, '', newUrl);
+    } catch {}
+  }, [activeTab, inventoryFilter]);
+
+  // Support browser back/forward
+  useEffect(() => {
+    const handlePopState = () => {
+      const { tab, filter } = getInitialUrlState();
+      setActiveTab(tab);
+      setInventoryFilter(filter);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Close modals on Escape key
   useEffect(() => {
@@ -111,7 +174,7 @@ export const App: React.FC = () => {
       if (e.key === 'Escape') {
         setInspectedItem(null);
         setIsAddItemOpen(false);
-        setIsAddQuestOpen(false);
+        setIsAddTaskOpen(false);
         setWishlistPromptItem(null);
       }
     };
@@ -119,7 +182,7 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Save state to localStorage instantly (zero latency, zero reload)
+  // Save state to localStorage instantly
   useEffect(() => {
     saveItems(items);
     saveProfile(profile);
@@ -127,7 +190,6 @@ export const App: React.FC = () => {
     saveHabits(habits);
     saveDayRecords(dayRecords);
     saveWearEvents(wearEvents);
-    saveSavedLoadouts(savedLoadouts);
     saveXpEvents(xpEvents);
     saveSettings(settings);
     saveQuests(quests);
@@ -137,7 +199,7 @@ export const App: React.FC = () => {
     saveColorPalette(palette);
     savePersonality(personality);
     saveTraits(traits);
-  }, [items, profile, skills, habits, dayRecords, wearEvents, savedLoadouts, xpEvents, settings, quests, questEvidence, measurements, appearance, palette, personality, traits]);
+  }, [items, profile, skills, habits, dayRecords, wearEvents, xpEvents, settings, quests, questEvidence, measurements, appearance, palette, personality, traits]);
 
   // Audio mute state
   useEffect(() => {
@@ -158,7 +220,7 @@ export const App: React.FC = () => {
     }
   }, [xpEvents]);
 
-  // Derived state: possessions, carried load, valuations
+  // Derived state: possessions and valuations
   const ownedItems = items.filter(
     it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
   );
@@ -169,11 +231,7 @@ export const App: React.FC = () => {
     it => (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'past'
   );
 
-  const equippedItems = items.filter(
-    it => it.isEquipped && (it.ownershipStatus || (it.isLocked ? 'wishlist' : 'owned')) === 'owned'
-  );
-
-  // 1. Vault Valuation = sum of goldValue of OWNED items only
+  // Vault Valuation = sum of goldValue of OWNED items only
   const vaultValuation = ownedItems.reduce((acc, it) => acc + (it.goldValue || 0), 0);
 
   // Wishlist Cost = sum of targetPrice or goldValue of WANTED items
@@ -182,20 +240,12 @@ export const App: React.FC = () => {
     0
   );
 
-  // 2. Carry Load = sum of weight of items where carried === true against capacity
-  const carriedWeight = ownedItems
-    .filter(it => it.carried)
-    .reduce((acc, it) => acc + (it.weightKg || 0), 0);
-
-  // Total possessions weight = all owned items with no cap
-  const totalPossessionsWeight = ownedItems.reduce((acc, it) => acc + (it.weightKg || 0), 0);
-
   const ownedCount = ownedItems.length;
   const wishlistCount = wishlistItems.length;
   const pastCount = pastItems.length;
 
-  // Open Quests Count for badge
-  const openQuestsCount = quests.filter(q => !q.deletedAt && q.status !== 'done').length;
+  // Open Tasks Count for badge
+  const openTasksCount = quests.filter(q => !q.deletedAt && q.status !== 'done').length;
 
   // Wear counts index
   const wearCounts: Record<string, number> = {};
@@ -212,101 +262,6 @@ export const App: React.FC = () => {
     setXpEvents(prev => [...prev, newEvent]);
   };
 
-  // Equip / Unequip Toggle with Wear Event Logging
-  const handleToggleEquip = (item: InventoryItem) => {
-    const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
-    if (status !== 'owned') return;
-
-    const nextEquipped = !item.isEquipped;
-    const updatedItems = items.map(it => {
-      if (it.id === item.id) {
-        return { ...it, isEquipped: nextEquipped };
-      }
-      if (nextEquipped && it.equipSlot && it.equipSlot === item.equipSlot && it.id !== item.id) {
-        return { ...it, isEquipped: false };
-      }
-      return it;
-    });
-
-    setItems(updatedItems);
-
-    if (inspectedItem && inspectedItem.id === item.id) {
-      setInspectedItem({ ...inspectedItem, isEquipped: nextEquipped });
-    }
-
-    // Write wear event { item_id, type: "worn", date } when equipped
-    if (nextEquipped) {
-      const wearEv: WearEvent = {
-        id: `wear-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        itemId: item.id,
-        type: 'worn',
-        date: selectedDate,
-      };
-      setWearEvents(prev => [...prev, wearEv]);
-    }
-  };
-
-  const handleUnequipItem = (item: InventoryItem) => {
-    const updatedItems = items.map(it => {
-      if (it.id === item.id) {
-        return { ...it, isEquipped: false };
-      }
-      return it;
-    });
-    setItems(updatedItems);
-
-    if (inspectedItem && inspectedItem.id === item.id) {
-      setInspectedItem({ ...inspectedItem, isEquipped: false });
-    }
-  };
-
-  // Saved Loadout Handlers
-  const handleSaveLoadout = (name: string) => {
-    const newPreset: SavedLoadout = {
-      id: `loadout-${Date.now()}`,
-      name: name.trim(),
-      equippedItemIds: equippedItems.map(i => i.id),
-      createdAt: selectedDate,
-    };
-    setSavedLoadouts(prev => [newPreset, ...prev]);
-    sfx.playClick();
-  };
-
-  const handleApplyLoadout = (loadoutId: string) => {
-    const preset = savedLoadouts.find(l => l.id === loadoutId);
-    if (!preset) return;
-
-    const targetIds = new Set(preset.equippedItemIds);
-    const newWearEvents: WearEvent[] = [];
-
-    const updatedItems = items.map(it => {
-      const isTarget = targetIds.has(it.id) && (it.ownershipStatus || 'owned') === 'owned';
-      if (isTarget && !it.isEquipped) {
-        newWearEvents.push({
-          id: `wear-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          itemId: it.id,
-          type: 'worn',
-          date: selectedDate,
-        });
-      }
-      return {
-        ...it,
-        isEquipped: isTarget,
-      };
-    });
-
-    setItems(updatedItems);
-    if (newWearEvents.length > 0) {
-      setWearEvents(prev => [...prev, ...newWearEvents]);
-    }
-    sfx.playEquip();
-  };
-
-  const handleDeleteLoadout = (loadoutId: string) => {
-    setSavedLoadouts(prev => prev.filter(l => l.id !== loadoutId));
-    sfx.playClick();
-  };
-
   // Possession Lifecycle: Change Ownership Status (owned <-> wishlist <-> past)
   const handleChangeStatus = (
     item: InventoryItem,
@@ -321,8 +276,6 @@ export const App: React.FC = () => {
           ...it,
           ownershipStatus: newStatus,
           isLocked: isNowLocked,
-          isEquipped: newStatus === 'owned' ? it.isEquipped : false,
-          carried: newStatus === 'owned' ? (it.carried ?? true) : false,
           pastReason: newStatus === 'past' ? pastReason : undefined,
           pastDate: newStatus === 'past' ? pastDate : undefined,
         };
@@ -336,8 +289,6 @@ export const App: React.FC = () => {
         ...inspectedItem,
         ownershipStatus: newStatus,
         isLocked: isNowLocked,
-        isEquipped: newStatus === 'owned' ? inspectedItem.isEquipped : false,
-        carried: newStatus === 'owned' ? (inspectedItem.carried ?? true) : false,
         pastReason: newStatus === 'past' ? pastReason : undefined,
         pastDate: newStatus === 'past' ? pastDate : undefined,
       });
@@ -360,23 +311,23 @@ export const App: React.FC = () => {
     setInspectedItem(updated);
   };
 
-  // Quest Management
-  const handleAddQuest = (newQuestData: Omit<Quest, 'id' | 'createdAt'>) => {
-    const newQuest: Quest = {
-      ...newQuestData,
-      id: `quest-${Date.now()}`,
+  // Tasks (Quests) Management
+  const handleAddTask = (newTaskData: Omit<Quest, 'id' | 'createdAt'>) => {
+    const newTask: Quest = {
+      ...newTaskData,
+      id: `task-${Date.now()}`,
       createdAt: getTodayLocalDateStr(),
     };
-    setQuests(prev => [newQuest, ...prev]);
+    setQuests(prev => [newTask, ...prev]);
   };
 
-  const handleUpdateQuest = (updated: Quest) => {
+  const handleUpdateTask = (updated: Quest) => {
     setQuests(prev => prev.map(q => (q.id === updated.id ? updated : q)));
   };
 
-  const handleDeleteQuest = (questId: string) => {
+  const handleDeleteTask = (taskId: string) => {
     setQuests(prev =>
-      prev.map(q => (q.id === questId ? { ...q, deletedAt: new Date().toISOString() } : q))
+      prev.map(q => (q.id === taskId ? { ...q, deletedAt: new Date().toISOString() } : q))
     );
   };
 
@@ -396,54 +347,54 @@ export const App: React.FC = () => {
     sfx.playClick();
   };
 
-  // Quest Completion with XP Logging and Wishlist Milestone Prompt
-  const handleCompleteQuest = (quest: Quest) => {
+  // Task Completion with XP Logging and Wishlist Milestone Prompt
+  const handleCompleteTask = (task: Quest) => {
     const completedDate = getTodayLocalDateStr();
     const updated: Quest = {
-      ...quest,
+      ...task,
       status: 'done',
       completedAt: completedDate,
     };
-    handleUpdateQuest(updated);
+    handleUpdateTask(updated);
 
     // Write append-only XP event
-    const points = getQuestXp(quest.difficulty);
+    const points = getQuestXp(task.difficulty);
     handleRecordXpEvent({
-      action: `Quest Complete: ${quest.title}`,
-      pillar: quest.pillar,
+      action: `Task Complete: ${task.title}`,
+      pillar: task.pillar,
       points,
       date: selectedDate,
-      refId: `quest-${quest.id}`,
+      refId: `task-${task.id}`,
     });
 
     sfx.playRunicHarmonic();
 
     // Check if linked to a wishlist item
-    if (quest.linkedItemId) {
-      const linkedItem = items.find(i => i.id === quest.linkedItemId);
+    if (task.linkedItemId) {
+      const linkedItem = items.find(i => i.id === task.linkedItemId);
       if (linkedItem && linkedItem.ownershipStatus === 'wishlist') {
         setWishlistPromptItem(linkedItem);
       }
     }
   };
 
-  // Quest Reopen from Done with Negative Append-Only XP Event
-  const handleReopenQuest = (quest: Quest) => {
+  // Task Reopen from Done with Negative Append-Only XP Event
+  const handleReopenTask = (task: Quest) => {
     const updated: Quest = {
-      ...quest,
+      ...task,
       status: 'todo',
       completedAt: undefined,
     };
-    handleUpdateQuest(updated);
+    handleUpdateTask(updated);
 
     // Reopening reverses XP by writing a negative event, so log stays append-only
-    const points = getQuestXp(quest.difficulty);
+    const points = getQuestXp(task.difficulty);
     handleRecordXpEvent({
-      action: `Quest Reopened: ${quest.title}`,
-      pillar: quest.pillar,
+      action: `Task Reopened: ${task.title}`,
+      pillar: task.pillar,
       points: -points,
       date: selectedDate,
-      refId: `quest-${quest.id}-reopened`,
+      refId: `task-${task.id}-reopened`,
     });
 
     sfx.playClick();
@@ -541,9 +492,9 @@ export const App: React.FC = () => {
     setHabits(habits.filter(h => h.id !== habitId));
   };
 
-  // Unlock Codex Skill
+  // Unlock Milestone
   const handleUnlockSkill = (skillId: string, evidence?: { note: string; url?: string }) => {
-    let skillTitle = 'Perk';
+    let skillTitle = 'Milestone';
     let skillAttr: AttributeType = 'INT';
 
     setSkills(prev =>
@@ -564,7 +515,7 @@ export const App: React.FC = () => {
     );
 
     handleRecordXpEvent({
-      action: `Perk Attuned: ${skillTitle}`,
+      action: `Milestone Achieved: ${skillTitle}`,
       pillar: skillAttr,
       points: 150,
       date: selectedDate,
@@ -618,7 +569,6 @@ export const App: React.FC = () => {
           setHabits(loadHabits());
           setDayRecords(loadDayRecords());
           setWearEvents(loadWearEvents());
-          setSavedLoadouts(loadSavedLoadouts());
           setXpEvents(loadXpEvents());
           setSettings(loadSettings());
           setQuests(loadQuests());
@@ -654,17 +604,17 @@ export const App: React.FC = () => {
         profile={profile}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        totalItemsCount={items.length}
-        ownedCount={ownedCount}
-        openQuestsCount={openQuestsCount}
-        equippedCount={equippedItems.length}
-        currentEncumbrance={carriedWeight}
-        totalGoldValue={vaultValuation}
+        inventoryFilter={inventoryFilter}
+        onSelectInventoryNode={setInventoryFilter}
+        items={items}
+        habits={habits}
+        dayRecords={dayRecords}
+        xpEvents={xpEvents}
+        openTasksCount={openTasksCount}
         isMuted={isMuted}
         setIsMuted={setIsMuted}
         onExport={handleExport}
         onImport={handleImportClick}
-        onUpdateProfile={(updated) => setProfile(prev => ({ ...prev, ...updated }))}
       />
 
       {/* Main Workspace Area */}
@@ -676,7 +626,7 @@ export const App: React.FC = () => {
           onShiftDate={handleShiftDate}
           onResetToday={handleResetToday}
           onOpenAddItem={() => setIsAddItemOpen(true)}
-          onOpenAddQuest={() => setIsAddQuestOpen(true)}
+          onOpenAddTask={() => setIsAddTaskOpen(true)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           items={items}
@@ -685,6 +635,7 @@ export const App: React.FC = () => {
           quests={quests}
           onSelectTab={setActiveTab}
           onInspectItem={setInspectedItem}
+          onSelectTask={() => setActiveTab('tasks')}
           settings={settings}
           onUpdateSettings={handleUpdateSettings}
           privacyMode={privacyMode}
@@ -694,43 +645,49 @@ export const App: React.FC = () => {
         {/* Scrollable View Content */}
         <div className="flex-1 overflow-y-auto px-8 py-8">
           <div className="max-w-[1520px] mx-auto space-y-6">
+            
+            {/* Overview View */}
+            {activeTab === 'overview' && (
+              <OverviewView
+                items={items}
+                habits={habits}
+                dayRecords={dayRecords}
+                quests={quests}
+                xpEvents={xpEvents}
+                currencySymbol={settings.currencySymbol || '$'}
+                onNavigate={setActiveTab}
+              />
+            )}
+
+            {/* Inventory View */}
             {activeTab === 'inventory' && (
               <div className="space-y-6">
-                <PaperdollView
-                  equippedItems={equippedItems}
-                  onInspectItem={setInspectedItem}
-                  onUnequipItem={handleUnequipItem}
-                  carriedWeight={carriedWeight}
-                  maxEncumbranceKg={settings.maxEncumbranceKg || 12.0}
-                  totalPossessionsWeight={totalPossessionsWeight}
-                  vaultValuation={vaultValuation}
-                  wishlistCost={wishlistCost}
+                <InventoryStats
                   ownedCount={ownedCount}
                   wishlistCount={wishlistCount}
                   pastCount={pastCount}
+                  vaultValuation={vaultValuation}
+                  wishlistCost={wishlistCost}
                   currencySymbol={settings.currencySymbol || '$'}
-                  savedLoadouts={savedLoadouts}
-                  onSaveCurrentLoadout={handleSaveLoadout}
-                  onLoadPreset={(preset) => handleApplyLoadout(preset.id)}
-                  onDeletePreset={handleDeleteLoadout}
-                  allItems={items}
+                  items={items}
                 />
 
                 <InventoryGrid
                   items={items}
                   onInspectItem={setInspectedItem}
-                  onToggleEquip={handleToggleEquip}
                   onOpenAddItem={() => setIsAddItemOpen(true)}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   currencySymbol={settings.currencySymbol || '$'}
                   wearCounts={wearCounts}
                   palette={palette}
+                  filterNode={inventoryFilter}
                 />
               </div>
             )}
 
-            {activeTab === 'rituals' && (
+            {/* Routine (formerly Daily Cadence) */}
+            {activeTab === 'routine' && (
               <DailyRituals
                 dayRecords={dayRecords}
                 habits={habits}
@@ -743,29 +700,41 @@ export const App: React.FC = () => {
                 onPermanentDeleteHabit={handlePermanentDeleteHabit}
                 onRecordXpEvent={handleRecordXpEvent}
                 quests={quests}
-                onNavigateToQuests={() => setActiveTab('quests')}
-                onCompleteQuest={handleCompleteQuest}
+                onNavigateToQuests={() => setActiveTab('tasks')}
+                onCompleteQuest={handleCompleteTask}
               />
             )}
 
-            {activeTab === 'quests' && (
+            {/* Tasks (formerly Quests) */}
+            {activeTab === 'tasks' && (
               <QuestsView
                 quests={quests}
                 evidence={questEvidence}
                 items={items}
-                onAddQuest={handleAddQuest}
-                onUpdateQuest={handleUpdateQuest}
-                onDeleteQuest={handleDeleteQuest}
+                onAddQuest={handleAddTask}
+                onUpdateQuest={handleUpdateTask}
+                onDeleteQuest={handleDeleteTask}
                 onAddEvidence={handleAddEvidence}
                 onDeleteEvidence={handleDeleteEvidence}
-                onCompleteQuest={handleCompleteQuest}
-                onReopenQuest={handleReopenQuest}
-                isAddModalOpen={isAddQuestOpen}
-                onCloseAddModal={() => setIsAddQuestOpen(false)}
+                onCompleteQuest={handleCompleteTask}
+                onReopenQuest={handleReopenTask}
+                isAddModalOpen={isAddTaskOpen}
+                onCloseAddModal={() => setIsAddTaskOpen(false)}
               />
             )}
 
-            {activeTab === 'codex' && (
+            {/* Bucket List (New empty page) */}
+            {activeTab === 'bucket-list' && (
+              <EmptyPageView title="Bucket List" type="bucket-list" />
+            )}
+
+            {/* Money (New empty page) */}
+            {activeTab === 'money' && (
+              <EmptyPageView title="Money" type="money" />
+            )}
+
+            {/* Character (formerly Character Codex) */}
+            {activeTab === 'character' && (
               <CharacterCodex
                 profile={profile}
                 skills={skills}
@@ -800,7 +769,6 @@ export const App: React.FC = () => {
       <ItemInspectModal
         item={inspectedItem}
         onClose={() => setInspectedItem(null)}
-        onToggleEquip={handleToggleEquip}
         onChangeStatus={handleChangeStatus}
         onDeleteItem={handleDeleteItem}
         onUpdateItem={handleUpdateItem}
@@ -831,7 +799,7 @@ export const App: React.FC = () => {
                 <Sparkles className="w-5 h-5 text-[#0891B2]" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-[#111113]">Milestone Quest Completed!</h3>
+                <h3 className="text-base font-semibold text-[#111113]">Milestone Completed!</h3>
                 <span className="text-xs text-[#0891B2] font-medium">Linked Possession Unlocked</span>
               </div>
             </div>

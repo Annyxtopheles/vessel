@@ -23,7 +23,8 @@ export const XP_DISCIPLINE_REWARDS = {
   // Habits & Disciplines
   HABIT_COMPLETION: 35,
 
-  // Codex Milestones
+  // Milestones
+  MILESTONE_UNLOCKED: 150,
   PERK_UNLOCKED: 150,
 } as const;
 
