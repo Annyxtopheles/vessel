@@ -20,6 +20,7 @@ import {
   deriveTotalXp,
   getPillarLevelProgress,
   getOverallLevelProgress,
+  computeMilestoneProgress,
 } from '../data/xpConfig';
 import { StatSheetView } from './StatSheetView';
 
@@ -76,89 +77,11 @@ const ATTRIBUTE_ACCENTS: Record<AttributeType, { text: string; bg: string; bar: 
   },
 };
 
-function computeSkillProgress(
-  skill: SkillNode,
-  dayRecords: Record<string, DayRecord>,
-  _xpEvents: XpEvent[]
-): {
-  progressPercent: number;
-  hasDataSource: boolean;
-  sourceLabel?: string;
-  isMet: boolean;
-} {
-  const records = Object.values(dayRecords);
 
-  if (skill.id === 'skill-str-1') {
-    const totalPushups = records.reduce((s, r) => s + (r.pushups || 0), 0);
-    const percent = Math.min(100, Math.round((totalPushups / 100) * 100));
-    return {
-      progressPercent: percent,
-      hasDataSource: true,
-      sourceLabel: `Logged: ${totalPushups} / 100 pushups`,
-      isMet: totalPushups >= 100,
-    };
-  }
-
-  if (skill.id === 'skill-str-2') {
-    const totalWorkouts = records.filter(
-      (r) => r.workoutCompleted || (r.pushups >= 50 || r.squats >= 50)
-    ).length;
-    const percent = Math.min(100, Math.round((totalWorkouts / 5) * 100));
-    return {
-      progressPercent: percent,
-      hasDataSource: true,
-      sourceLabel: `Logged: ${totalWorkouts} / 5 workouts`,
-      isMet: totalWorkouts >= 5,
-    };
-  }
-
-  if (skill.id === 'skill-str-3') {
-    const totalPushups = records.reduce((s, r) => s + (r.pushups || 0), 0);
-    const percent = Math.min(100, Math.round((totalPushups / 1000) * 100));
-    return {
-      progressPercent: percent,
-      hasDataSource: true,
-      sourceLabel: `Logged: ${totalPushups} / 1,000 pushups`,
-      isMet: totalPushups >= 1000,
-    };
-  }
-
-  if (skill.id === 'skill-int-2') {
-    const totalMins = records.reduce((s, r) => s + (r.deepWorkMinutes || 0), 0);
-    const hours = Math.round((totalMins / 60) * 10) / 10;
-    const percent = Math.min(100, Math.round((totalMins / 3000) * 100));
-    return {
-      progressPercent: percent,
-      hasDataSource: true,
-      sourceLabel: `Logged: ${hours} / 50.0 hrs`,
-      isMet: totalMins >= 3000,
-    };
-  }
-
-  if (skill.id === 'skill-wis-1') {
-    const perfectSalahDays = records.filter(
-      (r) => Object.values(r.salah).filter(Boolean).length === 5
-    ).length;
-    const percent = Math.min(100, Math.round((perfectSalahDays / 7) * 100));
-    return {
-      progressPercent: percent,
-      hasDataSource: true,
-      sourceLabel: `Logged: ${perfectSalahDays} / 7 perfect days`,
-      isMet: perfectSalahDays >= 7,
-    };
-  }
-
-  return {
-    progressPercent: skill.unlocked ? 100 : (skill.progressPercent || 0),
-    hasDataSource: false,
-    sourceLabel: undefined,
-    isMet: skill.unlocked,
-  };
-}
 
 export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   skills,
-  dayRecords,
+  dayRecords: _dayRecords,
   xpEvents,
   onUnlockSkill,
   measurements = [],
@@ -379,12 +302,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     </p>
 
                     {/* Progress bar derived from XP events */}
-                    <div className="space-y-1 pt-1 border-t border-[#E4DED2]">
+                    <div className="space-y-1.5 pt-1.5 border-t border-[#E4DED2]">
                       <div className="flex justify-between text-[11px] tabular-nums text-[#6B645A]">
                         <span>EXP</span>
-                        <span>
-                          {data.xp.toLocaleString()} / {data.progress.xpNeededForNext.toLocaleString()}
-                        </span>
+                        <span className="font-medium text-[#1F1B16]">{data.progress.displayText}</span>
                       </div>
                       <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
                         <div
@@ -439,14 +360,16 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredSkills.map((skill) => {
                 const accent = ATTRIBUTE_ACCENTS[skill.attribute];
-                const derived = computeSkillProgress(skill, dayRecords, xpEvents);
-                const displayPercent = skill.unlocked ? 100 : derived.progressPercent;
+                const derived = computeMilestoneProgress(skill, xpEvents);
+                // An automated milestone is Attained ONLY if ALL conditions are met.
+                // A manual milestone is Attained if it was verified and unlocked with evidence.
+                const isAttained = derived.hasDataSource ? derived.isMet : skill.unlocked;
 
                 return (
                   <div
                     key={skill.id}
                     className={`p-4 rounded-[6px] border flex flex-col justify-between transition-colors bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16] ${
-                      skill.unlocked ? '' : 'opacity-90'
+                      isAttained ? '' : 'opacity-90'
                     }`}
                   >
                     <div>
@@ -456,13 +379,13 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                           <span className="text-[#6B645A] font-normal ml-1.5">· Tier {skill.tier}</span>
                         </span>
 
-                        {skill.unlocked ? (
+                        {isAttained ? (
                           <span className="text-[11px] font-medium text-[#3F6B4F]">
-                            Achieved
+                            Attained
                           </span>
                         ) : (
                           <span className="text-[11px] text-[#6B645A]">
-                            Locked
+                            {derived.hasDataSource ? 'In Progress' : 'Locked'}
                           </span>
                         )}
                       </div>
@@ -498,54 +421,144 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-[#E4DED2]">
-                      <div className="flex justify-between items-center text-[12px] text-[#6B645A] mb-1.5 tabular-nums">
-                        <span className="truncate mr-2">
-                          {derived.sourceLabel ? derived.sourceLabel : `Goal: ${skill.requirement}`}
-                        </span>
-                        <span className="text-[#1F1B16] font-medium">{displayPercent}%</span>
-                      </div>
-
-                      <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden mb-3">
-                        <div
-                          className={`h-full transition-all duration-300 ${
-                            skill.unlocked ? accent.bar : 'bg-[#1F1B16]'
-                          }`}
-                          style={{ width: `${displayPercent}%` }}
-                        />
-                      </div>
-
-                      {!skill.unlocked && (
-                        <>
-                          {derived.hasDataSource ? (
-                            derived.isMet ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  sfx.playRunicHarmonic();
-                                  onUnlockSkill(skill.id);
-                                }}
-                                className="editorial-btn-primary w-full"
-                              >
-                                Claim Milestone (+150 XP)
-                              </button>
-                            ) : (
-                              <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
-                                In Progress ({derived.sourceLabel})
+                    {/* Conditions / Progress Section */}
+                    {derived.hasDataSource ? (
+                      derived.conditions.length > 1 ? (
+                        /* Multi-condition Milestone: render each condition in its own progress row */
+                        <div className="pt-3 border-t border-[#E4DED2] space-y-2.5">
+                          <div className="flex items-center justify-between text-[11px] uppercase tracking-wider font-medium text-[#6B645A]">
+                            <span>Conditions</span>
+                            <span className="tabular-nums">
+                              {derived.conditions.filter((c) => c.isMet).length}/{derived.conditions.length} Met
+                            </span>
+                          </div>
+                          {derived.conditions.map((cond) => (
+                            <div key={cond.id} className="space-y-1">
+                              <div className="flex justify-between items-center text-[12px] text-[#6B645A] tabular-nums">
+                                <span className="flex items-center gap-1.5 truncate mr-2">
+                                  <span
+                                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                      cond.isMet ? 'bg-[#3F6B4F]' : 'bg-[#E4DED2]'
+                                    }`}
+                                  />
+                                  <span className={cond.isMet ? 'text-[#1F1B16] font-medium' : 'text-[#6B645A]'}>
+                                    {cond.label}
+                                  </span>
+                                </span>
+                                <span className="text-[11px] shrink-0">
+                                  {cond.current.toLocaleString()} / {cond.target.toLocaleString()} {cond.unit}{' '}
+                                  <span className={cond.isMet ? 'text-[#3F6B4F] font-medium' : 'text-[#1F1B16]'}>
+                                    ({cond.progressPercent}%)
+                                  </span>
+                                </span>
                               </div>
-                            )
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEvidenceModal(skill)}
-                              className="editorial-btn-secondary w-full"
-                            >
-                              Mark Requirement Complete
-                            </button>
+                              <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all duration-300 ${
+                                    cond.isMet ? 'bg-[#3F6B4F]' : accent.bar
+                                  }`}
+                                  style={{ width: `${cond.progressPercent}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+
+                          {!isAttained && (
+                            <div className="pt-1">
+                              {derived.isMet ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    sfx.playRunicHarmonic();
+                                    onUnlockSkill(skill.id);
+                                  }}
+                                  className="editorial-btn-primary w-full"
+                                >
+                                  Claim Milestone (+150 XP)
+                                </button>
+                              ) : (
+                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                                  In Progress ({derived.statusLabel})
+                                </div>
+                              )}
+                            </div>
                           )}
-                        </>
-                      )}
-                    </div>
+                        </div>
+                      ) : (
+                        /* Single-condition Automated Milestone */
+                        <div className="pt-3 border-t border-[#E4DED2]">
+                          {derived.conditions.map((cond) => (
+                            <div key={cond.id} className="space-y-1 mb-3">
+                              <div className="flex justify-between items-center text-[12px] text-[#6B645A] tabular-nums">
+                                <span className="truncate mr-2 font-normal text-[#1F1B16]">{cond.label}</span>
+                                <span>
+                                  {cond.current.toLocaleString()} / {cond.target.toLocaleString()} {cond.unit}{' '}
+                                  <span className={cond.isMet ? 'text-[#3F6B4F] font-medium' : 'text-[#1F1B16]'}>
+                                    ({cond.progressPercent}%)
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all duration-300 ${
+                                    cond.isMet ? 'bg-[#3F6B4F]' : accent.bar
+                                  }`}
+                                  style={{ width: `${cond.progressPercent}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+
+                          {!isAttained && (
+                            <>
+                              {derived.isMet ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    sfx.playRunicHarmonic();
+                                    onUnlockSkill(skill.id);
+                                  }}
+                                  className="editorial-btn-primary w-full"
+                                >
+                                  Claim Milestone (+150 XP)
+                                </button>
+                              ) : (
+                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                                  In Progress ({derived.statusLabel})
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )
+                    ) : (
+                      /* Manual Requirement Milestone: Only shows "Mark Requirement Complete" and requires evidence */
+                      <div className="pt-3 border-t border-[#E4DED2]">
+                        <div className="flex justify-between items-center text-[12px] text-[#6B645A] mb-1.5 tabular-nums">
+                          <span className="truncate mr-2">Goal: {skill.requirement}</span>
+                          <span className="text-[#1F1B16] font-medium">{isAttained ? 100 : 0}%</span>
+                        </div>
+
+                        <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden mb-3">
+                          <div
+                            className={`h-full transition-all duration-300 ${
+                              isAttained ? 'bg-[#3F6B4F]' : 'bg-[#E4DED2]'
+                            }`}
+                            style={{ width: `${isAttained ? 100 : 0}%` }}
+                          />
+                        </div>
+
+                        {!isAttained && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEvidenceModal(skill)}
+                            className="editorial-btn-secondary w-full"
+                          >
+                            Mark Requirement Complete
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -620,7 +633,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="editorial-btn-primary"
+                  disabled={!evidenceNote.trim()}
+                  className={`editorial-btn-primary ${!evidenceNote.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   Complete Milestone (+150 XP)
                 </button>

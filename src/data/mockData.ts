@@ -6,6 +6,7 @@ import type {
   CustomHabit,
   Reminder,
   BucketListEntry,
+  XpEvent,
 } from '../types';
 
 export const INITIAL_ITEMS: InventoryItem[] = [
@@ -563,4 +564,61 @@ export const INITIAL_BUCKET_LIST: BucketListEntry[] = [
     pillar: 'STR',
     created_at: '2026-03-01T10:00:00.000Z',
   },
+];
+
+export const INITIAL_XP_EVENTS: XpEvent[] = [
+  // 2026-10-21
+  { id: 'xp-1', action: 'Pushups (+40 reps)', pillar: 'STR', points: 80, date: '2026-10-21' },
+  { id: 'xp-2', action: 'Squats (+30 reps)', pillar: 'STR', points: 60, date: '2026-10-21' },
+  { id: 'xp-3', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-21' },
+  { id: 'xp-4', action: 'Deep Work Session (+180m)', pillar: 'INT', points: 180, date: '2026-10-21' },
+  { id: 'xp-5', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-21' },
+
+  // 2026-10-22
+  { id: 'xp-6', action: 'Pushups (+50 reps)', pillar: 'STR', points: 100, date: '2026-10-22' },
+  { id: 'xp-7', action: 'Squats (+50 reps)', pillar: 'STR', points: 100, date: '2026-10-22' },
+  { id: 'xp-8', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-22' },
+  { id: 'xp-9', action: 'Deep Work Session (+240m)', pillar: 'INT', points: 240, date: '2026-10-22' },
+  { id: 'xp-10', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-22' },
+
+  // 2026-10-23
+  { id: 'xp-11', action: 'Pushups (+60 reps)', pillar: 'STR', points: 120, date: '2026-10-23' },
+  { id: 'xp-12', action: 'Squats (+40 reps)', pillar: 'STR', points: 80, date: '2026-10-23' },
+  { id: 'xp-13', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-23' },
+  { id: 'xp-14', action: 'Deep Work Session (+120m)', pillar: 'INT', points: 120, date: '2026-10-23' },
+  { id: 'xp-15', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-23' },
+
+  // 2026-10-24
+  { id: 'xp-16', action: 'Pushups (+30 reps)', pillar: 'STR', points: 60, date: '2026-10-24' },
+  { id: 'xp-17', action: 'Squats (+30 reps)', pillar: 'STR', points: 60, date: '2026-10-24' },
+  { id: 'xp-18', action: 'Deep Work Session (+90m)', pillar: 'INT', points: 90, date: '2026-10-24' },
+  { id: 'xp-19', action: 'Salah: 4 Daily Prayers', pillar: 'WIS', points: 200, date: '2026-10-24' },
+
+  // 2026-10-25
+  { id: 'xp-20', action: 'Pushups (+45 reps)', pillar: 'STR', points: 90, date: '2026-10-25' },
+  { id: 'xp-21', action: 'Squats (+45 reps)', pillar: 'STR', points: 90, date: '2026-10-25' },
+  { id: 'xp-22', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-25' },
+  { id: 'xp-23', action: 'Deep Work Session (+210m)', pillar: 'INT', points: 210, date: '2026-10-25' },
+  { id: 'xp-24', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-25' },
+
+  // 2026-10-26
+  { id: 'xp-25', action: 'Pushups (+55 reps)', pillar: 'STR', points: 110, date: '2026-10-26' },
+  { id: 'xp-26', action: 'Squats (+50 reps)', pillar: 'STR', points: 100, date: '2026-10-26' },
+  { id: 'xp-27', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-26' },
+  { id: 'xp-28', action: 'Deep Work Session (+300m)', pillar: 'INT', points: 300, date: '2026-10-26' },
+  { id: 'xp-29', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-26' },
+
+  // 2026-10-27
+  { id: 'xp-30', action: 'Pushups (+50 reps)', pillar: 'STR', points: 100, date: '2026-10-27' },
+  { id: 'xp-31', action: 'Squats (+50 reps)', pillar: 'STR', points: 100, date: '2026-10-27' },
+  { id: 'xp-32', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-27' },
+  { id: 'xp-33', action: 'Deep Work Session (+180m)', pillar: 'INT', points: 180, date: '2026-10-27' },
+  { id: 'xp-34', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-27' },
+
+  // 2026-10-28
+  { id: 'xp-35', action: 'Pushups (+55 reps)', pillar: 'STR', points: 110, date: '2026-10-28' },
+  { id: 'xp-36', action: 'Squats (+55 reps)', pillar: 'STR', points: 110, date: '2026-10-28' },
+  { id: 'xp-37', action: 'Full Workout Bonus', pillar: 'STR', points: 120, date: '2026-10-28' },
+  { id: 'xp-38', action: 'Deep Work Session (+240m)', pillar: 'INT', points: 240, date: '2026-10-28' },
+  { id: 'xp-39', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-28' },
 ];

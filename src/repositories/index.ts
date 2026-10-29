@@ -34,6 +34,7 @@ import {
   INITIAL_HABITS,
   INITIAL_REMINDERS,
   INITIAL_BUCKET_LIST,
+  INITIAL_XP_EVENTS,
 } from '../data/mockData';
 import {
   INITIAL_ACCOUNTS,
@@ -554,10 +555,11 @@ export async function initDatabase(): Promise<void> {
       const parsed: WearEvent[] = JSON.parse(rawWear);
       await wearEventRepo.batchPut(parsed.map((w) => normalizeRecord(w)));
     }
-    const rawXp = localStorage.getItem('vessel_xp_events_v1');
-    if (rawXp) {
-      const parsed: XpEvent[] = JSON.parse(rawXp);
-      await xpEventRepo.batchPut(parsed.map((x) => normalizeRecord(x)));
+    const existingXp = await xpEventRepo.list();
+    if (existingXp.length === 0) {
+      const rawXp = localStorage.getItem('vessel_xp_events_v1');
+      const seedXp = rawXp ? JSON.parse(rawXp) : INITIAL_XP_EVENTS;
+      await xpEventRepo.batchPut(seedXp.map((x: any) => normalizeRecord(x)));
     }
   } catch {}
 
