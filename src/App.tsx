@@ -966,6 +966,12 @@ export const App: React.FC = () => {
                 quests={quests}
                 xpEvents={xpEvents}
                 reminders={reminders}
+                bucketListEntries={bucketListEntries}
+                accounts={accounts}
+                transactions={transactions}
+                savingsGoals={savingsGoals}
+                debts={debts}
+                netWorthSnapshots={netWorthSnapshots}
                 nonNegotiablePrayers={settings.nonNegotiablePrayers}
                 currencySymbol={settings.currencySymbol || '৳'}
                 numberGrouping={settings.numberGrouping || 'bangladeshi'}
@@ -976,6 +982,10 @@ export const App: React.FC = () => {
                 onUpdateReminder={handleUpdateReminder}
                 onDeleteReminder={handleDeleteReminder}
                 onReorderReminders={handleReorderReminders}
+                onAddBucketEntry={handleAddBucketEntry}
+                onInspectItem={setInspectedItem}
+                onOpenAddItem={() => setIsAddItemOpen(true)}
+                onOpenAddTask={() => setIsAddTaskOpen(true)}
               />
             )}
 
