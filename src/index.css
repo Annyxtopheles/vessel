@@ -2,28 +2,31 @@
 
 @layer base {
   :root {
-    --font-sans: 'Nunito Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Source Serif 4', 'Newsreader', Georgia, 'Noto Serif Bengali', serif;
+    --font-sans: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
 
-    /* Design Tokens */
-    --bg-page: #F4F4F6;
-    --bg-card: #FFFFFF;
-    --border-card: #ECECF0;
-    --shadow-card: 0 1px 2px rgba(16, 16, 24, 0.04);
+    /* Warm Neutrals (High Contrast) */
+    --bg-page: #F6F2EA;
+    --bg-surface: #FBF9F4;
+    --border-hairline: #E4DED2;
 
-    --text-primary: #111113;
-    --text-secondary: #6B6B76;
-    --text-tertiary: #9A9AA5;
+    --text-primary: #1F1B16;
+    --text-muted: #6B645A;
 
-    /* Celeste / Cyan Accent (between blue and green) */
-    --accent-celeste: #0891B2;
-    --accent-celeste-hover: #0E7490;
-    --accent-celeste-tint: #E6F7F9;
-    --accent-celeste-border: #BCE7EB;
+    /* Primary Action: Solid Ink */
+    --btn-primary-bg: #1F1B16;
+    --btn-primary-text: #FBF9F4;
+    --btn-primary-hover: #342F29;
 
-    --semantic-success: #16A34A;
-    --semantic-success-tint: #E6F6EC;
-    --semantic-danger: #DC2626;
-    --semantic-danger-tint: #FDECEC;
+    /* Muted Pillar Colors */
+    --pillar-str: #9C3D2A;
+    --pillar-int: #2D4A6B;
+    --pillar-wis: #7A5C1E;
+    --pillar-cha: #3F6B4F;
+
+    /* Semantics (used sparingly) */
+    --semantic-danger: #9C3D2A;
+    --semantic-success: #3F6B4F;
   }
 
   html {
@@ -37,13 +40,21 @@
     font-family: var(--font-sans);
     background-color: var(--bg-page);
     color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Refined light scrollbars */
+  /* Global tabular numerals for all figures */
+  var, code, kbd, samp, time, .tabular-nums, th, td, [data-figure] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Refined warm hairline scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -52,35 +63,72 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #D9D9DE;
-    border-radius: 9999px;
+    background: #E4DED2;
+    border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #BEBEC6;
+    background: #D5CEBF;
   }
 }
 
-/* Base Vessel Cards & Components */
-.ship-card {
-  background-color: #FFFFFF;
-  border: 1px solid #ECECF0;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 16, 24, 0.04);
+/* Typography Utility Classes */
+.font-serif {
+  font-family: var(--font-serif);
 }
 
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.editorial-title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.editorial-heading {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.editorial-stat-num {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Base Editorial Cards & Items */
+.ship-card, .editorial-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  box-shadow: none !important;
+}
+
+/* No tinted icon tile on stat blocks: plain alignment */
 .ship-icon-tile {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background-color: #E6F7F9;
-  color: #0891B2;
-  display: flex;
+  width: auto;
+  height: auto;
+  background-color: transparent !important;
+  color: var(--text-muted);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-/* Generous, airy pill tags that never hug edges */
+/* Editorial Pills: 6px radius, calm hairline contrast */
 .ship-pill,
 .ship-pill-success,
 .ship-pill-danger,
@@ -88,70 +136,104 @@
 .ship-pill-neutral {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.4;
   white-space: nowrap;
+  border: 1px solid var(--border-hairline);
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
 }
 
 .ship-pill-success {
-  background-color: #E6F6EC;
-  color: #16A34A;
+  border-color: rgba(63, 107, 79, 0.35);
+  color: var(--semantic-success);
 }
 
 .ship-pill-danger {
-  background-color: #FDECEC;
-  color: #DC2626;
+  border-color: rgba(156, 61, 42, 0.35);
+  color: var(--semantic-danger);
 }
 
 .ship-pill-accent {
-  background-color: #E6F7F9;
-  color: #0891B2;
+  border-color: rgba(45, 74, 107, 0.35);
+  color: #2D4A6B;
 }
 
 .ship-pill-neutral {
-  background-color: #F4F4F6;
-  color: #6B6B76;
+  border-color: var(--border-hairline);
+  color: var(--text-muted);
 }
 
-/* Primary Celeste Button */
-.ship-btn-primary {
-  background-color: #0891B2;
-  color: #FFFFFF;
-  font-weight: 600;
-  border-radius: 12px;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 2px rgba(8, 145, 178, 0.12);
+/* Primary Action Button: Solid Ink with Light Text, 6px radius, no icons on text buttons */
+.ship-btn-primary, .editorial-btn-primary {
+  background-color: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-text) !important;
+  font-weight: 500;
+  border-radius: 6px !important;
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid var(--btn-primary-bg);
+  box-shadow: none !important;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ship-btn-primary:hover {
-  background-color: #0E7490;
+.ship-btn-primary:hover, .editorial-btn-primary:hover {
+  background-color: var(--btn-primary-hover) !important;
+}
+
+/* Secondary Action Button: Outlined */
+.ship-btn-secondary, .editorial-btn-secondary {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 6px !important;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ship-btn-secondary:hover, .editorial-btn-secondary:hover {
+  background-color: var(--bg-page) !important;
+  border-color: #D5CEBF !important;
 }
 
 /* Input / Field styling */
-.ship-input {
-  background-color: #FFFFFF;
-  border: 1px solid #ECECF0;
-  border-radius: 12px;
-  padding: 8px 14px;
-  font-size: 14px;
-  color: #111113;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+.ship-input, .editorial-input {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: none !important;
+  transition: border-color 0.15s ease;
 }
 
 .ship-input-search {
-  padding-left: 42px !important;
+  padding-left: 36px !important;
 }
 
-.ship-input:focus {
+.ship-input:focus, .editorial-input:focus {
   outline: none;
-  border-color: #0891B2;
-  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.14);
+  border-color: var(--text-primary);
+  box-shadow: none !important;
 }
 
-.ship-input::placeholder {
-  color: #9A9AA5;
+.ship-input::placeholder, .editorial-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
 }

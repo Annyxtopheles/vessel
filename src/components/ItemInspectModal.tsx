@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory, NumberGroupingOption } from '../types';
-import { X, Trash2, History, Edit3, Check, Upload, Copy, Sparkles, MapPin } from 'lucide-react';
+import { X, Trash2, Edit3, Copy, MapPin } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
 import { processAndStorePhoto, getPhotoBlobUrl } from '../services/photoService';
@@ -41,10 +41,10 @@ interface ItemInspectModalProps {
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
-  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#16A34A]' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#0891B2]' },
-  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#F59E0B]' },
-  needs_repair: { label: 'Needs Repair / Tailoring', pct: 20, color: 'bg-[#DC2626]' },
+  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#3F6B4F]' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#2D4A6B]' },
+  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#7A5C1E]' },
+  needs_repair: { label: 'Needs Repair', pct: 20, color: 'bg-[#9C3D2A]' },
 };
 
 export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
@@ -98,6 +98,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const currentStatus: OwnershipStatus = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
   const conditionInfo = CONDITION_MAP[item.condition] || CONDITION_MAP.pristine;
   const costPerWear = wearCount > 0 ? (item.goldValue / wearCount).toFixed(2) : null;
+  const initialChar = (item.name[0] || 'V').toUpperCase();
 
   const handleSetPast = (reason: PastReason) => {
     sfx.playClick();
@@ -159,23 +160,24 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl bg-white border border-[#ECECF0] rounded-2xl shadow-xl overflow-hidden cursor-default animate-in fade-in zoom-in-95 my-8"
+        className="w-full max-w-xl bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden cursor-default my-8"
       >
         {/* Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECECF0]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
           <div className="flex items-center gap-2">
             <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: item.colorHex || '#9A9AA5' }}
+              className="w-2.5 h-2.5 rounded-[2px]"
+              style={{ backgroundColor: item.colorHex || '#6B645A' }}
             />
-            <span className="text-[13px] font-semibold text-[#111113]">
-              {item.category.toUpperCase()} • {item.subCategory || 'General'}
+            <span className="text-[12px] font-medium uppercase tracking-wider text-[#6B645A]">
+              {item.category} · {item.subCategory || 'General'}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {onDuplicateItem && (
               <button
+                type="button"
                 onClick={() => {
                   sfx.playClick();
                   const dup: InventoryItem = {
@@ -186,7 +188,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   onDuplicateItem(dup);
                   onClose();
                 }}
-                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
+                className="p-1.5 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
                 title="Duplicate possession"
               >
                 <Copy className="w-4 h-4" />
@@ -194,11 +196,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             )}
 
             <button
+              type="button"
               onClick={() => setIsEditing(!isEditing)}
-              className={`p-1.5 rounded-lg transition-colors ${
+              className={`p-1.5 rounded-[4px] transition-colors ${
                 isEditing
-                  ? 'bg-[#E6F7F9] text-[#0891B2]'
-                  : 'text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]'
+                  ? 'bg-[#EFEAE0] text-[#1F1B16]'
+                  : 'text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0]'
               }`}
               title="Edit details"
             >
@@ -206,8 +209,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors"
+              className="p-1.5 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -215,9 +219,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+        <div className="p-6 max-h-[75vh] overflow-y-auto space-y-5">
           {/* Main Visual Banner */}
-          <div className="h-60 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] relative overflow-hidden flex items-center justify-center">
+          <div className="h-56 rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#6B645A]">
             {(isEditing ? editImageUrl : item.imageUrl) ? (
               <img
                 src={isEditing ? editImageUrl : item.imageUrl}
@@ -225,16 +229,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-center text-[#9A9AA5]">
-                <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <span className="text-xs">No visual photo logged</span>
-              </div>
+              <span>{initialChar}</span>
             )}
 
             {isEditing && (
-              <label className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs text-[#111113] border border-[#ECECF0] hover:bg-white px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer shadow-xs flex items-center gap-1.5 transition-all">
-                <Upload className="w-3.5 h-3.5" />
-                <span>{isUploadingPhoto ? 'Optimizing...' : 'Upload Photo'}</span>
+              <label className="absolute bottom-3 right-3 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors">
+                <span>{isUploadingPhoto ? 'Processing...' : 'Upload Photo'}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -251,20 +251,20 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Possession Name
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    Name
                   </label>
                   <input
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="ship-input w-full"
+                    className="ship-input w-full text-[14px]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Category
                     </label>
                     <CustomSelect
@@ -274,7 +274,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Sub-Category / Type
                     </label>
                     <input
@@ -288,7 +288,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Value ({currencySymbol})
                     </label>
                     <input
@@ -299,7 +299,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Target Price ({currencySymbol})
                     </label>
                     <input
@@ -313,19 +313,19 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Storage Location
                     </label>
                     <input
                       type="text"
                       value={editLocation}
                       onChange={(e) => setEditLocation(e.target.value)}
-                      placeholder="e.g. Closet, Desk, Storage"
+                      placeholder="e.g. Closet, Desk"
                       className="ship-input w-full"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                       Condition
                     </label>
                     <CustomSelect
@@ -337,8 +337,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-medium text-[#6B6B76] mb-1">
-                    Notes & Lore
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    Notes
                   </label>
                   <textarea
                     rows={3}
@@ -352,17 +352,16 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] transition-colors"
+                    className="editorial-btn-secondary"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveEdits}
-                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs transition-colors flex items-center gap-1.5"
+                    className="editorial-btn-primary"
                   >
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Save Changes</span>
+                    Save Changes
                   </button>
                 </div>
               </div>
@@ -371,25 +370,25 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 {/* Title & Category Bar */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-[#111113] tracking-tight">
+                    <h2 className="font-serif text-[24px] font-normal text-[#1F1B16]">
                       {item.name}
                     </h2>
-                    <div className="text-[13px] text-[#6B6B76] mt-0.5 flex items-center gap-2">
+                    <div className="text-[13px] text-[#6B645A] mt-0.5 flex items-center gap-2">
                       <span>{item.subCategory}</span>
-                      <span>•</span>
+                      <span>·</span>
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#9A9AA5]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#6B645A]" />
                         <span>{item.location || 'Vault'}</span>
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xl font-bold text-[#111113] block">
+                    <span className="font-serif text-[22px] font-normal tabular-nums text-[#1F1B16] block">
                       {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                     </span>
                     {currentStatus === 'wishlist' && item.targetPrice && (
-                      <span className="text-[11px] text-[#6B6B76]">
+                      <span className="text-[11px] tabular-nums text-[#6B645A]">
                         Target: {formatCurrency(item.targetPrice, currencySymbol, numberGrouping)}
                       </span>
                     )}
@@ -398,41 +397,41 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Wear Log & Efficiency Box */}
                 {currentStatus === 'owned' && (
-                  <div className="mb-4 p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
+                  <div className="mb-4 p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[#111113] mb-0.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0891B2]" /> Wear Log
+                      <div className="text-xs font-medium text-[#1F1B16] mb-0.5">
+                        Wear Log
                       </div>
-                      <div className="text-[13px] text-[#6B6B76]">
-                        {wearCount} {wearCount === 1 ? 'Wear Logged' : 'Wears Logged'}
+                      <div className="text-[12px] tabular-nums text-[#6B645A]">
+                        {wearCount} {wearCount === 1 ? 'Wear' : 'Wears'} logged
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[11px] text-[#6B6B76]">Cost Per Wear</div>
-                      <div className="text-[15px] font-bold text-[#0891B2]">
-                        {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)} / wear` : 'Unworn'}
+                      <div className="text-[11px] text-[#6B645A]">Cost / Wear</div>
+                      <div className="font-serif text-[16px] tabular-nums font-medium text-[#1F1B16]">
+                        {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}` : 'Unworn'}
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Lore / Description */}
-                <div className="p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] mb-4">
-                  <p className="text-[13px] text-[#6B6B76] leading-relaxed italic">
+                {/* Notes / Lore */}
+                <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] mb-4">
+                  <p className="text-[13px] text-[#6B645A] leading-relaxed italic">
                     "{item.lore}"
                   </p>
                 </div>
 
                 {/* Condition Bar */}
-                <div className="mb-4 p-4 rounded-xl border border-[#ECECF0]">
-                  <div className="flex items-center justify-between text-[13px] mb-2">
-                    <span className="font-semibold text-[#111113]">Physical Condition</span>
-                    <span className="text-[#6B6B76]">{conditionInfo.label}</span>
+                <div className="mb-4 p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4]">
+                  <div className="flex items-center justify-between text-[12px] mb-2">
+                    <span className="font-medium text-[#1F1B16]">Physical Condition</span>
+                    <span className="text-[#6B645A]">{conditionInfo.label}</span>
                   </div>
-                  <div className="w-full h-2 bg-[#ECECF0] rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${conditionInfo.color} rounded-full transition-all`}
+                      className={`h-full ${conditionInfo.color} transition-all`}
                       style={{ width: `${conditionInfo.pct}%` }}
                     />
                   </div>
@@ -440,31 +439,32 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Past Relic Notice if Parted */}
                 {currentStatus === 'past' && (
-                  <div className="mb-4 p-3.5 rounded-xl bg-[#ECECF0] border border-[#ECECF0] text-[13px]">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#111113] mb-1">
-                      <History className="w-3.5 h-3.5 text-[#6B6B76]" /> Possession Archive
+                  <div className="mb-4 p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] text-[13px]">
+                    <div className="font-medium text-[#1F1B16] mb-1">
+                      Possession Archive
                     </div>
-                    <p className="text-[#6B6B76]">
-                      Parted with via <strong className="capitalize text-[#111113]">{item.pastReason || 'retiring'}</strong>
-                      {item.pastDate ? ` on ${item.pastDate}` : ''}. Preserved in your life history.
+                    <p className="text-[#6B645A]">
+                      Parted with via <strong className="capitalize text-[#1F1B16]">{item.pastReason || 'retiring'}</strong>
+                      {item.pastDate ? ` on ${item.pastDate}` : ''}.
                     </p>
                   </div>
                 )}
 
                 {/* Ownership Lifecycle Transition Control */}
-                <div className="p-4 rounded-xl bg-[#F4F4F6] border border-[#ECECF0]">
-                  <span className="text-[13px] font-semibold text-[#111113] block mb-2.5">
-                    Possession State:
+                <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
+                  <span className="text-[12px] font-medium text-[#1F1B16] block mb-2">
+                    Status:
                   </span>
 
                   <div className="flex flex-wrap items-center gap-2">
                     {currentStatus !== 'owned' && (
                       <button
+                        type="button"
                         onClick={() => {
                           sfx.playClick();
                           onChangeStatus(item, 'owned');
                         }}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
+                        className="editorial-btn-secondary py-1 px-3 text-xs"
                       >
                         Mark as Owned
                       </button>
@@ -472,11 +472,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                     {currentStatus !== 'wishlist' && (
                       <button
+                        type="button"
                         onClick={() => {
                           sfx.playClick();
                           onChangeStatus(item, 'wishlist');
                         }}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
+                        className="editorial-btn-secondary py-1 px-3 text-xs"
                       >
                         Move to Wishlist
                       </button>
@@ -484,8 +485,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                     {currentStatus !== 'past' && !isChoosingPastReason && (
                       <button
+                        type="button"
                         onClick={() => setIsChoosingPastReason(true)}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F4F4F6] text-[#111113] border border-[#ECECF0] text-[13px] font-medium transition-colors cursor-pointer"
+                        className="editorial-btn-secondary py-1 px-3 text-xs"
                       >
                         Parted With
                       </button>
@@ -493,9 +495,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
 
                   {isChoosingPastReason && (
-                    <div className="mt-3 pt-3 border-t border-[#ECECF0] flex items-center gap-2">
-                      <span className="text-[13px] text-[#6B6B76] font-medium shrink-0">Reason:</span>
-                      <div className="w-48">
+                    <div className="mt-3 pt-3 border-t border-[#E4DED2] flex items-center gap-2">
+                      <span className="text-xs text-[#6B645A] shrink-0">Reason:</span>
+                      <div className="w-44">
                         <CustomSelect
                           value={selectedPastReason}
                           options={PAST_REASON_OPTIONS}
@@ -505,14 +507,16 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       </div>
 
                       <button
+                        type="button"
                         onClick={() => handleSetPast(selectedPastReason)}
-                        className="px-3 py-1.5 rounded-xl bg-[#0891B2] text-white text-[13px] font-medium hover:bg-[#0E7490] transition-colors shrink-0 cursor-pointer"
+                        className="editorial-btn-primary py-1 px-3 text-xs shrink-0"
                       >
-                        Confirm Archive
+                        Confirm
                       </button>
                       <button
+                        type="button"
                         onClick={() => setIsChoosingPastReason(false)}
-                        className="px-2 py-1 rounded-xl text-[#6B6B76] text-[13px] hover:text-[#111113] cursor-pointer"
+                        className="editorial-btn-secondary py-1 px-2.5 text-xs"
                       >
                         Cancel
                       </button>
@@ -525,29 +529,28 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
 
         {/* Footer Metrics & Actions */}
-        <div className="px-6 py-4 bg-white border-t border-[#ECECF0] flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-[13px] text-[#6B6B76]">
+        <div className="px-6 py-3.5 bg-[#FBF9F4] border-t border-[#E4DED2] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 text-[13px] text-[#6B645A]">
             <span>Value:</span>
-            <span className="text-[#111113] font-semibold">
+            <span className="text-[#1F1B16] font-medium tabular-nums">
               {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                sfx.playClick();
-                if (confirm(`Completely delete "${item.name}" from your vault?`)) {
-                  onDeleteItem(item.id);
-                  onClose();
-                }
-              }}
-              title="Delete item permanently"
-              className="p-2 rounded-xl bg-[#FDECEC] text-[#DC2626] hover:bg-[#FCD8D8] transition-colors cursor-pointer"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              sfx.playClick();
+              if (confirm(`Completely delete "${item.name}" from your vault?`)) {
+                onDeleteItem(item.id);
+                onClose();
+              }
+            }}
+            title="Delete item permanently"
+            className="p-1.5 rounded-[4px] border border-[#E4DED2] text-[#9C3D2A] hover:bg-[#F6F2EA] transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>

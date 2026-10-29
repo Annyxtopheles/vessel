@@ -55,7 +55,6 @@ import { CharacterCodex } from './components/CharacterCodex';
 import { DailyRituals } from './components/DailyRituals';
 import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
-import { Sparkles, Check } from 'lucide-react';
 import { formatCurrency } from './utils/numberFormat';
 
 const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
@@ -840,37 +839,32 @@ export const App: React.FC = () => {
       {wishlistPromptItem && (
         <div
           onClick={() => setWishlistPromptItem(null)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#1F1B16]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-white border border-[#ECECF0] rounded-2xl shadow-xl p-6 cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
           >
-            <div className="flex items-center gap-3 pb-3 border-b border-[#ECECF0]">
-              <div className="w-10 h-10 rounded-xl bg-[#E6F7F9] border border-[#BCE7EB] flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-5 h-5 text-[#0891B2]" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-[#111113]">Milestone Completed!</h3>
-                <span className="text-xs text-[#0891B2] font-medium">Linked Possession Unlocked</span>
-              </div>
+            <div className="pb-3 border-b border-[#E4DED2]">
+              <h3 className="font-serif text-[20px] font-semibold text-[#1F1B16] leading-snug">Milestone Completed</h3>
+              <p className="text-[13px] text-[#6B645A] mt-0.5">Linked item unlocked</p>
             </div>
 
-            <div className="py-4 space-y-2">
-              <p className="text-xs text-[#6B6B76] leading-relaxed">
+            <div className="py-4 space-y-3">
+              <p className="text-[14px] text-[#6B645A] leading-relaxed">
                 You successfully achieved the objective linked to your wishlist item{' '}
-                <strong className="text-[#111113]">{wishlistPromptItem.name}</strong>.
+                <strong className="text-[#1F1B16] font-medium">{wishlistPromptItem.name}</strong>.
               </p>
-              <div className="p-3 rounded-xl bg-[#F4F4F6] border border-[#ECECF0] flex items-center justify-between">
+              <div className="p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-[#111113] block">
+                  <span className="text-[14px] font-medium text-[#1F1B16] block">
                     {wishlistPromptItem.name}
                   </span>
-                  <span className="text-[11px] text-[#9A9AA5]">
+                  <span className="text-[12px] text-[#6B645A]">
                     {wishlistPromptItem.subCategory}
                   </span>
                 </div>
-                <span className="text-xs font-semibold text-[#0891B2]">
+                <span className="font-serif text-[16px] font-medium text-[#1F1B16] tabular-nums">
                   {formatCurrency(
                     wishlistPromptItem.targetPrice || wishlistPromptItem.goldValue,
                     settings.currencySymbol || '৳',
@@ -878,16 +872,16 @@ export const App: React.FC = () => {
                   )}
                 </span>
               </div>
-              <p className="text-xs font-medium text-[#111113]">
-                Would you like to mark this item as currently owned in your Vault?
+              <p className="text-[13px] text-[#1F1B16]">
+                Would you like to mark this item as currently owned?
               </p>
             </div>
 
-            <div className="pt-3 border-t border-[#ECECF0] flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setWishlistPromptItem(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+                className="editorial-btn-secondary"
               >
                 Keep on Wishlist
               </button>
@@ -898,10 +892,9 @@ export const App: React.FC = () => {
                   setWishlistPromptItem(null);
                   sfx.playRunicHarmonic();
                 }}
-                className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="editorial-btn-primary"
               >
-                <Check className="w-3.5 h-3.5" />
-                <span>Mark Item as Owned</span>
+                Mark Item as Owned
               </button>
             </div>
           </div>

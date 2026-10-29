@@ -534,7 +534,7 @@ export const INITIAL_APPEARANCE: CharacterAppearance = {
   skinToneNote: 'Warm golden olive undertones; thrives in rich earth tones, muted teal, charcoal.',
   hair: 'Dark Espresso Brown, medium textured crop',
   eyeColor: 'Deep Hazel / Amber',
-  photoUrl: '/avatar.jpg',
+  photoUrl: undefined,
   updatedAt: '2026-10-28',
 };
 

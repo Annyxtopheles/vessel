@@ -6,18 +6,11 @@ import { formatCurrency } from '../utils/numberFormat';
 import { CustomSelect } from './CustomSelect';
 import {
   Search,
-  Lock,
-  Package,
-  History,
   LayoutGrid,
   List,
-  Layers,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Palette,
-  MapPin,
-  Filter,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -36,11 +29,11 @@ interface InventoryGridProps {
 }
 
 const RARITY_DOT_COLORS: Record<ItemRarity, string> = {
-  common: '#9A9AA5',
-  rare: '#3B82F6',
-  epic: '#0891B2',
-  masterwork: '#0284C7',
-  legendary: '#F59E0B',
+  common: '#6B645A',
+  rare: '#2D4A6B',
+  epic: '#7A5C1E',
+  masterwork: '#3F6B4F',
+  legendary: '#9C3D2A',
 };
 
 const RARITY_LABELS: Record<ItemRarity, string> = {
@@ -68,8 +61,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   const [paletteFilter, setPaletteFilter] = useState<'all' | 'suits' | 'avoid'>('all');
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>('');
 
-  // View & Grouping Settings
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  // Default to Dense Table view if over 30 items
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>(() => (items.length > 30 ? 'table' : 'grid'));
   const [groupBy, setGroupBy] = useState<'none' | 'category' | 'location' | 'color' | 'status'>('none');
   const [sortCol, setSortCol] = useState<'name' | 'category' | 'value' | 'wears' | 'costPerWear'>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -217,14 +210,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
   const paletteOptions = [
     { id: 'all', label: 'Palette: All' },
-    { id: 'suits', label: '★ Suits You' },
-    { id: 'avoid', label: '⚠ Avoid' },
+    { id: 'suits', label: 'Suits you' },
+    { id: 'avoid', label: 'Avoid' },
   ];
 
   // Active filter label badge
   const filterLabel = useMemo(() => {
     if (filterNode.type === 'status') {
-      if (filterNode.status === 'owned') return 'Currently Owned';
+      if (filterNode.status === 'owned') return 'Owned';
       if (filterNode.status === 'wishlist') return 'Wishlist';
       if (filterNode.status === 'past') return 'Parted With';
     } else if (filterNode.type === 'category') {
@@ -241,10 +234,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Left: Active Tree Filter Label + Secondary Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#ECECF0] text-xs font-semibold text-[#111113] shadow-xs">
-            <Filter className="w-3.5 h-3.5 text-[#0891B2]" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] text-[13px] font-medium text-[#1F1B16]">
             <span>{filterLabel}</span>
-            <span className="text-[11px] font-semibold text-[#6B6B76] px-1.5 py-0.2 rounded-md bg-[#ECECF0] ml-1">
+            <span className="text-[11px] font-medium tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] ml-1">
               {filteredItems.length}
             </span>
           </div>
@@ -266,16 +258,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
           <CustomSelect
             value={paletteFilter}
             options={paletteOptions}
-            onChange={(val) => setPaletteFilter(val as any)}
-            icon={Palette}
+            onChange={(val) => setPaletteFilter(val as 'all' | 'suits' | 'avoid')}
             buttonClassName="py-1 px-3 text-xs"
           />
 
           <CustomSelect
             value={groupBy}
             options={groupByOptions}
-            onChange={(val) => setGroupBy(val as any)}
-            icon={Layers}
+            onChange={(val) => setGroupBy(val as 'none' | 'category' | 'location' | 'color' | 'status')}
             buttonClassName="py-1 px-3 text-xs"
           />
         </div>
@@ -283,28 +273,28 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         {/* Right: Search & View Mode Switcher */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="relative w-44 sm:w-56">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#9A9AA5] pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B645A] pointer-events-none" />
             <input
               type="text"
               value={activeSearch}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search possessions..."
-              className="ship-input ship-input-search py-1.5 pl-8 text-xs w-full"
+              className="ship-input ship-input-search py-1.5 pl-8 text-[13px] w-full"
             />
           </div>
 
-          {/* Grid / Table View Mode Switcher */}
-          <div className="inline-flex p-0.5 bg-[#ECECF0] rounded-xl border border-[#ECECF0] shrink-0">
+          {/* Grid / Table View Mode Switcher (Icon-only buttons allowed) */}
+          <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2] shrink-0">
             <button
               type="button"
               onClick={() => {
                 sfx.playClick();
                 setViewMode('grid');
               }}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`p-1.5 rounded-[4px] transition-colors cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-white text-[#0891B2] shadow-xs'
-                  : 'text-[#6B6B76] hover:text-[#111113]'
+                  ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
+                  : 'text-[#6B645A] hover:text-[#1F1B16]'
               }`}
               title="Grid View"
             >
@@ -316,10 +306,10 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                 sfx.playClick();
                 setViewMode('table');
               }}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`p-1.5 rounded-[4px] transition-colors cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-white text-[#0891B2] shadow-xs'
-                  : 'text-[#6B6B76] hover:text-[#111113]'
+                  ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
+                  : 'text-[#6B645A] hover:text-[#1F1B16]'
               }`}
               title="Dense Table View"
             >
@@ -331,13 +321,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
       {/* 2. Items Catalog Display (Grid or Table) */}
       {filteredItems.length === 0 ? (
-        <div className="ship-card p-12 text-center">
-          <p className="text-[15px] font-semibold text-[#111113]">No possessions found</p>
-          <p className="text-[13px] text-[#6B6B76] mt-1">Try selecting another sidebar node or clearing search filters.</p>
+        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-12 text-center">
+          <p className="font-serif text-[18px] text-[#1F1B16]">No possessions found</p>
+          <p className="text-[13px] text-[#6B645A] mt-1">Try selecting another sidebar node or clearing search filters.</p>
           {onOpenImport && (
             <button
+              type="button"
               onClick={onOpenImport}
-              className="mt-3 px-3 py-1.5 rounded-xl border border-[#ECECF0] text-xs font-semibold text-[#0891B2] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+              className="editorial-btn-secondary mt-3"
             >
               Import from JSON or CSV
             </button>
@@ -345,101 +336,102 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         </div>
       ) : viewMode === 'table' ? (
         /* DENSE TABLE VIEW WITH SORTABLE COLUMNS */
-        <div className="ship-card overflow-hidden">
+        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse text-[13px]">
               <thead>
-                <tr className="border-b border-[#ECECF0] bg-[#F4F4F6]/60 text-[12px] font-semibold text-[#6B6B76]">
+                <tr className="border-b border-[#E4DED2] bg-[#F6F2EA] text-[12px] font-medium text-[#6B645A]">
                   <th
                     onClick={() => handleHeaderSort('name')}
-                    className="py-3 px-4 cursor-pointer hover:text-[#111113] select-none"
+                    className="py-2.5 px-4 cursor-pointer hover:text-[#1F1B16] select-none"
                   >
                     <div className="flex items-center gap-1.5">
                       <span>Possession</span>
                       {sortCol === 'name' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0891B2]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0891B2]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#9A9AA5]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('category')}
-                    className="py-3 px-3 cursor-pointer hover:text-[#111113] select-none"
+                    className="py-2.5 px-3 cursor-pointer hover:text-[#1F1B16] select-none"
                   >
                     <div className="flex items-center gap-1.5">
                       <span>Category</span>
                       {sortCol === 'category' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0891B2]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0891B2]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#9A9AA5]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
                       )}
                     </div>
                   </th>
-                  <th className="py-3 px-3">Location</th>
+                  <th className="py-2.5 px-3">Location</th>
                   <th
                     onClick={() => handleHeaderSort('value')}
-                    className="py-3 px-3 text-right cursor-pointer hover:text-[#111113] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Value</span>
                       {sortCol === 'value' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0891B2]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0891B2]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#9A9AA5]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('wears')}
-                    className="py-3 px-3 text-right cursor-pointer hover:text-[#111113] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Wears</span>
                       {sortCol === 'wears' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0891B2]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0891B2]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#9A9AA5]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('costPerWear')}
-                    className="py-3 px-3 text-right cursor-pointer hover:text-[#111113] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Cost / Wear</span>
                       {sortCol === 'costPerWear' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0891B2]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0891B2]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#9A9AA5]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
                       )}
                     </div>
                   </th>
-                  <th className="py-3 px-4">Status</th>
+                  <th className="py-2.5 px-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ECECF0] text-[13px]">
+              <tbody className="divide-y divide-[#E4DED2]">
                 {sortedItems.map((item) => {
                   const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
                   const wears = wearCounts[item.id] || 0;
                   const costPerWear = wears > 0 ? (item.goldValue / wears).toFixed(2) : '—';
-                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#9A9AA5';
+                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#6B645A';
                   const paletteMatch = matchColorPalette(item.colorHex, palette);
+                  const initialChar = (item.name[0] || 'V').toUpperCase();
 
                   return (
                     <tr
                       key={item.id}
                       onClick={() => onInspectItem(item)}
-                      className="hover:bg-[#F4F4F6]/50 transition-colors cursor-pointer group"
+                      className="hover:bg-[#F6F2EA]/60 transition-colors cursor-pointer group"
                     >
                       <td className="py-2.5 px-4">
                         <div className="flex items-center gap-3 min-w-[200px]">
-                          <div className="w-8 h-8 rounded-lg bg-[#F4F4F6] border border-[#ECECF0] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-[13px] text-[#6B645A]">
                             {item.imageUrl ? (
                               <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                             ) : (
-                              <Package className="w-4 h-4 text-[#9A9AA5]" />
+                              <span>{initialChar}</span>
                             )}
                           </div>
                           <div className="min-w-0">
@@ -448,44 +440,45 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                                 className="w-2 h-2 rounded-full flex-shrink-0"
                                 style={{ backgroundColor: dotColor }}
                               />
-                              <span className="font-semibold text-[#111113] group-hover:text-[#0891B2] transition-colors truncate">
+                              <span className="font-medium text-[#1F1B16] group-hover:text-black transition-colors truncate">
                                 {item.name}
                               </span>
                             </div>
-                            <span className="text-[11px] text-[#6B6B76] truncate block">
+                            <span className="text-[11px] text-[#6B645A] truncate block">
                               {item.colorName}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-3 text-[#6B6B76] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-[#6B645A] whitespace-nowrap">
                         {item.subCategory || item.category}
                       </td>
 
-                      <td className="py-2.5 px-3 text-[#6B6B76] whitespace-nowrap">
-                        <div className="flex items-center gap-1 text-[12px]">
-                          <MapPin className="w-3 h-3 text-[#9A9AA5]" />
-                          <span>{item.location || 'Vault'}</span>
-                        </div>
+                      <td className="py-2.5 px-3 text-[#6B645A] whitespace-nowrap text-[12px]">
+                        {item.location || 'Vault'}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right font-semibold text-[#111113] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-right font-medium tabular-nums text-[#1F1B16] whitespace-nowrap">
                         {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right text-[#6B6B76] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap">
                         {wears}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right text-[#6B6B76] whitespace-nowrap font-medium">
-                        {wears > 0 && costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}` : <span className="text-[#9A9AA5]">Unworn</span>}
+                      <td className="py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap">
+                        {wears > 0 && costPerWear ? (
+                          `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}`
+                        ) : (
+                          <span className="text-[#6B645A]/60">Unworn</span>
+                        )}
                       </td>
 
                       <td className="py-2.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           {status === 'wishlist' ? (
-                            <span className="ship-pill-accent text-[11px]">Wishlist</span>
+                            <span className="ship-pill-neutral text-[11px]">Wishlist</span>
                           ) : status === 'past' ? (
                             <span className="ship-pill-neutral text-[11px] capitalize">{item.pastReason || 'Parted'}</span>
                           ) : (
@@ -493,12 +486,12 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                           )}
 
                           {paletteMatch?.verdict === 'suits' && (
-                            <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#E6F6EC] text-[#16A34A] border border-[#16A34A]/20">
+                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F6F2EA] text-[#3F6B4F] border border-[#3F6B4F]/30">
                               Suits you
                             </span>
                           )}
                           {paletteMatch?.verdict === 'avoid' && (
-                            <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FDECEC] text-[#DC2626] border border-[#DC2626]/20">
+                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30">
                               Avoid
                             </span>
                           )}
@@ -518,11 +511,11 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             <div key={bucket.key} className="space-y-3">
               {bucket.title && (
                 <div className="flex items-center gap-2 pt-2">
-                  <h4 className="text-[13px] font-semibold text-[#6B6B76] uppercase tracking-wider">
+                  <h4 className="font-serif text-[15px] font-medium text-[#1F1B16] tracking-tight">
                     {bucket.title}
                   </h4>
-                  <span className="text-xs text-[#9A9AA5]">({bucket.items.length})</span>
-                  <div className="h-px bg-[#ECECF0] flex-1 ml-2" />
+                  <span className="text-[12px] tabular-nums text-[#6B645A]">({bucket.items.length})</span>
+                  <div className="h-px bg-[#E4DED2] flex-1 ml-2" />
                 </div>
               )}
 
@@ -531,39 +524,43 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
                   const wears = wearCounts[item.id] || 0;
                   const costPerWear = wears > 0 ? (item.goldValue / wears).toFixed(2) : null;
-                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#9A9AA5';
+                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#6B645A';
                   const rarityLabel = RARITY_LABELS[item.rarity] || 'Common';
+                  const initialChar = (item.name[0] || 'V').toUpperCase();
+                  const match = matchColorPalette(item.colorHex, palette);
 
                   return (
                     <div
                       key={item.id}
                       onClick={() => onInspectItem(item)}
-                      className="ship-card flex flex-col justify-between overflow-hidden cursor-pointer group hover:border-[#BEBEC6] transition-all"
+                      className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] flex flex-col justify-between overflow-hidden cursor-pointer group hover:border-[#1F1B16] transition-colors"
                     >
                       {/* Top Part: Image & Content */}
                       <div>
                         {/* Image Container: Consistent 4:5 Crop */}
-                        <div className="aspect-[4/5] w-full bg-[#F4F4F6] relative overflow-hidden flex items-center justify-center border-b border-[#ECECF0]">
+                        <div className="aspect-[4/5] w-full bg-[#EFEAE0] relative overflow-hidden flex items-center justify-center border-b border-[#E4DED2]">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.name}
-                              className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                             />
                           ) : (
-                            <Package className="w-8 h-8 text-[#9A9AA5]" />
+                            <div className="w-full h-full bg-[#EFEAE0] text-[#6B645A] font-serif flex items-center justify-center text-3xl font-normal select-none">
+                              {initialChar}
+                            </div>
                           )}
 
                           {/* Quick Condition Pill in top left */}
                           {item.condition && (
-                            <div className="absolute top-2.5 left-2.5 bg-white/95 backdrop-blur-xs text-[#6B6B76] p-1 rounded-lg border border-[#ECECF0] shadow-xs flex items-center gap-1 text-[11px] font-semibold px-2 capitalize">
+                            <div className="absolute top-2.5 left-2.5 bg-[#FBF9F4]/95 text-[#6B645A] rounded-[4px] border border-[#E4DED2] flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 capitalize">
                               <span>{item.condition.replace('_', ' ')}</span>
                             </div>
                           )}
                         </div>
 
                         {/* Card Body */}
-                        <div className="p-4 sm:p-4.5">
+                        <div className="p-4">
                           {/* Item Name + Subtle Rarity Dot */}
                           <div className="flex items-center gap-2">
                             <span
@@ -571,22 +568,22 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                               style={{ backgroundColor: dotColor }}
                               title={`Rarity: ${rarityLabel}`}
                             />
-                            <h3 className="text-[15px] font-semibold text-[#111113] group-hover:text-[#0891B2] transition-colors truncate">
+                            <h3 className="font-serif text-[16px] font-normal text-[#1F1B16] group-hover:text-black transition-colors truncate">
                               {item.name}
                             </h3>
                           </div>
 
-                          {/* Category + Price + Location in Secondary Text */}
-                          <p className="text-[13px] text-[#6B6B76] mt-1 truncate">
-                            {item.subCategory || item.category} • {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
+                          {/* Category + Price in Secondary Text */}
+                          <p className="text-[13px] text-[#6B645A] mt-1 truncate">
+                            {item.subCategory || item.category} · <span className="tabular-nums">{formatCurrency(item.goldValue, currencySymbol, numberGrouping)}</span>
                           </p>
 
                           {/* Wear Count & Cost Per Wear Metric Line */}
                           {status === 'owned' && (
-                            <div className="text-[12px] text-[#6B6B76] mt-1.5 flex items-center gap-2">
+                            <div className="text-[12px] text-[#6B645A] mt-1.5 flex items-center gap-2 tabular-nums">
                               <span>{wears} wears</span>
-                              <span>•</span>
-                              <span className="text-[#0891B2] font-semibold">
+                              <span>·</span>
+                              <span>
                                 {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}/wear` : 'Unworn'}
                               </span>
                             </div>
@@ -595,55 +592,40 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                           {/* Status Pill + Palette Match Badge */}
                           <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
                             {status === 'wishlist' ? (
-                              <span className="ship-pill-accent">
-                                <Lock className="w-3 h-3" /> Wishlist
-                              </span>
+                              <span className="ship-pill-neutral">Wishlist</span>
                             ) : status === 'past' ? (
-                              <span className="ship-pill-neutral capitalize">
-                                <History className="w-3 h-3" /> {item.pastReason || 'Parted With'}
-                              </span>
+                              <span className="ship-pill-neutral capitalize">{item.pastReason || 'Parted With'}</span>
                             ) : (
-                              <span className="ship-pill-neutral">
-                                Owned
-                              </span>
+                              <span className="ship-pill-neutral">Owned</span>
                             )}
 
-                            {(() => {
-                              const match = matchColorPalette(item.colorHex, palette);
-                              if (match?.verdict === 'suits') {
-                                return (
-                                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#E6F6EC] text-[#16A34A] border border-[#16A34A]/20">
-                                    Suits you
-                                  </span>
-                                );
-                              }
-                              if (match?.verdict === 'avoid') {
-                                return (
-                                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#FDECEC] text-[#DC2626] border border-[#DC2626]/20">
-                                    Avoid
-                                  </span>
-                                );
-                              }
-                              return null;
-                            })()}
+                            {match?.verdict === 'suits' && (
+                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F6F2EA] text-[#3F6B4F] border border-[#3F6B4F]/30">
+                                Suits you
+                              </span>
+                            )}
+                            {match?.verdict === 'avoid' && (
+                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30">
+                                Avoid
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
 
                       {/* Bottom Card Footer: Color dot + name on left, Location on right */}
-                      <div className="px-4 sm:px-4.5 pb-3.5 pt-2.5 border-t border-[#ECECF0] flex items-center justify-between text-[12px] text-[#6B6B76]">
-                        <div className="flex items-center gap-2 min-w-0">
+                      <div className="px-4 pb-3 pt-2 border-t border-[#E4DED2] flex items-center justify-between text-[12px] text-[#6B645A]">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           <span
-                            className="w-2.5 h-2.5 rounded-full border border-black/10 flex-shrink-0"
-                            style={{ backgroundColor: item.colorHex || '#9A9AA5' }}
+                            className="w-2.5 h-2.5 rounded-[2px] border border-black/10 flex-shrink-0"
+                            style={{ backgroundColor: item.colorHex || '#6B645A' }}
                           />
                           <span className="truncate">
                             {item.colorName || 'Default'}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1 truncate text-[#9A9AA5]">
-                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                        <div className="truncate text-[#6B645A]">
                           <span className="truncate">{item.location || 'Vault'}</span>
                         </div>
                       </div>

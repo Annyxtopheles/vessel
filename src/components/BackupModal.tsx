@@ -1,16 +1,8 @@
 import React, { useState, useRef } from 'react';
 import {
   X,
-  Archive,
-  Download,
-  Upload,
-  FolderPlus,
   CheckCircle2,
   AlertTriangle,
-  Clock,
-  HardDrive,
-  RefreshCw,
-  FolderCheck,
 } from 'lucide-react';
 import {
   exportFullBackupZip,
@@ -129,22 +121,18 @@ export const BackupModal: React.FC<BackupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+      <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2C2C2E]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#2C2C2E] flex items-center justify-center text-[#E5E5EA]">
-              <Archive className="w-5 h-5 text-teal-400" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-[#E5E5EA]">Data & Backup Management</h2>
-              <p className="text-xs text-[#8E8E93]">Export full archive ZIP (JSON + photos) & restore with dry-run</p>
-            </div>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
+          <div>
+            <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Backups & Data</h2>
+            <p className="text-[12px] text-[#6B645A]">Export archive ZIP (JSON + photos) & restore with dry-run</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-[#8E8E93] hover:text-[#E5E5EA] rounded-md hover:bg-[#2C2C2E] transition-colors"
+            className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -154,108 +142,87 @@ export const BackupModal: React.FC<BackupModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Status Message */}
           {statusMessage && (
-            <div className="p-3 bg-teal-500/10 border border-teal-500/20 rounded-lg text-xs text-teal-300 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-400" />
+            <div className="p-3 bg-[#F6F2EA] border border-[#3F6B4F]/30 rounded-[6px] text-xs text-[#3F6B4F] flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{statusMessage}</span>
             </div>
           )}
 
           {/* Backup Health Bar */}
-          <div className="p-4 bg-[#242426] border border-[#2C2C2E] rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  backupOverdue
-                    ? 'bg-amber-500/10 text-amber-400'
-                    : 'bg-teal-500/10 text-teal-400'
-                }`}
-              >
-                {backupOverdue ? <Clock className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-              </div>
-              <div>
-                <div className="text-xs text-[#8E8E93]">Last full backup:</div>
-                <div className="text-sm font-medium text-[#E5E5EA]">
-                  {formatLastBackup(settings.lastBackupAt)}
-                </div>
+          <div className="p-4 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px] flex items-center justify-between">
+            <div>
+              <div className="text-[11px] text-[#6B645A]">Last full backup</div>
+              <div className="text-[13px] font-medium tabular-nums text-[#1F1B16] mt-0.5">
+                {formatLastBackup(settings.lastBackupAt)}
               </div>
             </div>
 
             {backupOverdue && (
-              <span className="text-[11px] font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded">
+              <span className="text-[11px] font-medium text-[#9C3D2A] bg-[#FBF9F4] border border-[#9C3D2A]/30 px-2 py-0.5 rounded-[4px]">
                 Weekly backup recommended
               </span>
             )}
           </div>
 
           {/* Section 1: Export Everything */}
-          <div className="p-4 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg space-y-3">
+          <div className="p-4 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-[#E5E5EA]">Export Everything (ZIP)</h3>
-                <p className="text-xs text-[#8E8E93] mt-0.5">
-                  Packages all database tables, journal logs, habits, and full-resolution photos into a portable ZIP.
+                <h3 className="font-serif text-[16px] text-[#1F1B16]">Export Everything (ZIP)</h3>
+                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                  Packages all database tables, habits, and stored photos into a portable ZIP.
                 </p>
               </div>
               <button
+                type="button"
                 onClick={handleExport}
                 disabled={isExporting}
-                className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-teal-600 hover:bg-teal-500 disabled:bg-[#2C2C2E] text-white rounded-md transition-colors shrink-0"
+                className="editorial-btn-primary shrink-0"
               >
-                <Download className="w-4 h-4" />
-                <span>{isExporting ? 'Packing...' : 'Export ZIP'}</span>
+                {isExporting ? 'Packing...' : 'Export ZIP'}
               </button>
             </div>
           </div>
 
           {/* Section 2: Auto-Save Folder (File System Access API) */}
-          <div className="p-4 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg space-y-3">
+          <div className="p-4 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-[#E5E5EA]">Automatic Save Folder</h3>
-                <p className="text-xs text-[#8E8E93] mt-0.5">
-                  Link a local directory via File System Access API so backups write directly to your drive.
+                <h3 className="font-serif text-[16px] text-[#1F1B16]">Automatic Save Folder</h3>
+                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                  Link a local directory so backups write directly to your drive.
                 </p>
               </div>
               <button
+                type="button"
                 onClick={handleSelectFolder}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#E5E5EA] rounded-md transition-colors shrink-0"
+                className="editorial-btn-secondary shrink-0"
               >
-                {settings.autoBackupFolderName ? (
-                  <>
-                    <FolderCheck className="w-4 h-4 text-teal-400" />
-                    <span>Change Folder</span>
-                  </>
-                ) : (
-                  <>
-                    <FolderPlus className="w-4 h-4" />
-                    <span>Choose Folder</span>
-                  </>
-                )}
+                {settings.autoBackupFolderName ? 'Change Folder' : 'Choose Folder'}
               </button>
             </div>
             {settings.autoBackupFolderName && (
-              <div className="text-xs text-teal-400 flex items-center gap-1.5 pt-1">
-                <HardDrive className="w-3.5 h-3.5" />
-                <span>Linked directory: <strong>{settings.autoBackupFolderName}</strong></span>
+              <div className="text-[12px] text-[#1F1B16] pt-1">
+                Linked folder: <strong>{settings.autoBackupFolderName}</strong>
               </div>
             )}
           </div>
 
           {/* Section 3: Import Backup with Dry-Run Preview */}
-          <div className="p-4 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg space-y-4">
+          <div className="p-4 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-[#E5E5EA]">Import Backup Archive</h3>
-                <p className="text-xs text-[#8E8E93] mt-0.5">
-                  Select a previously exported .zip file to inspect its contents before applying.
+                <h3 className="font-serif text-[16px] text-[#1F1B16]">Import Backup Archive</h3>
+                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                  Select a previously exported .zip file to inspect before applying.
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#E5E5EA] rounded-md transition-colors shrink-0"
+                className="editorial-btn-secondary shrink-0"
               >
-                <Upload className="w-4 h-4" />
-                <span>Select ZIP</span>
+                Select ZIP
               </button>
               <input
                 type="file"
@@ -268,69 +235,69 @@ export const BackupModal: React.FC<BackupModalProps> = ({
 
             {/* Dry-run Inspection Preview */}
             {inspection && (
-              <div className="pt-2 border-t border-[#2C2C2E] space-y-3">
+              <div className="pt-2 border-t border-[#E4DED2] space-y-3">
                 {inspection.isValid ? (
                   <>
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-medium text-[#E5E5EA]">
-                        Dry-Run Inspection Preview
+                      <div className="text-[12px] font-medium text-[#1F1B16]">
+                        Inspection Preview
                       </div>
                       {inspection.dateExported && (
-                        <div className="text-[11px] text-[#8E8E93]">
+                        <div className="text-[11px] tabular-nums text-[#6B645A]">
                           Exported: {new Date(inspection.dateExported).toLocaleDateString()}
                         </div>
                       )}
                     </div>
 
                     <div className="grid grid-cols-4 gap-2 text-xs">
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Items:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.items}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Items:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.items}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Tasks:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.tasks}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Tasks:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.tasks}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Habits:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.habits}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Habits:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.habits}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Photos:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.photos}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Photos:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.photos}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Days:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.dayRecords}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Days:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.dayRecords}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">XP Events:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.xpEvents}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">XP Events:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.xpEvents}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Body Stats:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.measurements}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Body Stats:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.measurements}</strong>
                       </div>
-                      <div className="p-2.5 bg-[#242426] rounded border border-[#2C2C2E]">
-                        <span className="text-[#8E8E93]">Skills:</span>{' '}
-                        <strong className="text-teal-400">{inspection.counts.skills}</strong>
+                      <div className="p-2 bg-[#F6F2EA] rounded-[4px] border border-[#E4DED2]">
+                        <span className="text-[#6B645A]">Skills:</span>{' '}
+                        <strong className="text-[#1F1B16] tabular-nums">{inspection.counts.skills}</strong>
                       </div>
                     </div>
 
                     <div className="pt-2 flex justify-end">
                       <button
+                        type="button"
                         onClick={handleApplyRestore}
                         disabled={isRestoring}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium bg-amber-600 hover:bg-amber-500 disabled:bg-[#2C2C2E] text-white rounded-md transition-colors"
+                        className="editorial-btn-primary"
                       >
-                        <RefreshCw className={`w-3.5 h-3.5 ${isRestoring ? 'animate-spin' : ''}`} />
-                        <span>{isRestoring ? 'Restoring Database...' : 'Apply & Restore Data'}</span>
+                        {isRestoring ? 'Restoring Database...' : 'Apply & Restore Data'}
                       </button>
                     </div>
                   </>
                 ) : (
-                  <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded text-xs text-rose-300 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <div className="p-3 bg-[#F6F2EA] border border-[#9C3D2A]/30 rounded-[4px] text-xs text-[#9C3D2A] flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>{inspection.error}</span>
                   </div>
                 )}
@@ -340,10 +307,11 @@ export const BackupModal: React.FC<BackupModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-[#2C2C2E] bg-[#161618] flex justify-end">
+        <div className="px-6 py-3 border-t border-[#E4DED2] bg-[#FBF9F4] flex justify-end">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-medium text-[#8E8E93] hover:text-[#E5E5EA] transition-colors"
+            className="editorial-btn-secondary"
           >
             Close
           </button>

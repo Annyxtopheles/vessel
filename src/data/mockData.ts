@@ -15,7 +15,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'transitional',
     goldValue: 120,
     location: 'Closet',
-    imageUrl: 'https://images.unsplash.com/photo-1578932750294-f5075e85f44a?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Heavyweight 12oz duck cloth. The elbows show slight patina from hours at the desk.',
   },
   {
@@ -31,7 +31,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 85,
     location: 'Closet',
-    imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Odor-resistant natural wool fibers that withstand long focus sessions.',
   },
   {
@@ -47,7 +47,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 160,
     location: 'Closet',
-    imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Woven on vintage shuttle looms with natural indigo fade lines.',
   },
   {
@@ -63,7 +63,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'winter',
     goldValue: 240,
     location: 'Entryway',
-    imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Resoleable Goodyear welt construction built for long walks.',
   },
   {
@@ -79,7 +79,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'winter',
     goldValue: 70,
     location: 'Closet',
-    imageUrl: 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Snug fit keeping cold draughts away while walking before dawn Fajr.',
   },
 
@@ -97,7 +97,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 2200,
     location: 'Desk',
-    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Central development machine for web architectures and local models.',
   },
   {
@@ -113,7 +113,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 380,
     location: 'Desk',
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Acoustic isolation for noisy cafes and open environments.',
   },
   {
@@ -129,7 +129,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 280,
     location: 'Desk',
-    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Lubed switches seated in solid brass plate for effortless typing cadences.',
   },
 
@@ -147,7 +147,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 60,
     location: 'Bookshelf',
-    imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'The cornerstone of spiritual balance, grounding daily ambition with purpose.',
   },
   {
@@ -163,7 +163,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 25,
     location: 'Bookshelf',
-    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Core insights on affordances, feedback loops, and human-computer interactions.',
   },
 
@@ -181,7 +181,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 450,
     location: 'Nightstand',
-    imageUrl: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Mechanical automatic movement with zero screen distractions.',
   },
   {
@@ -197,7 +197,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 95,
     location: 'Desk',
-    imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Grade 5 aerospace titanium with smooth Parker G2 cartridge.',
   },
 
@@ -215,7 +215,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 1450,
     location: 'Office',
-    imageUrl: 'https://images.unsplash.com/photo-1580481077111-e63d4107bfa7?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lockRequirement: 'Ship 3 major projects & maintain 60-day posture discipline',
     lore: 'Industry standard ergonomic seating reducing back strain during deep work.',
   },
@@ -232,7 +232,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 220,
     location: 'Closet',
-    imageUrl: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lockRequirement: 'Maintain 30-day unbroken Salah streak',
     lore: 'Clean woven cotton reserved for Friday prayers and family gatherings.',
   },
@@ -253,7 +253,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 400,
     location: 'Archived',
-    imageUrl: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'The legendary dual-battery ThinkPad that powered early coding journeys. Sold to a junior dev when upgrading.',
   },
   {
@@ -271,7 +271,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'winter',
     goldValue: 180,
     location: 'Archived',
-    imageUrl: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Worn through three cold winters on morning walks. Gifted to younger brother when moving apartments.',
   },
   {
@@ -289,7 +289,7 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     season: 'all',
     goldValue: 18,
     location: 'Archived',
-    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80',
+    imageUrl: undefined,
     lore: 'Survived countless university exams and gym sessions. Battery lasted 7 years before being safely retired.',
   },
 ];

@@ -56,18 +56,18 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           sfx.playClick();
           setIsOpen(!isOpen);
         }}
-        className={`w-full ship-input py-2 px-3 text-xs flex items-center justify-between gap-2.5 bg-white cursor-pointer hover:border-[#0891B2]/50 transition-colors shadow-2xs ${
+        className={`w-full py-1.5 px-3 text-[13px] rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between gap-2 text-[#1F1B16] hover:border-[#1F1B16] transition-colors cursor-pointer ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${buttonClassName}`}
       >
         <div className="flex items-center gap-2 truncate">
-          {IconComponent && <IconComponent className="w-3.5 h-3.5 text-[#0891B2] shrink-0" />}
-          <span className="truncate text-[#111113] font-medium">
+          {IconComponent && <IconComponent className="w-3.5 h-3.5 text-[#6B645A] shrink-0" />}
+          <span className="truncate text-[#1F1B16] font-normal">
             {currentOption ? currentOption.label : placeholder}
           </span>
         </div>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-[#9A9AA5] shrink-0 transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-[#6B645A] shrink-0 transition-transform duration-150 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -75,7 +75,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute left-0 top-full mt-1.5 min-w-full max-h-60 overflow-y-auto bg-white border border-[#ECECF0] rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 ${dropdownClassName}`}
+          className={`absolute left-0 top-full mt-1 min-w-full max-h-60 overflow-y-auto bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-1 z-50 ${dropdownClassName}`}
         >
           {options.map((opt) => {
             const isSelected = String(opt.id) === String(value);
@@ -88,19 +88,19 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                   onChange(opt.id);
                   setIsOpen(false);
                 }}
-                className={`w-full px-2.5 py-1.5 rounded-lg text-xs text-left transition-colors flex items-center justify-between cursor-pointer ${
+                className={`w-full px-2.5 py-1.5 rounded-[4px] text-[13px] text-left transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-[#E6F7F9] text-[#0891B2] font-semibold'
-                    : 'text-[#111113] hover:bg-[#F4F4F6] font-normal'
+                    ? 'bg-[#F6F2EA] text-[#1F1B16] font-medium'
+                    : 'text-[#1F1B16] hover:bg-[#F6F2EA]/60 font-normal'
                 }`}
               >
                 <div className="flex flex-col truncate pr-2">
                   <span className="truncate">{opt.label}</span>
                   {opt.sublabel && (
-                    <span className="text-[10px] text-[#9A9AA5] truncate">{opt.sublabel}</span>
+                    <span className="text-[11px] text-[#6B645A] truncate">{opt.sublabel}</span>
                   )}
                 </div>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#0891B2] shrink-0" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#1F1B16] shrink-0" />}
               </button>
             );
           })}

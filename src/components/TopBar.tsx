@@ -4,9 +4,7 @@ import type { NavTab } from './Sidebar';
 import { 
   Search, 
   Settings, 
-  Plus, 
   X, 
-  Check, 
   ChevronLeft, 
   ChevronRight, 
   Package, 
@@ -16,7 +14,6 @@ import {
   Eye,
   EyeOff,
   Archive,
-  Upload
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -129,7 +126,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const matchingTasks = cleanQ
     ? quests.filter(
         q =>
-          !q.deletedAt &&
+          !q.deletedAt && !q.deleted_at &&
           (q.title.toLowerCase().includes(cleanQ) ||
            q.description.toLowerCase().includes(cleanQ))
       ).slice(0, 3)
@@ -162,25 +159,25 @@ export const TopBar: React.FC<TopBarProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-[#ECECF0] px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
-      {/* Left: Plain Page Title (No breadcrumb above title) */}
+    <header className="bg-[#FBF9F4] border-b border-[#E4DED2] px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
+      {/* Left: Editorial Page Title (32px serif) */}
       <div>
-        <h1 className="text-[28px] leading-[32px] font-semibold text-[#111113] tracking-tight">
+        <h1 className="font-serif text-[32px] leading-tight font-normal text-[#1F1B16] tracking-tight">
           {currentTitle}
         </h1>
       </div>
 
       {/* Right: Search + Date Selector + Settings + Primary Action */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* On Routine, show date navigator */}
         {activeTab === 'routine' && (
-          <div className="flex items-center bg-[#F4F4F6] border border-[#ECECF0] rounded-xl p-1 text-xs">
+          <div className="flex items-center bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px] p-0.5 text-[13px]">
             <button
               onClick={() => {
                 sfx.playClick();
                 onShiftDate(-1);
               }}
-              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-white transition-colors cursor-pointer"
+              className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#FBF9F4] transition-colors cursor-pointer"
               title="Previous Day"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -190,7 +187,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                 sfx.playClick();
                 onResetToday();
               }}
-              className="px-2.5 py-1 font-semibold text-[#111113] hover:text-[#0891B2] transition-colors cursor-pointer"
+              className="px-2.5 py-0.5 font-medium text-[#1F1B16] hover:text-[#2D4A6B] transition-colors cursor-pointer tabular-nums"
               title="Jump to Today"
             >
               {selectedDate}
@@ -200,7 +197,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                 sfx.playClick();
                 onShiftDate(1);
               }}
-              className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-white transition-colors cursor-pointer"
+              className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#FBF9F4] transition-colors cursor-pointer"
               title="Next Day"
             >
               <ChevronRight className="w-4 h-4" />
@@ -209,9 +206,9 @@ export const TopBar: React.FC<TopBarProps> = ({
         )}
 
         {/* Global Omnisearch Bar */}
-        <div ref={searchContainerRef} className="relative w-64 md:w-80">
+        <div ref={searchContainerRef} className="relative w-60 md:w-72">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9A9AA5] pointer-events-none" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B645A] pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -220,66 +217,57 @@ export const TopBar: React.FC<TopBarProps> = ({
                 setIsSearchFocused(true);
               }}
               onFocus={() => setIsSearchFocused(true)}
-              placeholder="Search everything…"
-              className="ship-input ship-input-search py-2 pl-9 pr-8 text-xs w-full shadow-2xs"
+              placeholder="Search..."
+              className="w-full bg-[#FBF9F4] border border-[#E4DED2] focus:border-[#1F1B16] rounded-[6px] pl-9 pr-3 py-1.5 text-[13px] text-[#1F1B16] placeholder-[#6B645A]/70 outline-none transition-colors"
             />
             {searchQuery && (
               <button
-                type="button"
-                onClick={() => {
-                  onSearchChange('');
-                  setIsSearchFocused(false);
-                }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9A9AA5] hover:text-[#111113] p-0.5"
+                onClick={() => onSearchChange('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-[#6B645A] hover:text-[#1F1B16] cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Omnisearch Floating Results Dropdown */}
+          {/* Quick Search Dropdown Palette */}
           {isSearchFocused && hasSearchResults && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#ECECF0] rounded-2xl shadow-xl overflow-hidden z-50 max-h-[460px] overflow-y-auto animate-in fade-in zoom-in-95">
-              <div className="p-3 border-b border-[#ECECF0] bg-[#F4F4F6]/60 flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#111113]">Search Results</span>
-                <span className="text-[11px] text-[#9A9AA5]">{totalResults} matches</span>
+            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] shadow-none overflow-hidden z-50 divide-y divide-[#E4DED2] animate-in fade-in duration-100">
+              <div className="p-2.5 bg-[#F6F2EA] flex items-center justify-between text-[11px] text-[#6B645A]">
+                <span>Results ({totalResults})</span>
+                <span className="text-[10px]">Esc to close</span>
               </div>
 
               {totalResults === 0 ? (
-                <div className="p-6 text-center text-xs text-[#9A9AA5]">
-                  No items, habits, tasks, or milestones match "{searchQuery}"
+                <div className="p-4 text-center text-[13px] text-[#6B645A]">
+                  No matching items, tasks, or habits found.
                 </div>
               ) : (
-                <div className="p-2 space-y-3">
-                  {/* Items Section */}
+                <div className="max-h-80 overflow-y-auto divide-y divide-[#E4DED2]/60">
                   {matchingItems.length > 0 && (
-                    <div>
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#9A9AA5] flex items-center gap-1.5">
-                        <Package className="w-3 h-3 text-[#0891B2]" />
-                        <span>Inventory Items ({matchingItems.length})</span>
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Inventory
                       </div>
-                      <div className="space-y-0.5 mt-1">
+                      <div className="space-y-0.5">
                         {matchingItems.map(item => (
                           <div
                             key={item.id}
                             onClick={() => {
-                              sfx.playClick();
-                              onSelectTab('inventory');
                               onInspectItem(item);
                               setIsSearchFocused(false);
                             }}
-                            className="p-2 rounded-xl hover:bg-[#F4F4F6] transition-colors cursor-pointer flex items-center justify-between group"
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
                           >
-                            <div className="min-w-0 pr-2">
-                              <span className="text-xs font-semibold text-[#111113] group-hover:text-[#0891B2] truncate block">
-                                {item.name}
-                              </span>
-                              <span className="text-[11px] text-[#9A9AA5] truncate block">
-                                {item.subCategory} • {settings.currencySymbol || '$'}{item.goldValue.toLocaleString()}
-                              </span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Package className="w-3.5 h-3.5 text-[#6B645A] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[13px] font-medium text-[#1F1B16] truncate block">{item.name}</span>
+                                <span className="text-[11px] text-[#6B645A] truncate block">{item.subCategory} • {item.location || 'Vault'}</span>
+                              </div>
                             </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#ECECF0] text-[#6B6B76] capitalize shrink-0">
-                              {item.ownershipStatus || 'owned'}
+                            <span className="text-[11px] text-[#6B645A] shrink-0 tabular-nums">
+                              {settings.currencySymbol || '৳'}{item.goldValue.toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -287,69 +275,32 @@ export const TopBar: React.FC<TopBarProps> = ({
                     </div>
                   )}
 
-                  {/* Habits Section */}
-                  {matchingHabits.length > 0 && (
-                    <div>
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#9A9AA5] flex items-center gap-1.5">
-                        <CalendarCheck2 className="w-3 h-3 text-[#16A34A]" />
-                        <span>Routines & Habits ({matchingHabits.length})</span>
-                      </div>
-                      <div className="space-y-0.5 mt-1">
-                        {matchingHabits.map(habit => (
-                          <div
-                            key={habit.id}
-                            onClick={() => {
-                              sfx.playClick();
-                              onSelectTab('routine');
-                              setIsSearchFocused(false);
-                            }}
-                            className="p-2 rounded-xl hover:bg-[#F4F4F6] transition-colors cursor-pointer flex items-center justify-between group"
-                          >
-                            <div className="min-w-0 pr-2">
-                              <span className="text-xs font-semibold text-[#111113] group-hover:text-[#0891B2] truncate block">
-                                {habit.name}
-                              </span>
-                              <span className="text-[11px] text-[#9A9AA5] truncate block">
-                                {habit.description || 'Daily discipline'}
-                              </span>
-                            </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#ECECF0] text-[#6B6B76] shrink-0">
-                              {habit.attribute}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Tasks Section */}
                   {matchingTasks.length > 0 && (
-                    <div>
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#9A9AA5] flex items-center gap-1.5">
-                        <CheckSquare className="w-3 h-3 text-[#0891B2]" />
-                        <span>Tasks ({matchingTasks.length})</span>
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Tasks
                       </div>
-                      <div className="space-y-0.5 mt-1">
+                      <div className="space-y-0.5">
                         {matchingTasks.map(task => (
                           <div
                             key={task.id}
                             onClick={() => {
-                              sfx.playClick();
-                              onSelectTab('tasks');
                               if (onSelectTask) onSelectTask(task);
+                              onSelectTab('tasks');
                               setIsSearchFocused(false);
                             }}
-                            className="p-2 rounded-xl hover:bg-[#F4F4F6] transition-colors cursor-pointer flex items-center justify-between group"
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
                           >
-                            <div className="min-w-0 pr-2">
-                              <span className="text-xs font-semibold text-[#111113] group-hover:text-[#0891B2] truncate block">
-                                {task.title}
-                              </span>
-                              <span className="text-[11px] text-[#9A9AA5] truncate block">
-                                {task.pillar} • {task.difficulty}
-                              </span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <CheckSquare className="w-3.5 h-3.5 text-[#2D4A6B] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[13px] font-medium text-[#1F1B16] truncate block">{task.title}</span>
+                                <span className="text-[11px] text-[#6B645A] truncate block">{task.pillar} • {task.difficulty}</span>
+                              </div>
                             </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#ECECF0] text-[#6B6B76] capitalize shrink-0">
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded-[4px] border ${
+                              task.status === 'done' ? 'text-[#3F6B4F] border-[#3F6B4F]/30' : 'text-[#6B645A] border-[#E4DED2]'
+                            }`}>
                               {task.status}
                             </span>
                           </div>
@@ -358,35 +309,57 @@ export const TopBar: React.FC<TopBarProps> = ({
                     </div>
                   )}
 
-                  {/* Milestones Section */}
-                  {matchingSkills.length > 0 && (
-                    <div>
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#9A9AA5] flex items-center gap-1.5">
-                        <Target className="w-3 h-3 text-[#DC2626]" />
-                        <span>Milestones ({matchingSkills.length})</span>
+                  {matchingHabits.length > 0 && (
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Habits & Routines
                       </div>
-                      <div className="space-y-0.5 mt-1">
+                      <div className="space-y-0.5">
+                        {matchingHabits.map(habit => (
+                          <div
+                            key={habit.id}
+                            onClick={() => {
+                              onSelectTab('routine');
+                              setIsSearchFocused(false);
+                            }}
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <CalendarCheck2 className="w-3.5 h-3.5 text-[#7A5C1E] shrink-0" />
+                              <span className="text-[13px] font-medium text-[#1F1B16] truncate">{habit.name}</span>
+                            </div>
+                            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider">
+                              {habit.attribute}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {matchingSkills.length > 0 && (
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Milestones
+                      </div>
+                      <div className="space-y-0.5">
                         {matchingSkills.map(skill => (
                           <div
                             key={skill.id}
                             onClick={() => {
-                              sfx.playClick();
                               onSelectTab('character');
                               setIsSearchFocused(false);
                             }}
-                            className="p-2 rounded-xl hover:bg-[#F4F4F6] transition-colors cursor-pointer flex items-center justify-between group"
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
                           >
-                            <div className="min-w-0 pr-2">
-                              <span className="text-xs font-semibold text-[#111113] group-hover:text-[#0891B2] truncate block">
-                                {skill.title}
-                              </span>
-                              <span className="text-[11px] text-[#9A9AA5] truncate block">
-                                {skill.requirement}
-                              </span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Target className="w-3.5 h-3.5 text-[#9C3D2A] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[13px] font-medium text-[#1F1B16] truncate block">{skill.title}</span>
+                                <span className="text-[11px] text-[#6B645A] truncate block">{skill.attribute} • Tier {skill.tier}</span>
+                              </div>
                             </div>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                              skill.unlocked ? 'bg-[#E6F6EC] text-[#16A34A]' : 'bg-[#ECECF0] text-[#6B6B76]'
-                            } shrink-0`}>
+                            <span className="text-[11px] text-[#6B645A] shrink-0">
                               {skill.unlocked ? 'Unlocked' : 'In Progress'}
                             </span>
                           </div>
@@ -400,37 +373,37 @@ export const TopBar: React.FC<TopBarProps> = ({
           )}
         </div>
 
-        {/* App-wide Privacy Mode Toggle Button */}
+        {/* App-wide Privacy Mode Toggle Button (Icon-Only) */}
         {onTogglePrivacyMode && (
           <button
             onClick={() => {
               sfx.playClick();
               onTogglePrivacyMode();
             }}
-            className={`p-2 rounded-xl border text-xs transition-colors cursor-pointer shadow-xs ${
+            className={`p-2 rounded-[6px] border text-xs transition-colors cursor-pointer ${
               privacyMode
-                ? 'bg-[#E6F7F9] text-[#0891B2] border-[#0891B2]/40'
-                : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]'
+                ? 'bg-[#F6F2EA] text-[#1F1B16] border-[#1F1B16]'
+                : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#F6F2EA]'
             }`}
             title={privacyMode ? 'Privacy Mode Active (Click to Reveal)' : 'Enable Privacy Mode (Blur Sensitive Data)'}
           >
-            {privacyMode ? <EyeOff className="w-4 h-4 text-[#0891B2]" /> : <Eye className="w-4 h-4" />}
+            {privacyMode ? <EyeOff className="w-4 h-4 text-[#1F1B16]" /> : <Eye className="w-4 h-4" />}
           </button>
         )}
 
-        {/* Settings Button */}
+        {/* Settings Button (Icon-Only) */}
         <button
           onClick={() => {
             sfx.playClick();
             setIsSettingsOpen(true);
           }}
-          className="p-2 rounded-xl bg-white border border-[#ECECF0] text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors cursor-pointer shadow-xs"
+          className="p-2 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#F6F2EA] transition-colors cursor-pointer"
           title="Settings"
         >
           <Settings className="w-4 h-4" />
         </button>
 
-        {/* Primary Action Button */}
+        {/* Primary and Secondary Text Action Buttons (NO ICONS ON TEXT BUTTONS) */}
         {activeTab === 'inventory' && (
           <div className="flex items-center gap-2">
             {onOpenImportItems && (
@@ -439,11 +412,10 @@ export const TopBar: React.FC<TopBarProps> = ({
                   sfx.playClick();
                   onOpenImportItems();
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#111113] text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded-[6px] bg-transparent border border-[#E4DED2] hover:bg-[#F6F2EA] text-[#1F1B16] text-[13px] font-medium transition-colors cursor-pointer"
                 title="Import Items (JSON / CSV)"
               >
-                <Upload className="w-4 h-4 text-[#6B6B76]" />
-                <span>Import</span>
+                Import
               </button>
             )}
             <button
@@ -451,10 +423,9 @@ export const TopBar: React.FC<TopBarProps> = ({
                 sfx.playClick();
                 onOpenAddItem();
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-[6px] bg-[#1F1B16] hover:bg-[#342F29] text-[#FBF9F4] text-[13px] font-medium transition-colors cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              <span>Add Item</span>
+              Add Item
             </button>
           </div>
         )}
@@ -465,10 +436,9 @@ export const TopBar: React.FC<TopBarProps> = ({
               sfx.playClick();
               onOpenAddTask();
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded-[6px] bg-[#1F1B16] hover:bg-[#342F29] text-[#FBF9F4] text-[13px] font-medium transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>New Task</span>
+            New Task
           </button>
         )}
       </div>
@@ -477,20 +447,20 @@ export const TopBar: React.FC<TopBarProps> = ({
       {isSettingsOpen && (
         <div
           onClick={() => setIsSettingsOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-white border border-[#ECECF0] rounded-2xl shadow-xl p-6 cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] shadow-none p-6 cursor-default animate-in fade-in zoom-in-95"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0] mb-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
               <div>
-                <h3 className="text-base font-semibold text-[#111113]">Settings</h3>
-                <p className="text-xs text-[#6B6B76] mt-0.5">Customize currency and biometrics units</p>
+                <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Settings</h3>
+                <p className="text-[13px] text-[#6B645A] mt-0.5">Preferences and local data settings</p>
               </div>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] cursor-pointer"
+                className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#F6F2EA] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -498,19 +468,19 @@ export const TopBar: React.FC<TopBarProps> = ({
 
             <form onSubmit={handleSaveSettings} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                   Currency Symbol
                 </label>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-1.5 mb-2">
                   {['৳', '$', '€', '£', '¥', 'CHF'].map(sym => (
                     <button
                       key={sym}
                       type="button"
                       onClick={() => setTempCurrency(sym)}
-                      className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-[6px] border text-[13px] transition-colors cursor-pointer ${
                         tempCurrency === sym
-                          ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
-                          : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                          ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                          : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
                       }`}
                     >
                       {sym}
@@ -523,44 +493,48 @@ export const TopBar: React.FC<TopBarProps> = ({
                   value={tempCurrency}
                   onChange={(e) => setTempCurrency(e.target.value)}
                   placeholder="৳"
-                  className="ship-input w-full px-3 py-2 text-sm"
+                  className="w-full bg-[#FBF9F4] border border-[#E4DED2] focus:border-[#1F1B16] rounded-[6px] px-3 py-1.5 text-[13px] text-[#1F1B16] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                   Number Grouping
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setTempNumberGrouping('bangladeshi')}
-                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left ${
+                    className={`px-3 py-2 rounded-[6px] border text-left text-[13px] transition-colors cursor-pointer ${
                       tempNumberGrouping === 'bangladeshi'
-                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
-                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
                     }`}
                   >
-                    <div>Bangladeshi</div>
-                    <div className="text-[10px] font-normal opacity-80">1,00,000 (Lakh/Crore)</div>
+                    <div className="font-medium">Bangladeshi</div>
+                    <div className={`text-[11px] ${tempNumberGrouping === 'bangladeshi' ? 'text-[#E4DED2]' : 'text-[#6B645A]'}`}>
+                      1,00,000 (Lakh / Crore)
+                    </div>
                   </button>
                   <button
                     type="button"
                     onClick={() => setTempNumberGrouping('international')}
-                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left ${
+                    className={`px-3 py-2 rounded-[6px] border text-left text-[13px] transition-colors cursor-pointer ${
                       tempNumberGrouping === 'international'
-                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
-                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
                     }`}
                   >
-                    <div>International</div>
-                    <div className="text-[10px] font-normal opacity-80">100,000 (Standard)</div>
+                    <div className="font-medium">International</div>
+                    <div className={`text-[11px] ${tempNumberGrouping === 'international' ? 'text-[#E4DED2]' : 'text-[#6B645A]'}`}>
+                      100,000 (Standard)
+                    </div>
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                   Target Body Weight (kg, optional)
                 </label>
                 <input
@@ -571,22 +545,22 @@ export const TopBar: React.FC<TopBarProps> = ({
                   value={tempTargetWeight}
                   onChange={(e) => setTempTargetWeight(e.target.value)}
                   placeholder="e.g. 73.0"
-                  className="ship-input w-full px-3 py-2 text-sm"
+                  className="w-full bg-[#FBF9F4] border border-[#E4DED2] focus:border-[#1F1B16] rounded-[6px] px-3 py-1.5 text-[13px] text-[#1F1B16] outline-none tabular-nums"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                   Measurements Unit
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setTempUnitSystem('metric')}
-                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-[6px] border text-[13px] font-medium transition-colors cursor-pointer ${
                       tempUnitSystem === 'metric'
-                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
-                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
                     }`}
                   >
                     Metric (kg / cm)
@@ -594,10 +568,10 @@ export const TopBar: React.FC<TopBarProps> = ({
                   <button
                     type="button"
                     onClick={() => setTempUnitSystem('imperial')}
-                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-[6px] border text-[13px] font-medium transition-colors cursor-pointer ${
                       tempUnitSystem === 'imperial'
-                        ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2]'
-                        : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:border-[#BEBEC6]'
+                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
                     }`}
                   >
                     Imperial (lbs / in)
@@ -606,8 +580,8 @@ export const TopBar: React.FC<TopBarProps> = ({
               </div>
 
               {onOpenBackup && (
-                <div className="pt-2 border-t border-[#ECECF0]">
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                <div className="pt-2 border-t border-[#E4DED2]">
+                  <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                     Data & Storage
                   </label>
                   <button
@@ -616,31 +590,30 @@ export const TopBar: React.FC<TopBarProps> = ({
                       setIsSettingsOpen(false);
                       onOpenBackup();
                     }}
-                    className="w-full flex items-center justify-between p-3 rounded-xl border border-[#ECECF0] hover:bg-[#F4F4F6] text-xs font-medium text-[#111113] transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between p-2.5 rounded-[6px] border border-[#E4DED2] hover:bg-[#F6F2EA] text-[13px] font-medium text-[#1F1B16] transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <Archive className="w-4 h-4 text-[#0891B2]" />
+                      <Archive className="w-4 h-4 text-[#6B645A]" />
                       <span>Backups & Folder Auto-Save</span>
                     </div>
-                    <span className="text-[#6B6B76]">Manage →</span>
+                    <span className="text-[#6B645A] text-xs">Manage →</span>
                   </button>
                 </div>
               )}
 
-              <div className="pt-4 border-t border-[#ECECF0] flex justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsSettingsOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-[6px] text-[13px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#F6F2EA] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-1.5 rounded-[6px] text-[13px] font-medium bg-[#1F1B16] hover:bg-[#342F29] text-[#FBF9F4] cursor-pointer transition-colors"
                 >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Save Settings</span>
+                  Save Settings
                 </button>
               </div>
             </form>

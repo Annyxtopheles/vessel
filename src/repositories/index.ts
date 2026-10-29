@@ -223,6 +223,16 @@ function normalizeRecord<T extends { id?: string }>(item: T, defaultId?: string)
  * Runs once smoothly on first boot.
  */
 export async function initDatabase(): Promise<void> {
+  // Clean up any legacy unsplash stock photos from existing records to satisfy the editorial rule
+  try {
+    const unsplashItems = await db.items.filter((i: any) => !!(i.imageUrl && typeof i.imageUrl === 'string' && i.imageUrl.includes('unsplash.com'))).toArray();
+    for (const item of unsplashItems) {
+      await db.items.update(item.id, { imageUrl: undefined });
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not purge unsplash photos:', err);
+  }
+
   const itemsCount = await db.items.count();
   if (itemsCount > 0) {
     // Already populated

@@ -8,11 +8,6 @@ import type {
 } from '../types';
 import type { NavTab } from './Sidebar';
 import { 
-  Package, 
-  CalendarCheck2, 
-  CheckSquare, 
-  Target, 
-  ChevronRight, 
   AlertCircle
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
@@ -80,19 +75,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             sfx.playClick();
             onNavigate('inventory');
           }}
-          className="ship-card p-4 sm:p-4.5 flex flex-col justify-between cursor-pointer hover:border-[#BEBEC6] transition-all"
+          className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between cursor-pointer hover:border-[#1F1B16] transition-colors"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-[#6B6B76]">Items</span>
-            <div className="ship-icon-tile">
-              <Package className="w-4 h-4 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
+          <span className="text-[13px] font-medium text-[#6B645A]">Items</span>
+          <div className="mt-2">
+            <div className="editorial-stat-num">
               {ownedCount}
             </div>
-            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
+            <div className="text-[12px] text-[#6B645A] mt-1 tabular-nums truncate">
               {formatCurrency(vaultValuation, currencySymbol, numberGrouping)} Total value
             </div>
           </div>
@@ -104,19 +94,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             sfx.playClick();
             onNavigate('routine');
           }}
-          className="ship-card p-4 sm:p-4.5 flex flex-col justify-between cursor-pointer hover:border-[#BEBEC6] transition-all"
+          className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between cursor-pointer hover:border-[#1F1B16] transition-colors"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-[#6B6B76]">Due today</span>
-            <div className="ship-icon-tile">
-              <CalendarCheck2 className="w-4 h-4 text-[#16A34A]" />
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
+          <span className="text-[13px] font-medium text-[#6B645A]">Due today</span>
+          <div className="mt-2">
+            <div className="editorial-stat-num">
               {completedNonNegotiables} / {totalNonNegotiables}
             </div>
-            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
+            <div className="text-[12px] text-[#6B645A] mt-1 truncate">
               Non-negotiables completed
             </div>
           </div>
@@ -128,19 +113,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             sfx.playClick();
             onNavigate('tasks');
           }}
-          className="ship-card p-4 sm:p-4.5 flex flex-col justify-between cursor-pointer hover:border-[#BEBEC6] transition-all"
+          className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between cursor-pointer hover:border-[#1F1B16] transition-colors"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-[#6B6B76]">Tasks</span>
-            <div className="ship-icon-tile">
-              <CheckSquare className="w-4 h-4 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
+          <span className="text-[13px] font-medium text-[#6B645A]">Tasks</span>
+          <div className="mt-2">
+            <div className="editorial-stat-num">
               {openTasks.length}
             </div>
-            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
+            <div className="text-[12px] text-[#6B645A] mt-1 truncate tabular-nums">
               {tasksDueSoon.length} with upcoming deadlines
             </div>
           </div>
@@ -152,19 +132,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             sfx.playClick();
             onNavigate('character');
           }}
-          className="ship-card p-4 sm:p-4.5 flex flex-col justify-between cursor-pointer hover:border-[#BEBEC6] transition-all"
+          className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between cursor-pointer hover:border-[#1F1B16] transition-colors"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-[#6B6B76]">Character</span>
-            <div className="ship-icon-tile">
-              <Target className="w-4 h-4 text-[#0891B2]" />
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="text-[26px] font-bold text-[#111113] leading-none tracking-tight">
+          <span className="text-[13px] font-medium text-[#6B645A]">Character</span>
+          <div className="mt-2">
+            <div className="editorial-stat-num">
               Level {overall.level}
             </div>
-            <div className="text-[12px] text-[#6B6B76] mt-1.5 truncate">
+            <div className="text-[12px] text-[#6B645A] mt-1 truncate tabular-nums">
               {totalXp.toLocaleString()} Total XP
             </div>
           </div>
@@ -176,67 +151,60 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Routine Snapshot */}
-        <div className="ship-card p-6 flex flex-col justify-between">
+        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0]">
-              <div className="flex items-center gap-2.5">
-                <CalendarCheck2 className="w-4 h-4 text-[#16A34A]" />
-                <h3 className="text-[15px] font-semibold text-[#111113]">Today's Routine</h3>
-              </div>
-              <span className="ship-pill-accent text-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+              <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Today's Routine</h3>
+              <span className="text-[12px] tabular-nums text-[#6B645A] px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
                 {completedNonNegotiables} of {totalNonNegotiables} done
               </span>
             </div>
 
             <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F4F4F6] text-xs">
-                <span className="font-medium text-[#111113]">Daily Prayers (Salah)</span>
-                <span className="font-semibold text-[#0891B2]">{prayersDone} / 5</span>
+              <div className="flex items-center justify-between p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] text-[13px]">
+                <span className="text-[#1F1B16]">Daily Prayers (Salah)</span>
+                <span className="font-medium tabular-nums text-[#1F1B16]">{prayersDone} / 5</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F4F4F6] text-xs">
-                <span className="font-medium text-[#111113]">Habits & Disciplines</span>
-                <span className="font-semibold text-[#16A34A]">{habitsDone} / {activeHabits.length}</span>
+              <div className="flex items-center justify-between p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] text-[13px]">
+                <span className="text-[#1F1B16]">Habits & Disciplines</span>
+                <span className="font-medium tabular-nums text-[#1F1B16]">{habitsDone} / {activeHabits.length}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F4F4F6] text-xs">
-                <span className="font-medium text-[#111113]">Movement & Conditioning</span>
-                <span className={`font-semibold ${todayRecord?.workoutCompleted ? 'text-[#16A34A]' : 'text-[#9A9AA5]'}`}>
+              <div className="flex items-center justify-between p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] text-[13px]">
+                <span className="text-[#1F1B16]">Movement & Conditioning</span>
+                <span className={`font-medium ${todayRecord?.workoutCompleted ? 'text-[#3F6B4F]' : 'text-[#6B645A]'}`}>
                   {todayRecord?.workoutCompleted ? 'Completed' : 'Pending'}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-[#ECECF0]">
+          <div className="pt-4 mt-4 border-t border-[#E4DED2]">
             <button
               type="button"
               onClick={() => {
                 sfx.playClick();
                 onNavigate('routine');
               }}
-              className="w-full py-2 rounded-xl text-xs font-semibold text-[#0891B2] hover:bg-[#E6F7F9] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              className="editorial-btn-secondary w-full"
             >
-              <span>Open Routine</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              Open Routine
             </button>
           </div>
         </div>
 
         {/* Tasks Due Soon */}
-        <div className="ship-card p-6 flex flex-col justify-between">
+        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0]">
-              <div className="flex items-center gap-2.5">
-                <CheckSquare className="w-4 h-4 text-[#0891B2]" />
-                <h3 className="text-[15px] font-semibold text-[#111113]">Due soon</h3>
-              </div>
-              <span className="text-xs text-[#9A9AA5]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+              <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Due soon</h3>
+              <span className="text-[12px] tabular-nums text-[#6B645A]">
                 {tasksDueSoon.length} pending
               </span>
             </div>
 
             <div className="mt-4 space-y-2">
               {tasksDueSoon.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[#9A9AA5]">
+                <div className="p-6 text-center text-[13px] text-[#6B645A]">
                   No upcoming task deadlines scheduled.
                 </div>
               ) : (
@@ -249,20 +217,20 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         sfx.playClick();
                         onNavigate('tasks');
                       }}
-                      className="p-3 rounded-xl border border-[#ECECF0] hover:bg-[#F4F4F6] transition-all cursor-pointer flex items-center justify-between gap-3"
+                      className="p-3 rounded-[6px] border border-[#E4DED2] hover:border-[#1F1B16] bg-[#FBF9F4] transition-colors cursor-pointer flex items-center justify-between gap-3"
                     >
                       <div className="min-w-0">
-                        <span className="text-xs font-semibold text-[#111113] truncate block">
+                        <span className="text-[14px] font-medium text-[#1F1B16] truncate block">
                           {task.title}
                         </span>
-                        <span className={`text-[11px] flex items-center gap-1 mt-0.5 ${
-                          isOverdue ? 'text-[#DC2626] font-semibold' : 'text-[#6B6B76]'
+                        <span className={`text-[12px] tabular-nums flex items-center gap-1 mt-0.5 ${
+                          isOverdue ? 'text-[#9C3D2A] font-medium' : 'text-[#6B645A]'
                         }`}>
-                          {isOverdue && <AlertCircle className="w-3 h-3 text-[#DC2626]" />}
+                          {isOverdue && <AlertCircle className="w-3 h-3 text-[#9C3D2A]" />}
                           <span>{isOverdue ? `Overdue (${task.dueDate})` : `Due: ${task.dueDate}`}</span>
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F4F4F6] text-[#6B6B76] shrink-0">
+                      <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] shrink-0">
                         {task.pillar}
                       </span>
                     </div>
@@ -272,17 +240,16 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-[#ECECF0]">
+          <div className="pt-4 mt-4 border-t border-[#E4DED2]">
             <button
               type="button"
               onClick={() => {
                 sfx.playClick();
                 onNavigate('tasks');
               }}
-              className="w-full py-2 rounded-xl text-xs font-semibold text-[#0891B2] hover:bg-[#E6F7F9] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              className="editorial-btn-secondary w-full"
             >
-              <span>Open Tasks</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              Open Tasks
             </button>
           </div>
         </div>

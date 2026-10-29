@@ -10,30 +10,16 @@ import type {
 } from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
 import {
-  Plus,
-  LayoutGrid,
-  List as ListIcon,
-  AlertCircle,
   CheckCircle2,
-  Clock,
-  Upload,
-  Link as LinkIcon,
-  FileText,
   Trash2,
   ExternalLink,
-  Package,
   X,
   ShieldAlert,
-  Flame,
-  Cpu,
-  Sun,
-  Users,
-  Camera,
-  Compass,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getQuestXp } from '../data/xpConfig';
 import { CustomSelect } from './CustomSelect';
+import { getTodayLocalDateStr } from '../utils/date';
 
 const QUEST_STATUS_FILTER_OPTIONS = [
   { id: 'ALL', label: 'All Statuses' },
@@ -56,10 +42,10 @@ const QUEST_STATUS_OPTIONS = [
 ];
 
 const QUEST_PILLAR_OPTIONS = [
-  { id: 'STR', label: 'STR (Physical Body)' },
-  { id: 'INT', label: 'INT (Professional Craft)' },
-  { id: 'WIS', label: 'WIS (Spiritual Soul)' },
-  { id: 'CHA', label: 'CHA (Community Social)' },
+  { id: 'STR', label: 'STR (Strength)' },
+  { id: 'INT', label: 'INT (Intellect)' },
+  { id: 'WIS', label: 'WIS (Wisdom)' },
+  { id: 'CHA', label: 'CHA (Charisma)' },
 ];
 
 const QUEST_DIFFICULTY_OPTIONS = [
@@ -67,7 +53,6 @@ const QUEST_DIFFICULTY_OPTIONS = [
   { id: 'Medium', label: 'Medium (+100 XP)' },
   { id: 'Hard', label: 'Hard (+200 XP)' },
 ];
-import { getTodayLocalDateStr } from '../utils/date';
 
 interface QuestsViewProps {
   quests: Quest[];
@@ -84,23 +69,16 @@ interface QuestsViewProps {
   onCloseAddModal?: () => void;
 }
 
-const PILLAR_ICONS: Record<AttributeType, React.ComponentType<{ className?: string }>> = {
-  STR: Flame,
-  INT: Cpu,
-  WIS: Sun,
-  CHA: Users,
-};
-
 const PILLAR_THEMES: Record<AttributeType, { text: string; bg: string; border: string }> = {
-  STR: { text: 'text-[#DC2626]', bg: 'bg-[#FDECEC]', border: 'border-[#FDECEC]' },
-  INT: { text: 'text-[#2563EB]', bg: 'bg-[#EBF2FE]', border: 'border-[#EBF2FE]' },
-  WIS: { text: 'text-[#0891B2]', bg: 'bg-[#E6F7F9]', border: 'border-[#BCE7EB]' },
-  CHA: { text: 'text-[#16A34A]', bg: 'bg-[#E6F6EC]', border: 'border-[#E6F6EC]' },
+  STR: { text: 'text-[#9C3D2A]', bg: 'bg-[#F6F2EA]', border: 'border-[#9C3D2A]/30' },
+  INT: { text: 'text-[#2D4A6B]', bg: 'bg-[#F6F2EA]', border: 'border-[#2D4A6B]/30' },
+  WIS: { text: 'text-[#7A5C1E]', bg: 'bg-[#F6F2EA]', border: 'border-[#7A5C1E]/30' },
+  CHA: { text: 'text-[#3F6B4F]', bg: 'bg-[#F6F2EA]', border: 'border-[#3F6B4F]/30' },
 };
 
 const STATUS_COLUMNS: { id: QuestStatus; title: string; desc: string }[] = [
-  { id: 'todo', title: 'To Do', desc: 'Tactical objectives waiting to be tackled' },
-  { id: 'doing', title: 'In Progress', desc: 'Active quests currently in motion' },
+  { id: 'todo', title: 'To Do', desc: 'Objectives waiting to be tackled' },
+  { id: 'doing', title: 'In Progress', desc: 'Active tasks in motion' },
   { id: 'done', title: 'Completed', desc: 'Finished objectives with earned XP' },
 ];
 
@@ -301,71 +279,69 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Header Toolbar with Filters & Board/List View Toggle */}
-      <div className="ship-card p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#ECECF0]">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-[15px] font-semibold text-[#111113] tracking-tight">
-                Tasks
-              </h2>
-              <span className="ship-pill-accent font-semibold">
-                {activeQuests.filter((q) => q.status !== 'done').length} open
-              </span>
-            </div>
+      <div className="pb-4 border-b border-[#E4DED2] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+              Tasks
+            </h2>
+            <span className="text-[12px] tabular-nums text-[#6B645A] px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+              {activeQuests.filter((q) => q.status !== 'done').length} open
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {/* View Toggle */}
-            <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl self-start">
+            <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2]">
               <button
+                type="button"
                 onClick={() => {
                   sfx.playClick();
                   setViewMode('board');
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-[4px] text-[13px] font-medium transition-colors cursor-pointer ${
                   viewMode === 'board'
-                    ? 'bg-white text-[#111113] shadow-xs'
-                    : 'text-[#6B6B76] hover:text-[#111113]'
+                    ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
+                    : 'text-[#6B645A] hover:text-[#1F1B16]'
                 }`}
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-[#0891B2]" />
-                <span>Board</span>
+                Board
               </button>
               <button
+                type="button"
                 onClick={() => {
                   sfx.playClick();
                   setViewMode('list');
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-[4px] text-[13px] font-medium transition-colors cursor-pointer ${
                   viewMode === 'list'
-                    ? 'bg-white text-[#111113] shadow-xs'
-                    : 'text-[#6B6B76] hover:text-[#111113]'
+                    ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
+                    : 'text-[#6B645A] hover:text-[#1F1B16]'
                 }`}
               >
-                <ListIcon className="w-3.5 h-3.5 text-[#0891B2]" />
-                <span>List</span>
+                List
               </button>
             </div>
 
             {/* New Task Button */}
             <button
+              type="button"
               onClick={() => {
                 sfx.playClick();
                 setInternalAddOpen(true);
               }}
-              className="px-4 py-2 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="editorial-btn-primary"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>New Task</span>
+              New Task
             </button>
           </div>
         </div>
 
         {/* Filter Controls Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
           {/* Pillar Filters */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[#9A9AA5] font-medium mr-1">Pillar:</span>
+            <span className="text-[#6B645A] text-xs font-medium mr-1">Pillar:</span>
             {[
               { id: 'ALL', label: 'All' },
               { id: 'STR', label: 'Strength' },
@@ -375,14 +351,15 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
             ].map(({ id, label }) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => {
                   sfx.playClick();
                   setPillarFilter(id as AttributeType | 'ALL');
                 }}
-                className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-[6px] border text-xs transition-colors cursor-pointer ${
                   pillarFilter === id
-                    ? 'bg-[#E6F7F9] border-[#0891B2] text-[#0891B2] font-semibold'
-                    : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:text-[#111113]'
+                    ? 'bg-[#FBF9F4] border-[#1F1B16] text-[#1F1B16] font-medium'
+                    : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:text-[#1F1B16]'
                 }`}
               >
                 {label}
@@ -402,7 +379,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
             <CustomSelect
               value={dueFilter}
               options={QUEST_DUE_FILTER_OPTIONS}
-              onChange={(val) => setDueFilter(val as any)}
+              onChange={(val) => setDueFilter(val as 'ALL' | 'OVERDUE' | 'THIS_WEEK' | 'NO_DATE')}
               buttonClassName="py-1 px-3 text-xs"
             />
           </div>
@@ -411,17 +388,17 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
       {/* Inline Evidence Required Warning Banner */}
       {evidenceWarningId && (
-        <div className="p-4 rounded-2xl bg-[#FDECEC] border border-[#DC2626]/20 flex items-center justify-between text-[#DC2626] animate-in fade-in">
+        <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#9C3D2A]/30 flex items-center justify-between text-[#9C3D2A]">
           <div className="flex items-center gap-2.5">
             <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-            <div className="text-xs font-medium">
-              <strong className="font-semibold block">Evidence Required Before Completion</strong>
-              This quest mandates verified evidence. Please attach a photo, link, or note proof before moving it to Done.
+            <div className="text-xs">
+              <strong className="font-medium block">Evidence Required Before Completion</strong>
+              This task mandates verified proof. Please attach a note, link, or photo before moving it to Done.
             </div>
           </div>
           <button
             onClick={() => setEvidenceWarningId(null)}
-            className="p-1 rounded-lg hover:bg-black/5"
+            className="p-1 rounded-[4px] hover:bg-black/5"
           >
             <X className="w-4 h-4" />
           </button>
@@ -439,15 +416,15 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 key={col.id}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDropOnColumn(e, col.id)}
-                className="flex flex-col bg-[#F4F4F6] rounded-2xl border border-[#ECECF0] p-4 min-h-[460px] transition-colors"
+                className="flex flex-col bg-[#F6F2EA] rounded-[6px] border border-[#E4DED2] p-4 min-h-[460px] transition-colors"
               >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#ECECF0]">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#E4DED2]">
                   <div>
-                    <h3 className="text-sm font-semibold text-[#111113]">{col.title}</h3>
-                    <span className="text-[11px] text-[#9A9AA5]">{col.desc}</span>
+                    <h3 className="font-serif text-[16px] font-normal text-[#1F1B16]">{col.title}</h3>
+                    <span className="text-[11px] text-[#6B645A]">{col.desc}</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-white border border-[#ECECF0] text-[#6B6B76]">
+                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] tabular-nums font-medium bg-[#FBF9F4] border border-[#E4DED2] text-[#6B645A]">
                     {columnQuests.length}
                   </span>
                 </div>
@@ -455,14 +432,12 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 {/* Quests Container */}
                 <div className="flex-1 space-y-3">
                   {columnQuests.length === 0 ? (
-                    <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-[#BEBEC6] rounded-xl text-[#9A9AA5]">
-                      <span className="text-xs font-medium">No quests in {col.title}</span>
-                      <span className="text-[11px] mt-0.5">Drag tasks here or click "New Quest"</span>
+                    <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-[#E4DED2] rounded-[6px] text-[#6B645A]">
+                      <span className="text-xs">No tasks in {col.title}</span>
                     </div>
                   ) : (
                     columnQuests.map((quest) => {
                       const theme = PILLAR_THEMES[quest.pillar];
-                      const PillarIcon = PILLAR_ICONS[quest.pillar];
                       const xpValue = getQuestXp(quest.difficulty);
                       const isOverdue = isQuestOverdue(quest);
                       const questEvidenceCount = evidence.filter((e) => e.questId === quest.id).length;
@@ -477,7 +452,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                             sfx.playClick();
                             setSelectedQuest(quest);
                           }}
-                          className={`ship-card p-4 hover:border-[#0891B2]/50 hover:shadow-sm cursor-grab active:cursor-grabbing transition-all ${
+                          className={`bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-3.5 hover:border-[#1F1B16] cursor-grab active:cursor-grabbing transition-colors ${
                             quest.status === 'done' ? 'opacity-85' : ''
                           }`}
                         >
@@ -486,53 +461,47 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {/* Pillar Pill */}
                               <span
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ${theme.bg} ${theme.text}`}
+                                className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-medium border ${theme.bg} ${theme.border} ${theme.text}`}
                               >
-                                <PillarIcon className="w-3 h-3" />
-                                <span>{ATTRIBUTE_NAMES[quest.pillar]}</span>
+                                {ATTRIBUTE_NAMES[quest.pillar]}
                               </span>
 
                               {/* Difficulty Pill */}
-                              <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#F4F4F6] text-[#6B6B76]">
+                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] tabular-nums font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
                                 {quest.difficulty} (+{xpValue} XP)
                               </span>
                             </div>
 
                             {/* Completed Status Checkmark */}
                             {quest.status === 'done' && (
-                              <CheckCircle2 className="w-4 h-4 text-[#16A34A] flex-shrink-0" />
+                              <CheckCircle2 className="w-4 h-4 text-[#3F6B4F] flex-shrink-0" />
                             )}
                           </div>
 
                           {/* Title & Description */}
-                          <h4 className="text-sm font-semibold text-[#111113] leading-snug mb-1">
+                          <h4 className="text-[14px] font-medium text-[#1F1B16] leading-snug mb-1">
                             {quest.title}
                           </h4>
                           {quest.description && (
-                            <p className="text-xs text-[#6B6B76] line-clamp-2 leading-relaxed mb-3">
+                            <p className="text-[12px] text-[#6B645A] line-clamp-2 leading-relaxed mb-3">
                               {quest.description}
                             </p>
                           )}
 
                           {/* Footer Meta Row: Due date, Evidence, Linked Item */}
-                          <div className="pt-2 border-t border-[#ECECF0] flex items-center justify-between gap-2 text-[11px]">
+                          <div className="pt-2 border-t border-[#E4DED2] flex items-center justify-between gap-2 text-[11px] tabular-nums">
                             {/* Due Date */}
                             <div className="flex items-center gap-1">
                               {quest.dueDate ? (
                                 <span
-                                  className={`flex items-center gap-1 font-medium ${
-                                    isOverdue ? 'text-[#DC2626] font-semibold' : 'text-[#6B6B76]'
+                                  className={`font-medium ${
+                                    isOverdue ? 'text-[#9C3D2A]' : 'text-[#6B645A]'
                                   }`}
                                 >
-                                  {isOverdue ? (
-                                    <AlertCircle className="w-3.5 h-3.5 text-[#DC2626]" />
-                                  ) : (
-                                    <Clock className="w-3.5 h-3.5 text-[#9A9AA5]" />
-                                  )}
-                                  <span>{quest.dueDate}</span>
+                                  {isOverdue ? `Overdue: ${quest.dueDate}` : `Due: ${quest.dueDate}`}
                                 </span>
                               ) : (
-                                <span className="text-[#9A9AA5]">No date</span>
+                                <span className="text-[#6B645A]/60">No date</span>
                               )}
                             </div>
 
@@ -540,25 +509,22 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                             <div className="flex items-center gap-2">
                               {quest.evidenceRequired && (
                                 <span
-                                  className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold ${
+                                  className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium border ${
                                     questEvidenceCount > 0
-                                      ? 'bg-[#E6F7F9] text-[#0891B2]'
-                                      : 'bg-[#FDECEC] text-[#DC2626]'
+                                      ? 'bg-[#F6F2EA] text-[#3F6B4F] border-[#3F6B4F]/30'
+                                      : 'bg-[#F6F2EA] text-[#9C3D2A] border-[#9C3D2A]/30'
                                   }`}
-                                  title={`${questEvidenceCount} evidence proofs attached`}
                                 >
-                                  <Camera className="w-3 h-3" />
-                                  <span>{questEvidenceCount}</span>
+                                  Evidence: {questEvidenceCount}
                                 </span>
                               )}
 
                               {linkedItem && (
                                 <span
-                                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-[#F4F4F6] text-[#6B6B76]"
+                                  className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] truncate max-w-[80px]"
                                   title={`Linked to: ${linkedItem.name}`}
                                 >
-                                  <Package className="w-3 h-3 text-[#0891B2]" />
-                                  <span className="truncate max-w-[80px]">{linkedItem.name}</span>
+                                  {linkedItem.name}
                                 </span>
                               )}
                             </div>
@@ -576,18 +542,16 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
       {/* 3. LIST VIEW */}
       {viewMode === 'list' && (
-        <div className="ship-card overflow-hidden">
+        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden">
           {filteredQuests.length === 0 ? (
-            <div className="p-12 text-center text-[#9A9AA5] space-y-2">
-              <AlertCircle className="w-8 h-8 mx-auto text-[#BEBEC6]" />
-              <div className="text-sm font-semibold text-[#111113]">No matching quests found</div>
-              <p className="text-xs text-[#6B6B76]">Try adjusting your search or active filters.</p>
+            <div className="p-12 text-center text-[#6B645A] space-y-1">
+              <div className="font-serif text-[18px] text-[#1F1B16]">No matching tasks found</div>
+              <p className="text-[13px] text-[#6B645A]">Try adjusting your search or active filters.</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#ECECF0]">
+            <div className="divide-y divide-[#E4DED2]">
               {filteredQuests.map((quest) => {
                 const theme = PILLAR_THEMES[quest.pillar];
-                const PillarIcon = PILLAR_ICONS[quest.pillar];
                 const isOverdue = isQuestOverdue(quest);
                 const questEvidenceCount = evidence.filter((e) => e.questId === quest.id).length;
                 const linkedItem = items.find((i) => i.id === quest.linkedItemId);
@@ -595,8 +559,8 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 return (
                   <div
                     key={quest.id}
-                    className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F4F4F6]/50 transition-colors ${
-                      quest.status === 'done' ? 'bg-[#F4F4F6]/20' : ''
+                    className={`p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F6F2EA]/60 transition-colors ${
+                      quest.status === 'done' ? 'bg-[#F6F2EA]/30' : ''
                     }`}
                   >
                     {/* Left: Checkbox + Title + Description */}
@@ -604,10 +568,10 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleDone(quest)}
-                        className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer ${
+                        className={`mt-0.5 w-5 h-5 rounded-[4px] border flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer ${
                           quest.status === 'done'
-                            ? 'bg-[#16A34A] border-[#16A34A] text-white'
-                            : 'bg-white border-[#BEBEC6] hover:border-[#0891B2]'
+                            ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                            : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent hover:border-[#1F1B16]'
                         }`}
                       >
                         {quest.status === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -620,19 +584,17 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                         }}
                         className="cursor-pointer min-w-0"
                       >
-                        <div className="flex items-center gap-2">
-                          <h4
-                            className={`text-sm font-semibold truncate ${
-                              quest.status === 'done'
-                                ? 'line-through text-[#6B6B76]'
-                                : 'text-[#111113]'
-                            }`}
-                          >
-                            {quest.title}
-                          </h4>
-                        </div>
+                        <h4
+                          className={`text-[14px] font-medium truncate ${
+                            quest.status === 'done'
+                              ? 'line-through text-[#6B645A]'
+                              : 'text-[#1F1B16]'
+                          }`}
+                        >
+                          {quest.title}
+                        </h4>
                         {quest.description && (
-                          <p className="text-xs text-[#6B6B76] truncate max-w-xl mt-0.5">
+                          <p className="text-[12px] text-[#6B645A] truncate max-w-xl mt-0.5">
                             {quest.description}
                           </p>
                         )}
@@ -640,26 +602,25 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                     </div>
 
                     {/* Right: Badges + Due Date + Detail Button */}
-                    <div className="flex items-center gap-2.5 flex-shrink-0 self-end sm:self-center">
+                    <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-center">
                       {/* Pillar */}
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold ${theme.bg} ${theme.text}`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-medium border ${theme.bg} ${theme.border} ${theme.text}`}
                       >
-                        <PillarIcon className="w-3.5 h-3.5" />
-                        <span>{quest.pillar}</span>
+                        {quest.pillar}
                       </span>
 
                       {/* Difficulty */}
-                      <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#F4F4F6] text-[#6B6B76]">
+                      <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
                         {quest.difficulty}
                       </span>
 
                       {/* Due Date */}
                       <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-md ${
+                        className={`text-[12px] tabular-nums font-medium px-2 py-0.5 rounded-[4px] ${
                           isOverdue
-                            ? 'bg-[#FDECEC] text-[#DC2626] font-semibold'
-                            : 'text-[#6B6B76]'
+                            ? 'bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30'
+                            : 'text-[#6B645A]'
                         }`}
                       >
                         {quest.dueDate || 'No date'}
@@ -668,35 +629,34 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       {/* Evidence Pill */}
                       {quest.evidenceRequired && (
                         <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${
+                          className={`text-[11px] font-medium px-2 py-0.5 rounded-[4px] border ${
                             questEvidenceCount > 0
-                              ? 'bg-[#E6F7F9] text-[#0891B2]'
-                              : 'bg-[#FDECEC] text-[#DC2626]'
+                              ? 'bg-[#F6F2EA] text-[#3F6B4F] border-[#3F6B4F]/30'
+                              : 'bg-[#F6F2EA] text-[#9C3D2A] border-[#9C3D2A]/30'
                           }`}
                         >
-                          <Camera className="w-3 h-3" />
-                          <span>{questEvidenceCount}</span>
+                          Evidence: {questEvidenceCount}
                         </span>
                       )}
 
                       {/* Linked Item Pill */}
                       {linkedItem && (
                         <span
-                          className="px-2 py-0.5 rounded-md text-xs font-semibold bg-[#F4F4F6] text-[#0891B2] flex items-center gap-1"
+                          className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] truncate max-w-[90px]"
                           title={`Linked to: ${linkedItem.name}`}
                         >
-                          <Package className="w-3 h-3" />
-                          <span className="truncate max-w-[90px]">{linkedItem.name}</span>
+                          {linkedItem.name}
                         </span>
                       )}
 
                       {/* Inspect / Edit */}
                       <button
+                        type="button"
                         onClick={() => {
                           sfx.playClick();
                           setSelectedQuest(quest);
                         }}
-                        className="px-3 py-1 rounded-lg text-xs font-semibold bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#111113] cursor-pointer"
+                        className="editorial-btn-secondary py-1 px-2.5 text-[12px]"
                       >
                         Details
                       </button>
@@ -717,25 +677,21 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl bg-white border border-[#ECECF0] rounded-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-2xl bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden max-h-[90vh] flex flex-col cursor-default"
           >
             {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECECF0] bg-white">
-              <div className="flex items-center gap-2.5">
-                <div className="ship-icon-tile">
-                  <Compass className="w-5 h-5 text-[#0891B2]" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-[#111113]">Quest Details</h3>
-                  <p className="text-xs text-[#6B6B76]">
-                    Created on {selectedQuest.createdAt} • Worth +{getQuestXp(selectedQuest.difficulty)} {ATTRIBUTE_NAMES[selectedQuest.pillar]} XP
-                  </p>
-                </div>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
+              <div>
+                <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Task Details</h3>
+                <p className="text-[12px] text-[#6B645A] tabular-nums mt-0.5">
+                  Created {selectedQuest.createdAt} · Worth +{getQuestXp(selectedQuest.difficulty)} {ATTRIBUTE_NAMES[selectedQuest.pillar]} XP
+                </p>
               </div>
 
               <button
+                type="button"
                 onClick={() => setSelectedQuest(null)}
-                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]"
+                className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -743,11 +699,11 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
             {/* Drawer Scrollable Content */}
             <div className="p-6 overflow-y-auto space-y-5 flex-1">
-              {/* Title & Status */}
+              {/* Title & Description */}
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
-                    Quest Title
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    Title
                   </label>
                   <input
                     type="text"
@@ -757,12 +713,12 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-3 py-2 text-sm font-semibold"
+                    className="ship-input w-full px-3 py-2 text-[14px] font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Description & Objectives
                   </label>
                   <textarea
@@ -773,17 +729,17 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                    placeholder="Provide context or instructions for this mission..."
+                    className="ship-input w-full px-3 py-2 text-[13px]"
+                    placeholder="Context or instructions for this mission..."
                   />
                 </div>
               </div>
 
               {/* Status, Pillar, Difficulty & Due Date Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-[#F4F4F6] rounded-xl border border-[#ECECF0]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-[#F6F2EA] rounded-[6px] border border-[#E4DED2]">
                 {/* Status */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Status
                   </label>
                   <CustomSelect
@@ -813,7 +769,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
                 {/* Pillar */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Pillar
                   </label>
                   <CustomSelect
@@ -830,7 +786,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
                 {/* Difficulty */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Difficulty
                   </label>
                   <CustomSelect
@@ -847,7 +803,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
                 {/* Due Date */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B6B76] uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Due Date
                   </label>
                   <input
@@ -858,7 +814,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       setSelectedQuest(updated);
                       onUpdateQuest(updated);
                     }}
-                    className="ship-input w-full px-2.5 py-1.5 text-xs font-medium"
+                    className="ship-input w-full px-2.5 py-1 text-xs font-medium"
                   />
                 </div>
               </div>
@@ -866,41 +822,39 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
               {/* Evidence Required Toggle & Linked Item Picker */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Evidence Required */}
-                <div className="p-3.5 rounded-xl border border-[#ECECF0] bg-white flex items-center justify-between">
+                <div className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-semibold text-[#111113] block">
-                      Evidence Required to Complete
+                    <span className="text-[13px] font-medium text-[#1F1B16] block">
+                      Require Evidence
                     </span>
-                    <span className="text-[11px] text-[#6B6B76]">
-                      Blocks moving to Done until proof is attached
+                    <span className="text-[11px] text-[#6B645A]">
+                      Blocks completion until proof is attached
                     </span>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedQuest.evidenceRequired}
-                      onChange={(e) => {
-                        const updated = { ...selectedQuest, evidenceRequired: e.target.checked };
-                        setSelectedQuest(updated);
-                        onUpdateQuest(updated);
-                      }}
-                      className="w-4 h-4 rounded text-[#0891B2] accent-[#0891B2] focus:ring-0 cursor-pointer"
-                    />
-                  </label>
+                  <input
+                    type="checkbox"
+                    checked={selectedQuest.evidenceRequired}
+                    onChange={(e) => {
+                      const updated = { ...selectedQuest, evidenceRequired: e.target.checked };
+                      setSelectedQuest(updated);
+                      onUpdateQuest(updated);
+                    }}
+                    className="w-4 h-4 rounded-[3px] accent-[#1F1B16] cursor-pointer"
+                  />
                 </div>
 
                 {/* Linked Item Picker */}
-                <div className="p-3.5 rounded-xl border border-[#ECECF0] bg-white">
-                  <label className="block text-xs font-semibold text-[#111113] mb-1">
+                <div className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4]">
+                  <label className="block text-[13px] font-medium text-[#1F1B16] mb-1">
                     Linked Possession (Optional)
                   </label>
                   <CustomSelect
                     value={selectedQuest.linkedItemId || ''}
                     options={[
-                      { id: '', label: 'None (Standalone Quest)' },
+                      { id: '', label: 'None' },
                       ...items.map((i) => ({
                         id: i.id,
-                        label: `${i.ownershipStatus === 'wishlist' ? '★ [Wishlist] ' : ''}${i.name}`,
+                        label: `${i.ownershipStatus === 'wishlist' ? '[Wishlist] ' : ''}${i.name}`,
                         sublabel: i.ownershipStatus === 'wishlist' ? 'Wishlist Milestone' : 'Owned Item',
                       })),
                     ]}
@@ -917,57 +871,51 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
               {/* Evidence Log & Attach Evidence Control */}
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold text-[#111113] uppercase tracking-wider flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-[#0891B2]" />
-                    <span>Evidence & Verification Proofs ({selectedEvidence.length})</span>
+                  <h4 className="font-serif text-[16px] font-normal text-[#1F1B16]">
+                    Evidence & Verification Proofs ({selectedEvidence.length})
                   </h4>
                 </div>
 
                 {/* Existing Evidence List */}
                 {selectedEvidence.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-[#F4F4F6] border border-dashed border-[#BEBEC6] text-center text-xs text-[#9A9AA5] mb-4">
-                    No evidence attached yet. Add a note, reference URL, or upload a photo proof below.
+                  <div className="p-4 rounded-[6px] bg-[#F6F2EA] border border-dashed border-[#E4DED2] text-center text-xs text-[#6B645A] mb-4">
+                    No evidence attached yet. Add a note, URL, or upload photo proof below.
                   </div>
                 ) : (
                   <div className="space-y-2 mb-4">
                     {selectedEvidence.map((ev) => (
                       <div
                         key={ev.id}
-                        className="p-3 rounded-xl border border-[#ECECF0] bg-[#F4F4F6] flex items-start justify-between gap-3 text-xs"
+                        className="p-3 rounded-[6px] border border-[#E4DED2] bg-[#F6F2EA] flex items-start justify-between gap-3 text-xs"
                       >
-                        <div className="flex items-start gap-2.5 min-w-0">
-                          {ev.type === 'photo' && <Camera className="w-4 h-4 text-[#0891B2] mt-0.5 flex-shrink-0" />}
-                          {ev.type === 'link' && <LinkIcon className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />}
-                          {ev.type === 'note' && <FileText className="w-4 h-4 text-[#16A34A] mt-0.5 flex-shrink-0" />}
-
-                          <div className="min-w-0">
-                            {ev.type === 'photo' ? (
-                              <img
-                                src={ev.content}
-                                alt="Proof"
-                                className="w-32 h-20 object-cover rounded-lg border border-[#ECECF0] shadow-2xs mt-1"
-                              />
-                            ) : ev.type === 'link' ? (
-                              <a
-                                href={ev.content}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-[#0891B2] underline font-medium break-all flex items-center gap-1"
-                              >
-                                {ev.content} <ExternalLink className="w-3 h-3" />
-                              </a>
-                            ) : (
-                              <p className="text-[#111113] whitespace-pre-wrap">{ev.content}</p>
-                            )}
-                            <span className="text-[10px] text-[#9A9AA5] mt-1 block">
-                              Attached on {ev.addedAt}
-                            </span>
-                          </div>
+                        <div className="min-w-0">
+                          {ev.type === 'photo' ? (
+                            <img
+                              src={ev.content}
+                              alt="Proof"
+                              className="w-32 h-20 object-cover rounded-[4px] border border-[#E4DED2] mt-1"
+                            />
+                          ) : ev.type === 'link' ? (
+                            <a
+                              href={ev.content}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[#1F1B16] underline font-medium break-all flex items-center gap-1"
+                            >
+                              {ev.content} <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <p className="text-[#1F1B16] whitespace-pre-wrap">{ev.content}</p>
+                          )}
+                          <span className="text-[10px] text-[#6B645A] mt-1 block">
+                            Attached on {ev.addedAt}
+                          </span>
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => onDeleteEvidence(ev.id)}
-                          className="p-1 rounded-lg text-[#9A9AA5] hover:text-[#DC2626] transition-colors"
+                          className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#9C3D2A] transition-colors"
                           title="Delete evidence"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -980,16 +928,16 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 {/* Add Evidence Control */}
                 <form
                   onSubmit={handleAddEvidenceSubmit}
-                  className="p-4 rounded-xl border border-[#ECECF0] bg-white space-y-3"
+                  className="p-4 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] space-y-3"
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#111113]">Add Verification Proof</span>
-                    <div className="flex items-center gap-1 bg-[#ECECF0] p-0.5 rounded-lg">
+                    <span className="font-medium text-[#1F1B16]">Add Verification Proof</span>
+                    <div className="flex items-center gap-1 bg-[#EFEAE0] p-0.5 rounded-[4px]">
                       <button
                         type="button"
                         onClick={() => setEvidenceType('note')}
-                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-                          evidenceType === 'note' ? 'bg-white text-[#111113] font-semibold shadow-xs' : 'text-[#6B6B76]'
+                        className={`px-2 py-0.5 rounded-[3px] text-[11px] font-medium transition-colors ${
+                          evidenceType === 'note' ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]' : 'text-[#6B645A]'
                         }`}
                       >
                         Note
@@ -997,19 +945,18 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       <button
                         type="button"
                         onClick={() => setEvidenceType('link')}
-                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-                          evidenceType === 'link' ? 'bg-white text-[#111113] font-semibold shadow-xs' : 'text-[#6B6B76]'
+                        className={`px-2 py-0.5 rounded-[3px] text-[11px] font-medium transition-colors ${
+                          evidenceType === 'link' ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]' : 'text-[#6B645A]'
                         }`}
                       >
-                        Link URL
+                        URL
                       </button>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-2 py-0.5 rounded-md text-[11px] font-medium text-[#0891B2] hover:bg-white transition-all flex items-center gap-1"
+                        className="px-2 py-0.5 rounded-[3px] text-[11px] font-medium text-[#1F1B16] hover:bg-[#FBF9F4] transition-colors"
                       >
-                        <Upload className="w-3 h-3" />
-                        <span>Upload Photo</span>
+                        Upload Photo
                       </button>
                     </div>
                   </div>
@@ -1027,7 +974,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       rows={2}
                       value={evidenceContent}
                       onChange={(e) => setEvidenceContent(e.target.value)}
-                      placeholder="Write evidence note, workout stats, or verification reflection..."
+                      placeholder="Write evidence note, workout stats, or reflection..."
                       className="ship-input w-full px-3 py-1.5 text-xs"
                     />
                   ) : (
@@ -1035,7 +982,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       type="url"
                       value={evidenceContent}
                       onChange={(e) => setEvidenceContent(e.target.value)}
-                      placeholder="https://github.com/... or live proof URL"
+                      placeholder="https://... URL proof"
                       className="ship-input w-full px-3 py-1.5 text-xs"
                     />
                   )}
@@ -1044,7 +991,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                     <button
                       type="submit"
                       disabled={!evidenceContent.trim()}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#0891B2] hover:bg-[#0E7490] disabled:opacity-50 text-white text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                      className="editorial-btn-primary py-1 px-3 text-xs"
                     >
                       Attach Proof
                     </button>
@@ -1054,7 +1001,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-[#ECECF0] bg-white flex items-center justify-between">
+            <div className="p-4 border-t border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => {
@@ -1064,19 +1011,18 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                     sfx.playClick();
                   }
                 }}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#DC2626] hover:bg-[#FDECEC] transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="editorial-btn-secondary text-[#9C3D2A] hover:bg-[#F6F2EA]"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Archive Quest</span>
+                Archive Task
               </button>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedQuest(null)}
-                  className="px-4 py-1.5 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] transition-colors cursor-pointer"
+                  className="editorial-btn-secondary"
                 >
-                  Done
+                  Close
                 </button>
                 {selectedQuest.status !== 'done' ? (
                   <button
@@ -1085,10 +1031,9 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       handleToggleDone(selectedQuest);
                       setSelectedQuest(null);
                     }}
-                    className="px-4 py-1.5 rounded-xl text-xs font-semibold bg-[#16A34A] hover:bg-[#15803D] text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="editorial-btn-primary"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Complete Quest (+{getQuestXp(selectedQuest.difficulty)} XP)</span>
+                    Complete Task (+{getQuestXp(selectedQuest.difficulty)} XP)
                   </button>
                 ) : (
                   <button
@@ -1097,9 +1042,9 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       handleToggleDone(selectedQuest);
                       setSelectedQuest(null);
                     }}
-                    className="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#111113] shadow-xs transition-colors cursor-pointer"
+                    className="editorial-btn-secondary"
                   >
-                    Reopen Quest
+                    Reopen Task
                   </button>
                 )}
               </div>
@@ -1116,18 +1061,19 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-white border border-[#ECECF0] rounded-2xl shadow-xl p-6 cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-lg bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[#ECECF0] mb-4">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E4DED2] mb-4">
               <div>
-                <h3 className="text-base font-semibold text-[#111113]">Create Tactical Quest</h3>
-                <p className="text-xs text-[#6B6B76] mt-0.5">
-                  Define an objective, set its difficulty, and earn calibrated pillar XP
+                <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Create Task</h3>
+                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                  Define an objective, set difficulty tier, and earn pillar XP
                 </p>
               </div>
               <button
+                type="button"
                 onClick={handleCloseAdd}
-                className="p-1.5 rounded-lg text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]"
+                className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1135,8 +1081,8 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
             <form onSubmit={handleCreateQuest} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
-                  Quest Title
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  Task Title
                 </label>
                 <input
                   type="text"
@@ -1144,13 +1090,13 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Clean 75kg Benchpress, Refactor Storage Schema..."
-                  className="ship-input w-full px-3 py-2 text-sm"
+                  className="ship-input w-full px-3 py-2 text-[14px]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
-                  Description & Context
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  Description
                 </label>
                 <textarea
                   rows={2}
@@ -1163,7 +1109,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Target Pillar
                   </label>
                   <CustomSelect
@@ -1174,7 +1120,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Difficulty Tier
                   </label>
                   <CustomSelect
@@ -1187,7 +1133,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Deadline (Optional)
                   </label>
                   <input
@@ -1199,7 +1145,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Linked Possession (Optional)
                   </label>
                   <CustomSelect
@@ -1208,7 +1154,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                       { id: '', label: 'None' },
                       ...items.map((i) => ({
                         id: i.id,
-                        label: `${i.ownershipStatus === 'wishlist' ? '★ [Wishlist] ' : ''}${i.name}`,
+                        label: `${i.ownershipStatus === 'wishlist' ? '[Wishlist] ' : ''}${i.name}`,
                         sublabel: i.ownershipStatus === 'wishlist' ? 'Wishlist Milestone' : 'Owned Item',
                       })),
                     ]}
@@ -1217,12 +1163,12 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-[#ECECF0] bg-[#F4F4F6] flex items-center justify-between">
+              <div className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#F6F2EA] flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-[#111113] block">
+                  <span className="text-[13px] font-medium text-[#1F1B16] block">
                     Require Evidence Proof
                   </span>
-                  <span className="text-[11px] text-[#6B6B76]">
+                  <span className="text-[11px] text-[#6B645A]">
                     Must attach note, link, or photo before completion
                   </span>
                 </div>
@@ -1230,24 +1176,23 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                   type="checkbox"
                   checked={newEvidenceReq}
                   onChange={(e) => setNewEvidenceReq(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#0891B2] accent-[#0891B2] focus:ring-0 cursor-pointer"
+                  className="w-4 h-4 rounded-[3px] accent-[#1F1B16] cursor-pointer"
                 />
               </div>
 
-              <div className="pt-4 border-t border-[#ECECF0] flex justify-end gap-2.5">
+              <div className="pt-4 border-t border-[#E4DED2] flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={handleCloseAdd}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6]"
+                  className="editorial-btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0891B2] hover:bg-[#0E7490] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="editorial-btn-primary"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create Quest</span>
+                  Create Task
                 </button>
               </div>
             </form>
