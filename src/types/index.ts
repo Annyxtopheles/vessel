@@ -91,6 +91,7 @@ export interface AppSettings {
   currencySymbol: string;
   maxEncumbranceKg: number;
   unitSystem?: 'metric' | 'imperial';
+  targetWeightKg?: number;
 }
 
 export interface SalahStatus {

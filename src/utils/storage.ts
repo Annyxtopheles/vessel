@@ -108,6 +108,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   currencySymbol: '$',
   maxEncumbranceKg: 12.0,
   unitSystem: 'metric',
+  targetWeightKg: 73.0,
 };
 
 export const INITIAL_SAVED_LOADOUTS: SavedLoadout[] = [
@@ -541,7 +542,7 @@ export const INITIAL_BODY_MEASUREMENTS: BodyMeasurement[] = [
   { id: 'bm-1', type: 'weight', value: 76.2, unit: 'kg', date: '2026-10-07', note: 'Baseline weight' },
   { id: 'bm-2', type: 'weight', value: 75.8, unit: 'kg', date: '2026-10-14', note: 'Calisthenics volume increase' },
   { id: 'bm-3', type: 'weight', value: 75.0, unit: 'kg', date: '2026-10-21', note: 'Fasting day hydration' },
-  { id: 'bm-4', type: 'weight', value: 74.5, unit: 'kg', date: '2026-10-28', note: 'Current target equilibrium' },
+  { id: 'bm-4', type: 'weight', value: 74.5, unit: 'kg', date: '2026-10-28', note: 'Target reached' },
   { id: 'bm-5', type: 'height', value: 178, unit: 'cm', date: '2026-09-01', note: 'Morning measured height' },
   { id: 'bm-6', type: 'waist', value: 79, unit: 'cm', date: '2026-10-20', note: 'Natural waist circumference' },
   { id: 'bm-7', type: 'chest', value: 100, unit: 'cm', date: '2026-10-20', note: 'Chest under arms' },

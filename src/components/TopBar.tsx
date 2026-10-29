@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Settings, X, Package, CheckSquare, Target, Check, Compass } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Settings, X, Package, CheckSquare, Target, Check, Compass, Eye, EyeOff } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { formatHumanDate, getTodayLocalDateStr } from '../utils/date';
 import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest } from '../types';
@@ -22,6 +22,8 @@ interface TopBarProps {
   onSelectQuest?: (quest: Quest) => void;
   settings?: AppSettings;
   onUpdateSettings?: (updated: Partial<AppSettings>) => void;
+  privacyMode?: boolean;
+  onTogglePrivacyMode?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -42,12 +44,15 @@ export const TopBar: React.FC<TopBarProps> = ({
   onSelectQuest,
   settings = { currencySymbol: '$', maxEncumbranceKg: 12.0 },
   onUpdateSettings,
+  privacyMode = false,
+  onTogglePrivacyMode,
 }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [tempCurrency, setTempCurrency] = useState(settings.currencySymbol || '$');
   const [tempMaxWeight, setTempMaxWeight] = useState(String(settings.maxEncumbranceKg || 12.0));
   const [tempUnitSystem, setTempUnitSystem] = useState<'metric' | 'imperial'>(settings.unitSystem || 'metric');
+  const [tempTargetWeight, setTempTargetWeight] = useState(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const todayStr = getTodayLocalDateStr();
@@ -57,6 +62,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     setTempCurrency(settings.currencySymbol || '$');
     setTempMaxWeight(String(settings.maxEncumbranceKg || 12.0));
     setTempUnitSystem(settings.unitSystem || 'metric');
+    setTempTargetWeight(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
   }, [settings]);
 
   // Click outside search popover
@@ -138,6 +144,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         currencySymbol: tempCurrency.trim() || '$',
         maxEncumbranceKg: Math.max(1, parseFloat(tempMaxWeight) || 12.0),
         unitSystem: tempUnitSystem,
+        targetWeightKg: tempTargetWeight.trim() ? parseFloat(tempTargetWeight) : undefined,
       });
     }
     sfx.playClick();
@@ -366,6 +373,29 @@ export const TopBar: React.FC<TopBarProps> = ({
           </div>
         )}
 
+        {/* Privacy Mode Toggle Button (App-Wide) */}
+        {onTogglePrivacyMode && (
+          <button
+            type="button"
+            onClick={() => {
+              sfx.playClick();
+              onTogglePrivacyMode();
+            }}
+            className={`p-2 rounded-xl border transition-all cursor-pointer shadow-xs ${
+              privacyMode
+                ? 'bg-[#111113] border-[#111113] text-white'
+                : 'bg-white border-[#ECECF0] text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6]'
+            }`}
+            title={`Privacy Mode: ${privacyMode ? 'ON (Masked)' : 'OFF (Visible)'}`}
+          >
+            {privacyMode ? (
+              <EyeOff className="w-4 h-4 text-[#0891B2]" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+        )}
+
         {/* Settings Button */}
         <button
           onClick={() => {
@@ -373,7 +403,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             setIsSettingsOpen(true);
           }}
           className="p-2 rounded-xl bg-white border border-[#ECECF0] text-[#6B6B76] hover:text-[#111113] hover:bg-[#F4F4F6] transition-colors cursor-pointer shadow-xs"
-          title="App Settings (Currency & Capacity)"
+          title="App Settings (Currency, Capacity & Target)"
         >
           <Settings className="w-4 h-4" />
         </button>
@@ -476,6 +506,25 @@ export const TopBar: React.FC<TopBarProps> = ({
                 />
                 <span className="text-[11px] text-[#9A9AA5] mt-1 block">
                   Default: 12.0 kg. Used for today's carry load capacity indicator.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B6B76] uppercase tracking-wider mb-1.5">
+                  Target Body Weight (kg, optional)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="20"
+                  max="300"
+                  value={tempTargetWeight}
+                  onChange={(e) => setTempTargetWeight(e.target.value)}
+                  placeholder="e.g. 73.0"
+                  className="ship-input w-full px-3 py-2 text-sm"
+                />
+                <span className="text-[11px] text-[#9A9AA5] mt-1 block">
+                  Used to evaluate progression delta colors on the weight chart.
                 </span>
               </div>
 

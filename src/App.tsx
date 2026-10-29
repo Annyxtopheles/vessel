@@ -74,6 +74,25 @@ export const App: React.FC = () => {
   const [personality, setPersonality] = useState<PersonalityEntry[]>(() => loadPersonality());
   const [traits, setTraits] = useState<CharacterTrait[]>(() => loadTraits());
 
+  // App-wide Privacy Mode
+  const [privacyMode, setPrivacyMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('vessel_privacy_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleTogglePrivacyMode = () => {
+    setPrivacyMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('vessel_privacy_mode', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayLocalDateStr());
 
   const [activeTab, setActiveTab] = useState<'inventory' | 'rituals' | 'quests' | 'codex'>('inventory');
@@ -668,6 +687,8 @@ export const App: React.FC = () => {
           onInspectItem={setInspectedItem}
           settings={settings}
           onUpdateSettings={handleUpdateSettings}
+          privacyMode={privacyMode}
+          onTogglePrivacyMode={handleTogglePrivacyMode}
         />
 
         {/* Scrollable View Content */}
@@ -758,6 +779,7 @@ export const App: React.FC = () => {
                 personality={personality}
                 traits={traits}
                 settings={settings}
+                privacyMode={privacyMode}
                 onAddMeasurement={handleAddMeasurement}
                 onDeleteMeasurement={handleDeleteMeasurement}
                 onUpdateAppearance={handleUpdateAppearance}

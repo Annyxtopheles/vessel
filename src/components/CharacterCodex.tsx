@@ -36,6 +36,7 @@ interface CharacterCodexProps {
   personality?: PersonalityEntry[];
   traits?: CharacterTrait[];
   settings?: AppSettings;
+  privacyMode?: boolean;
   onAddMeasurement?: (m: Omit<BodyMeasurement, 'id'>) => void;
   onDeleteMeasurement?: (id: string) => void;
   onUpdateAppearance?: (app: CharacterAppearance) => void;
@@ -184,6 +185,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   personality = [],
   traits = [],
   settings = { currencySymbol: '$', maxEncumbranceKg: 12.0, unitSystem: 'metric' },
+  privacyMode = false,
   onAddMeasurement = () => {},
   onDeleteMeasurement = () => {},
   onUpdateAppearance = () => {},
@@ -276,16 +278,22 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Tab Bar: Pillars vs Stat Sheet */}
-      <div className="flex items-center justify-between bg-white border border-[#ECECF0] rounded-2xl p-2 shadow-xs">
-        <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl">
+      {/* Unified Header Row: Title & Sub-tabs */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111113] tracking-tight">
+            Character Codex
+          </h2>
+        </div>
+
+        <div className="inline-flex p-1 bg-[#ECECF0] rounded-xl self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={() => {
               sfx.playClick();
               setCodexSubTab('pillars');
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
               codexSubTab === 'pillars'
                 ? 'bg-white text-[#111113] shadow-xs'
                 : 'text-[#6B6B76] hover:text-[#111113]'
@@ -301,7 +309,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
               sfx.playClick();
               setCodexSubTab('stats');
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
               codexSubTab === 'stats'
                 ? 'bg-white text-[#111113] shadow-xs'
                 : 'text-[#6B6B76] hover:text-[#111113]'
@@ -310,14 +318,6 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             <Scale className="w-3.5 h-3.5 text-[#0891B2]" />
             <span>Stat Sheet</span>
           </button>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-2 text-xs text-[#6B6B76] pr-3 font-medium">
-          {codexSubTab === 'pillars' ? (
-            <span>4 Pillars • {skills.filter((s) => s.unlocked).length}/{skills.length} Perks</span>
-          ) : (
-            <span>Biometrics • Appearance • Palette • Traits</span>
-          )}
         </div>
       </div>
 
@@ -329,6 +329,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           personality={personality}
           traits={traits}
           settings={settings}
+          privacyMode={privacyMode}
           onAddMeasurement={onAddMeasurement}
           onDeleteMeasurement={onDeleteMeasurement}
           onUpdateAppearance={onUpdateAppearance}
