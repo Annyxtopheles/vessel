@@ -21,6 +21,7 @@ interface DailyRitualsProps {
   onUpdateDayRecord: (record: DayRecord, xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }) => void;
   onAddHabit: (habit: CustomHabit) => void;
   onDeleteHabit: (habitId: string) => void;
+  onRestoreDefaultHabits?: () => void;
   onRecordXpEvent?: (event: Omit<XpEvent, 'id'>) => void;
   quests?: Quest[];
   onNavigateToQuests?: () => void;
@@ -50,6 +51,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   onUpdateDayRecord,
   onAddHabit,
   onDeleteHabit,
+  onRestoreDefaultHabits,
   onRecordXpEvent,
   quests = [],
   onNavigateToQuests,
@@ -470,12 +472,31 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={() => setIsAddingHabit(!isAddingHabit)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0891B2] hover:bg-[#0E7490] text-white rounded-xl text-[13px] font-semibold transition-colors shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> New Discipline
-          </button>
+          <div className="flex items-center gap-2">
+            {onRestoreDefaultHabits && (
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.playClick();
+                  onRestoreDefaultHabits();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#ECECF0] hover:bg-[#F4F4F6] text-[#6B6B76] hover:text-[#111113] rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                title="Restore default starter disciplines without removing custom ones"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#0891B2]" />
+                <span className="hidden sm:inline">Restore Starter Habits</span>
+                <span className="sm:hidden">Restore</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsAddingHabit(!isAddingHabit)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0891B2] hover:bg-[#0E7490] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Discipline</span>
+            </button>
+          </div>
         </div>
 
         {/* Add Habit Form */}

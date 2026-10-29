@@ -41,6 +41,7 @@ import {
   exportSaveFile, importSaveFile
 } from './utils/storage';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
+import { INITIAL_HABITS } from './data/mockData';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
@@ -514,6 +515,16 @@ export const App: React.FC = () => {
     setHabits(habits.filter(h => h.id !== habitId));
   };
 
+  const handleRestoreDefaultHabits = () => {
+    const existingNames = new Set(habits.map(h => h.name.toLowerCase().trim()));
+    const missingDefaults = INITIAL_HABITS.filter(h => !existingNames.has(h.name.toLowerCase().trim()));
+    if (missingDefaults.length === 0) {
+      setHabits(INITIAL_HABITS);
+    } else {
+      setHabits([...habits, ...missingDefaults]);
+    }
+  };
+
   // Unlock Codex Skill
   const handleUnlockSkill = (skillId: string, evidence?: { note: string; url?: string }) => {
     let skillTitle = 'Perk';
@@ -710,6 +721,7 @@ export const App: React.FC = () => {
                 onUpdateDayRecord={handleUpdateDayRecord}
                 onAddHabit={handleAddHabit}
                 onDeleteHabit={handleDeleteHabit}
+                onRestoreDefaultHabits={handleRestoreDefaultHabits}
                 onRecordXpEvent={handleRecordXpEvent}
                 quests={quests}
                 onNavigateToQuests={() => setActiveTab('quests')}
