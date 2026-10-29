@@ -1,0 +1,68 @@
+[
+  {
+    "external_id": "sample-notebook-a5",
+    "name": "Dot Grid Hardcover Notebook A5",
+    "brand": "Leuchtturm1917",
+    "category": "tomes",
+    "location": "Desk",
+    "quantity": 1,
+    "status": "owned",
+    "colors": [
+      {
+        "name": "Anthracite Grey",
+        "hex": "#383B3E"
+      }
+    ],
+    "size": "A5 (145 x 210 mm)",
+    "condition": "pristine",
+    "price_paid": 2400,
+    "current_value": 2400,
+    "acquired_date": "2026-01-10",
+    "notes": "80 gsm ink-proof paper, 251 numbered pages, 8 perforated sheets, expandable pocket inside back cover.",
+    "tags": ["notebook", "stationery", "analog", "writing"]
+  },
+  {
+    "external_id": "sample-water-bottle-750",
+    "name": "Insulated Stainless Steel Water Bottle 750ml",
+    "brand": "Klean Kanteen",
+    "category": "edc",
+    "location": "Travel Pack",
+    "quantity": 1,
+    "status": "owned",
+    "colors": [
+      {
+        "name": "Brushed Steel",
+        "hex": "#A3A3A8"
+      }
+    ],
+    "size": "750 ml",
+    "condition": "seasoned",
+    "price_paid": 3500,
+    "current_value": 3000,
+    "acquired_date": "2025-08-22",
+    "notes": "Double-wall vacuum insulation keeps liquids chilled up to 50 hours or piping hot up to 20 hours.",
+    "tags": ["edc", "hydration", "stainless-steel"]
+  },
+  {
+    "external_id": "sample-keyboard-75",
+    "name": "Mechanical Keyboard 75% Layout",
+    "brand": "Keychron",
+    "category": "tech",
+    "location": "Desk",
+    "quantity": 1,
+    "status": "owned",
+    "colors": [
+      {
+        "name": "Carbon Gray",
+        "hex": "#2B2D31"
+      }
+    ],
+    "size": "75% compact",
+    "condition": "pristine",
+    "price_paid": 11500,
+    "current_value": 11000,
+    "acquired_date": "2026-03-05",
+    "notes": "CNC aluminum chassis, QMK/VIA programmable firmware, hot-swappable tactile switches.",
+    "tags": ["tech", "workspace", "keyboard"]
+  }
+]
