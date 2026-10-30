@@ -148,6 +148,15 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
   const [payDebtAmount, setPayDebtAmount] = useState('');
   const [payDebtAccountId, setPayDebtAccountId] = useState(accounts[0]?.id || '');
 
+  // Effective defaults so dropdowns work immediately after async IndexedDB hydration
+  const effectiveFastAccount = fastAccount || accounts[0]?.id || '';
+  const effectiveFastCategory = fastCategory || financeCategories[0]?.id || '';
+  const effectiveTransferDest =
+    (transferDestAccount && transferDestAccount !== effectiveFastAccount
+      ? transferDestAccount
+      : accounts.find((a) => a.id !== effectiveFastAccount)?.id) || '';
+  const effectivePayDebtAccount = payDebtAccountId || accounts[0]?.id || '';
+
   // Derived core financial figures
   const { assets, liabilities, netWorth } = deriveNetWorth(accounts, debts, transactions);
   const accountBalances = deriveAllAccountBalances(accounts, transactions);
@@ -187,17 +196,17 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
   const handleFastAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(fastAmount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0 || !fastAccount) return;
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || !effectiveFastAccount) return;
 
     if (fastType === 'transfer') {
-      if (!transferDestAccount || transferDestAccount === fastAccount) return;
+      if (!effectiveTransferDest || effectiveTransferDest === effectiveFastAccount) return;
       const pairId = `pair-${Date.now()}`;
-      const srcAcc = accounts.find((a) => a.id === fastAccount)?.name || 'Account';
-      const destAcc = accounts.find((a) => a.id === transferDestAccount)?.name || 'Account';
+      const srcAcc = accounts.find((a) => a.id === effectiveFastAccount)?.name || 'Account';
+      const destAcc = accounts.find((a) => a.id === effectiveTransferDest)?.name || 'Account';
 
       // Outflow transaction
       await onAddTransaction({
-        account_id: fastAccount,
+        account_id: effectiveFastAccount,
         date: fastDate || todayStr,
         amount: parsedAmount,
         type: 'transfer',
@@ -208,7 +217,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
       // Inflow transaction
       await onAddTransaction({
-        account_id: transferDestAccount,
+        account_id: effectiveTransferDest,
         date: fastDate || todayStr,
         amount: parsedAmount,
         type: 'transfer',
@@ -218,11 +227,11 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       });
     } else {
       await onAddTransaction({
-        account_id: fastAccount,
+        account_id: effectiveFastAccount,
         date: fastDate || todayStr,
         amount: parsedAmount,
         type: fastType,
-        category_id: fastCategory || undefined,
+        category_id: effectiveFastCategory || undefined,
         note: fastNote.trim() || undefined,
       });
     }
@@ -300,10 +309,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
     e.preventDefault();
     if (!activePayDebt) return;
     const parsed = parseFloat(payDebtAmount);
-    if (isNaN(parsed) || parsed <= 0 || !payDebtAccountId) return;
+    if (isNaN(parsed) || parsed <= 0 || !effectivePayDebtAccount) return;
 
     await onAddTransaction({
-      account_id: payDebtAccountId,
+      account_id: effectivePayDebtAccount,
       date: todayStr,
       amount: parsed,
       type: 'expense',
@@ -705,7 +714,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               {/* Source Account */}
               <div>
                 <CustomSelect
-                  value={fastAccount}
+                  value={effectiveFastAccount}
                   options={accounts.map((a) => ({ id: a.id, label: a.name }))}
                   onChange={(val) => setFastAccount(val)}
                   buttonClassName="py-1.5 text-[13px]"
@@ -716,9 +725,9 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               {fastType === 'transfer' ? (
                 <div>
                   <CustomSelect
-                    value={transferDestAccount}
+                    value={effectiveTransferDest}
                     options={accounts
-                      .filter((a) => a.id !== fastAccount)
+                      .filter((a) => a.id !== effectiveFastAccount)
                       .map((a) => ({ id: a.id, label: `To: ${a.name}` }))}
                     onChange={(val) => setTransferDestAccount(val)}
                     buttonClassName="py-1.5 text-[13px]"
@@ -727,7 +736,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               ) : (
                 <div>
                   <CustomSelect
-                    value={fastCategory}
+                    value={effectiveFastCategory}
                     options={[
                       { id: '', label: 'Uncategorized' },
                       ...financeCategories.map((c) => ({ id: c.id, label: c.name })),
@@ -1554,7 +1563,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   Pay From Account
                 </label>
                 <CustomSelect
-                  value={payDebtAccountId}
+                  value={effectivePayDebtAccount}
                   options={accounts.map((a) => ({ id: a.id, label: a.name }))}
                   onChange={(val) => setPayDebtAccountId(val)}
                   buttonClassName="py-1.5 text-[13px]"

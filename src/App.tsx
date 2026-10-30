@@ -76,6 +76,7 @@ import { sfx } from './utils/audio';
 import { formatCurrency } from './utils/numberFormat';
 import { ensureNetWorthSnapshots } from './utils/finance';
 import { hydrateItemPhotos } from './services/photoService';
+import { CustomSelect } from './components/CustomSelect';
 
 const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
   try {
@@ -523,8 +524,18 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    await transactionRepo.softDelete(id);
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    const targetTx = transactions.find((t) => t.id === id);
+    if (targetTx?.transfer_pair_id) {
+      const pairTxs = transactions.filter((t) => t.transfer_pair_id === targetTx.transfer_pair_id);
+      const pairIds = new Set(pairTxs.map((t) => t.id));
+      for (const pairId of pairIds) {
+        await transactionRepo.softDelete(pairId);
+      }
+      setTransactions((prev) => prev.filter((t) => !pairIds.has(t.id)));
+    } else {
+      await transactionRepo.softDelete(id);
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+    }
     sfx.playClick();
   };
 
@@ -1305,36 +1316,24 @@ export const App: React.FC = () => {
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Account
                   </label>
-                  <select
+                  <CustomSelect
                     value={expenseAccountId}
-                    onChange={(e) => setExpenseAccountId(e.target.value)}
-                    className="ship-input w-full text-[13px]"
-                  >
-                    {accounts
+                    options={accounts
                       .filter((a) => !a.archived)
-                      .map((a) => (
-                        <option key={a.id} value={a.id}>
-                          {a.name}
-                        </option>
-                      ))}
-                  </select>
+                      .map((a) => ({ id: a.id, label: a.name }))}
+                    onChange={(val) => setExpenseAccountId(val)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
                     Category
                   </label>
-                  <select
+                  <CustomSelect
                     value={expenseCategoryId}
-                    onChange={(e) => setExpenseCategoryId(e.target.value)}
-                    className="ship-input w-full text-[13px]"
-                  >
-                    {financeCategories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    options={financeCategories.map((c) => ({ id: c.id, label: c.name }))}
+                    onChange={(val) => setExpenseCategoryId(val)}
+                  />
                 </div>
               </div>
 
