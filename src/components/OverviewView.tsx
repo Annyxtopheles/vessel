@@ -173,6 +173,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     };
 
     if (item.type === 'prayer' && item.prayerKey) {
+      const prevSalahCount = Object.values(current.salah).filter(Boolean).length;
       const nextVal = !current.salah[item.prayerKey];
       const updated: DayRecord = {
         ...current,
@@ -187,14 +188,43 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         nextVal ? { attr: 'WIS', xp: XP_DISCIPLINE_REWARDS.SALAH_PRAYER } : undefined
       );
 
-      if (nextVal && onRecordXpEvent) {
-        onRecordXpEvent({
-          action: `Salah: ${item.name}`,
-          pillar: 'WIS',
-          points: XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
-          date: todayStr,
-          refId: `salah-${item.prayerKey}-${todayStr}`,
-        });
+      if (onRecordXpEvent) {
+        const nextSalahCount = Object.values(updated.salah).filter(Boolean).length;
+        if (nextVal) {
+          onRecordXpEvent({
+            action: `Salah: ${item.name}`,
+            pillar: 'WIS',
+            points: XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
+            date: todayStr,
+            refId: `salah-${item.prayerKey}-${todayStr}`,
+          });
+          if (nextSalahCount === 5) {
+            onRecordXpEvent({
+              action: 'Perfect Salah Day (5/5)',
+              pillar: 'WIS',
+              points: XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+              date: todayStr,
+              refId: `salah-perfect-${todayStr}`,
+            });
+          }
+        } else {
+          onRecordXpEvent({
+            action: `Salah Unchecked: ${item.name}`,
+            pillar: 'WIS',
+            points: -XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
+            date: todayStr,
+            refId: `salah-${item.prayerKey}-${todayStr}-undo`,
+          });
+          if (prevSalahCount === 5) {
+            onRecordXpEvent({
+              action: 'Perfect Salah Day Reversed',
+              pillar: 'WIS',
+              points: -XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+              date: todayStr,
+              refId: `salah-perfect-${todayStr}-undo`,
+            });
+          }
+        }
       }
     } else if (item.type === 'habit' && item.habitId) {
       const isCompleted = current.completedHabitIds.includes(item.habitId);
@@ -212,11 +242,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         !isCompleted ? { attr: item.pillar, xp: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION } : undefined
       );
 
-      if (!isCompleted && onRecordXpEvent) {
+      if (onRecordXpEvent) {
         onRecordXpEvent({
-          action: `Habit: ${item.name}`,
+          action: isCompleted ? `Habit Unchecked: ${item.name}` : `Habit: ${item.name}`,
           pillar: item.pillar,
-          points: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION,
+          points: isCompleted ? -XP_DISCIPLINE_REWARDS.HABIT_COMPLETION : XP_DISCIPLINE_REWARDS.HABIT_COMPLETION,
           date: todayStr,
           refId: `habit-${item.habitId}-${todayStr}`,
         });

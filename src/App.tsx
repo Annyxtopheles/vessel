@@ -1050,6 +1050,11 @@ export const App: React.FC = () => {
                 onCompleteQuest={handleCompleteTask}
                 nonNegotiablePrayers={settings.nonNegotiablePrayers}
                 onTogglePrayerNonNegotiable={handleTogglePrayerNonNegotiable}
+                reminders={reminders}
+                onAddReminder={handleAddReminder}
+                onUpdateReminder={handleUpdateReminder}
+                onDeleteReminder={handleDeleteReminder}
+                onReorderReminders={handleReorderReminders}
               />
             )}
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest } from '../types';
+import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest, Reminder } from '../types';
 import { Check, Trash2, RotateCcw, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
 import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
 import { CustomSelect } from './CustomSelect';
+import { RemindersBlock } from './RemindersBlock';
 import {
   getActiveNonNegotiableItems,
   isDayRecordFullyComplete,
@@ -36,6 +37,11 @@ interface DailyRitualsProps {
   onCompleteQuest?: (quest: Quest) => void;
   nonNegotiablePrayers?: (keyof SalahStatus)[];
   onTogglePrayerNonNegotiable?: (prayerKey: keyof SalahStatus) => void;
+  reminders?: Reminder[];
+  onAddReminder?: (text: string) => void;
+  onUpdateReminder?: (reminder: Reminder) => void;
+  onDeleteReminder?: (id: string) => void;
+  onReorderReminders?: (reminders: Reminder[]) => void;
 }
 
 const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] = [
@@ -70,6 +76,11 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   onCompleteQuest: _onCompleteQuest,
   nonNegotiablePrayers = ALL_PRAYER_KEYS,
   onTogglePrayerNonNegotiable,
+  reminders = [],
+  onAddReminder,
+  onUpdateReminder,
+  onDeleteReminder,
+  onReorderReminders,
 }) => {
   const [isAddingHabit, setIsAddingHabit] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
@@ -109,6 +120,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
   const handleToggleSalah = (key: keyof SalahStatus) => {
     sfx.playClick();
+    const prevSalahCount = Object.values(currentRecord.salah).filter(Boolean).length;
     const nextVal = !currentRecord.salah[key];
     const updatedRecord: DayRecord = {
       ...currentRecord,
@@ -123,25 +135,43 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       nextVal ? { attr: 'WIS', xp: XP_DISCIPLINE_REWARDS.SALAH_PRAYER } : undefined
     );
 
-    if (nextVal && onRecordXpEvent) {
+    if (onRecordXpEvent) {
       const prayerName = SALAH_LIST.find(s => s.key === key)?.name || key;
-      onRecordXpEvent({
-        action: `Salah: ${prayerName}`,
-        pillar: 'WIS',
-        points: XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
-        date: selectedDate,
-        refId: `salah-${key}-${selectedDate}`,
-      });
-
       const nextSalahCount = Object.values(updatedRecord.salah).filter(Boolean).length;
-      if (nextSalahCount === 5) {
+      if (nextVal) {
         onRecordXpEvent({
-          action: 'Perfect Salah Day (5/5)',
+          action: `Salah: ${prayerName}`,
           pillar: 'WIS',
-          points: XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+          points: XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
           date: selectedDate,
-          refId: `salah-perfect-${selectedDate}`,
+          refId: `salah-${key}-${selectedDate}`,
         });
+        if (nextSalahCount === 5) {
+          onRecordXpEvent({
+            action: 'Perfect Salah Day (5/5)',
+            pillar: 'WIS',
+            points: XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+            date: selectedDate,
+            refId: `salah-perfect-${selectedDate}`,
+          });
+        }
+      } else {
+        onRecordXpEvent({
+          action: `Salah Unchecked: ${prayerName}`,
+          pillar: 'WIS',
+          points: -XP_DISCIPLINE_REWARDS.SALAH_PRAYER,
+          date: selectedDate,
+          refId: `salah-${key}-${selectedDate}-undo`,
+        });
+        if (prevSalahCount === 5) {
+          onRecordXpEvent({
+            action: 'Perfect Salah Day Reversed',
+            pillar: 'WIS',
+            points: -XP_DISCIPLINE_REWARDS.PERFECT_SALAH_DAY_BONUS,
+            date: selectedDate,
+            refId: `salah-perfect-${selectedDate}-undo`,
+          });
+        }
       }
     }
   };
@@ -173,11 +203,11 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       !isCompleted ? { attr: habitAttr, xp: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION } : undefined
     );
 
-    if (!isCompleted && onRecordXpEvent) {
+    if (onRecordXpEvent) {
       onRecordXpEvent({
-        action: `Habit: ${habitObj?.name || 'Completed'}`,
+        action: isCompleted ? `Habit Unchecked: ${habitObj?.name || 'Discipline'}` : `Habit: ${habitObj?.name || 'Completed'}`,
         pillar: habitAttr,
-        points: XP_DISCIPLINE_REWARDS.HABIT_COMPLETION,
+        points: isCompleted ? -XP_DISCIPLINE_REWARDS.HABIT_COMPLETION : XP_DISCIPLINE_REWARDS.HABIT_COMPLETION,
         date: selectedDate,
         refId: `habit-${habitId}-${selectedDate}`,
       });
@@ -187,6 +217,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   const handleAdjustPushups = (delta: number) => {
     sfx.playClick();
     const nextVal = Math.max(0, currentRecord.pushups + delta);
+    const actualDelta = nextVal - currentRecord.pushups;
     const updatedRecord: DayRecord = {
       ...currentRecord,
       pushups: nextVal,
@@ -194,14 +225,15 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     };
     onUpdateDayRecord(
       updatedRecord,
-      delta > 0 ? { attr: 'STR', xp: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP } : undefined
+      actualDelta > 0 ? { attr: 'STR', xp: actualDelta * XP_DISCIPLINE_REWARDS.PUSHUP_REP } : undefined
     );
 
-    if (delta > 0 && onRecordXpEvent) {
+    if (actualDelta !== 0 && onRecordXpEvent) {
+      const sign = actualDelta > 0 ? '+' : '';
       onRecordXpEvent({
-        action: `Pushups (+${delta} reps)`,
+        action: `Pushups (${sign}${actualDelta} reps)`,
         pillar: 'STR',
-        points: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP,
+        points: actualDelta * XP_DISCIPLINE_REWARDS.PUSHUP_REP,
         date: selectedDate,
       });
     }
@@ -216,9 +248,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       workoutCompleted: nextVal >= 50 || currentRecord.squats >= 50,
     };
     onUpdateDayRecord(updatedRecord);
-    if (delta > 0 && onRecordXpEvent) {
+    if (delta !== 0 && onRecordXpEvent) {
+      const sign = delta > 0 ? '+' : '';
       onRecordXpEvent({
-        action: `Pushups (+${delta} reps)`,
+        action: `Pushups (${sign}${delta} reps)`,
         pillar: 'STR',
         points: delta * XP_DISCIPLINE_REWARDS.PUSHUP_REP,
         date: selectedDate,
@@ -229,6 +262,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   const handleAdjustSquats = (delta: number) => {
     sfx.playClick();
     const nextVal = Math.max(0, currentRecord.squats + delta);
+    const actualDelta = nextVal - currentRecord.squats;
     const updatedRecord: DayRecord = {
       ...currentRecord,
       squats: nextVal,
@@ -236,14 +270,15 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     };
     onUpdateDayRecord(
       updatedRecord,
-      delta > 0 ? { attr: 'STR', xp: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP } : undefined
+      actualDelta > 0 ? { attr: 'STR', xp: actualDelta * XP_DISCIPLINE_REWARDS.SQUAT_REP } : undefined
     );
 
-    if (delta > 0 && onRecordXpEvent) {
+    if (actualDelta !== 0 && onRecordXpEvent) {
+      const sign = actualDelta > 0 ? '+' : '';
       onRecordXpEvent({
-        action: `Squats (+${delta} reps)`,
+        action: `Squats (${sign}${actualDelta} reps)`,
         pillar: 'STR',
-        points: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP,
+        points: actualDelta * XP_DISCIPLINE_REWARDS.SQUAT_REP,
         date: selectedDate,
       });
     }
@@ -258,9 +293,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       workoutCompleted: currentRecord.pushups >= 50 || nextVal >= 50,
     };
     onUpdateDayRecord(updatedRecord);
-    if (delta > 0 && onRecordXpEvent) {
+    if (delta !== 0 && onRecordXpEvent) {
+      const sign = delta > 0 ? '+' : '';
       onRecordXpEvent({
-        action: `Squats (+${delta} reps)`,
+        action: `Squats (${sign}${delta} reps)`,
         pillar: 'STR',
         points: delta * XP_DISCIPLINE_REWARDS.SQUAT_REP,
         date: selectedDate,
@@ -269,15 +305,17 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   };
 
   const handleDeepWorkChange = (minutes: number) => {
-    const delta = minutes - (currentRecord.deepWorkMinutes || 0);
+    const nextMinutes = Math.max(0, minutes);
+    const delta = nextMinutes - (currentRecord.deepWorkMinutes || 0);
     const updatedRecord: DayRecord = {
       ...currentRecord,
-      deepWorkMinutes: minutes,
+      deepWorkMinutes: nextMinutes,
     };
     onUpdateDayRecord(updatedRecord);
-    if (delta > 0 && onRecordXpEvent) {
+    if (delta !== 0 && onRecordXpEvent) {
+      const sign = delta > 0 ? '+' : '';
       onRecordXpEvent({
-        action: `Deep Work Session (+${delta}m)`,
+        action: `Deep Work Session (${sign}${delta}m)`,
         pillar: 'INT',
         points: delta * XP_DISCIPLINE_REWARDS.DEEP_WORK_PER_MINUTE,
         date: selectedDate,
@@ -305,13 +343,23 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
   return (
     <div className="space-y-8">
+      {/* Editable Reminders Block */}
+      {onAddReminder && onUpdateReminder && onDeleteReminder && onReorderReminders && (
+        <RemindersBlock
+          reminders={reminders}
+          onAddReminder={onAddReminder}
+          onUpdateReminder={onUpdateReminder}
+          onDeleteReminder={onDeleteReminder}
+          onReorderReminders={onReorderReminders}
+        />
+      )}
 
-      {/* 0. Quests Due Soon Section */}
+      {/* 0. Quests Due Soon Section (Editorial hairline section, no nested outer card) */}
       {questsDueSoon.length > 0 && (
-        <section className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5">
+        <section className="pb-6 border-b border-[#E4DED2]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E4DED2]">
             <div className="flex items-center gap-2">
-              <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Due soon</h3>
+              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Due soon</h3>
               <span className="text-[11px] tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
                 {questsDueSoon.length} pending
               </span>
@@ -380,7 +428,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
-              Daily Cadence
+              Daily Checklist
             </h3>
             <p className="text-[12px] text-[#6B645A]">
               Selected: {selectedDate === todayStr ? 'Today' : selectedDate}

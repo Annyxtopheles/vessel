@@ -273,29 +273,29 @@ export function computeTotalsAndStreaksFromXpEvents(events: XpEvent[]): EventLog
 
     // Pushups
     if (ev.pillar === 'STR' && actionLower.includes('pushup')) {
-      const match = actionLower.match(/\+(\d+)\s*reps/);
+      const match = actionLower.match(/([+-]?\d+)\s*reps/);
       if (match) {
         totalPushups += parseInt(match[1], 10);
-      } else if (ev.points > 0) {
+      } else if (ev.points !== 0) {
         totalPushups += Math.round(ev.points / XP_DISCIPLINE_REWARDS.PUSHUP_REP);
       }
-      if (date) movementDates.add(date);
+      if (date && ev.points > 0) movementDates.add(date);
     }
 
     // Squats
     if (ev.pillar === 'STR' && actionLower.includes('squat')) {
-      const match = actionLower.match(/\+(\d+)\s*reps/);
+      const match = actionLower.match(/([+-]?\d+)\s*reps/);
       if (match) {
         totalSquats += parseInt(match[1], 10);
-      } else if (ev.points > 0) {
+      } else if (ev.points !== 0) {
         totalSquats += Math.round(ev.points / XP_DISCIPLINE_REWARDS.SQUAT_REP);
       }
-      if (date) movementDates.add(date);
+      if (date && ev.points > 0) movementDates.add(date);
     }
 
     // Full Workouts
     if (ev.pillar === 'STR' && (actionLower.includes('workout') || actionLower.includes('full workout'))) {
-      if (date) {
+      if (date && ev.points > 0) {
         workoutDates.add(date);
         movementDates.add(date);
       }
@@ -303,10 +303,10 @@ export function computeTotalsAndStreaksFromXpEvents(events: XpEvent[]): EventLog
 
     // Deep Work
     if (ev.pillar === 'INT' && actionLower.includes('deep work')) {
-      const match = actionLower.match(/\+(\d+)m/);
+      const match = actionLower.match(/([+-]?\d+)m/);
       if (match) {
         totalDeepWorkMinutes += parseInt(match[1], 10);
-      } else if (ev.points > 0) {
+      } else if (ev.points !== 0) {
         totalDeepWorkMinutes += Math.round(ev.points / XP_DISCIPLINE_REWARDS.DEEP_WORK_PER_MINUTE);
       }
     }
@@ -314,21 +314,30 @@ export function computeTotalsAndStreaksFromXpEvents(events: XpEvent[]): EventLog
     // Salah Prayers
     if (ev.pillar === 'WIS' && actionLower.includes('salah')) {
       if (date) {
-        salahDates.add(date);
-        salahCountsByDate[date] = (salahCountsByDate[date] || 0) + 1;
-        if (actionLower.includes('perfect') || actionLower.includes('5 daily')) {
-          salahCountsByDate[date] = 5;
+        if (ev.points > 0) {
+          salahDates.add(date);
+          if (actionLower.includes('5 daily')) {
+            salahCountsByDate[date] = 5;
+          } else if (!actionLower.includes('perfect')) {
+            salahCountsByDate[date] = (salahCountsByDate[date] || 0) + 1;
+          }
+        } else if (ev.points < 0 && !actionLower.includes('perfect')) {
+          salahCountsByDate[date] = Math.max(0, (salahCountsByDate[date] || 0) - 1);
         }
       }
     }
   }
+
+  totalPushups = Math.max(0, totalPushups);
+  totalSquats = Math.max(0, totalSquats);
+  totalDeepWorkMinutes = Math.max(0, totalDeepWorkMinutes);
 
   // Calculate Movement Streak (consecutive days with STR activity up to latest recorded date)
   const movementStreak = calculateConsecutiveDaysStreak(Array.from(movementDates));
 
   // Calculate Salah Streak (consecutive days with 5 prayers up to latest recorded date)
   const perfectSalahDates = Object.entries(salahCountsByDate)
-    .filter(([_, count]) => count >= 5)
+    .filter((entry) => entry[1] >= 5)
     .map(([d]) => d);
   const salahStreak = calculateConsecutiveDaysStreak(perfectSalahDates);
 
