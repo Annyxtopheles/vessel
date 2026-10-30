@@ -43,10 +43,12 @@ interface ItemInspectModalProps {
   onDeleteItem: (itemId: string) => void;
   onUpdateItem?: (updated: InventoryItem) => void;
   onDuplicateItem?: (item: InventoryItem) => void;
+  onLogWear?: (itemId: string) => void;
   currencySymbol?: string;
   numberGrouping?: NumberGroupingOption;
   wearCount?: number;
   transactions?: Transaction[];
+  privacyMode?: boolean;
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
@@ -63,10 +65,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   onDeleteItem,
   onUpdateItem,
   onDuplicateItem,
+  onLogWear,
   currencySymbol = '৳',
   numberGrouping = 'bangladeshi',
   wearCount = 0,
   transactions = [],
+  privacyMode = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPastReason, setSelectedPastReason] = useState<PastReason>('sold');
@@ -395,7 +399,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  <div className={`text-right ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
                     <span className="font-serif text-[22px] font-normal tabular-nums text-[#1F1B16] block">
                       {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                     </span>
@@ -419,17 +423,31 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Wear Log & Efficiency Box */}
                 {currentStatus === 'owned' && (
-                  <div className="mb-4 p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-medium text-[#1F1B16] mb-0.5">
-                        Wear Log
+                  <div className="mb-4 p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <div className="text-xs font-medium text-[#1F1B16] mb-0.5">
+                          Wear Log
+                        </div>
+                        <div className="text-[12px] tabular-nums text-[#6B645A]">
+                          {wearCount} {wearCount === 1 ? 'Wear' : 'Wears'} logged
+                        </div>
                       </div>
-                      <div className="text-[12px] tabular-nums text-[#6B645A]">
-                        {wearCount} {wearCount === 1 ? 'Wear' : 'Wears'} logged
-                      </div>
+                      {onLogWear && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sfx.playEquip();
+                            onLogWear(item.id);
+                          }}
+                          className="editorial-btn-secondary py-1 px-2.5 text-[12px]"
+                        >
+                          Log Wear (+1)
+                        </button>
+                      )}
                     </div>
 
-                    <div className="text-right">
+                    <div className={`text-right ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
                       <div className="text-[11px] text-[#6B645A]">Cost / Wear</div>
                       <div className="font-serif text-[16px] tabular-nums font-medium text-[#1F1B16]">
                         {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}` : 'Unworn'}
@@ -552,7 +570,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
         {/* Footer Metrics & Actions */}
         <div className="px-6 py-3.5 bg-[#FBF9F4] border-t border-[#E4DED2] flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 text-[13px] text-[#6B645A]">
+          <div className={`flex items-center gap-3 text-[13px] text-[#6B645A] ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
             <div className="flex items-center gap-1.5">
               <span>Value:</span>
               <span className="text-[#1F1B16] font-medium tabular-nums">

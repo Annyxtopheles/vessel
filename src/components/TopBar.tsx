@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest, NumberGroupingOption } from '../types';
+import type { InventoryItem, CustomHabit, SkillNode, AppSettings, Quest, NumberGroupingOption, BucketListEntry, Account } from '../types';
 import type { NavTab } from './Sidebar';
 import { 
   Search, 
@@ -14,6 +14,8 @@ import {
   Eye,
   EyeOff,
   Archive,
+  Compass,
+  Landmark,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 
@@ -32,6 +34,8 @@ interface TopBarProps {
   habits: CustomHabit[];
   skills: SkillNode[];
   quests?: Quest[];
+  bucketListEntries?: BucketListEntry[];
+  accounts?: Account[];
   onSelectTab: (tab: NavTab) => void;
   onInspectItem: (item: InventoryItem) => void;
   onSelectTask?: (task: Quest) => void;
@@ -56,6 +60,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   habits,
   skills,
   quests = [],
+  bucketListEntries = [],
+  accounts = [],
   onSelectTab,
   onInspectItem,
   onSelectTask,
@@ -141,8 +147,31 @@ export const TopBar: React.FC<TopBarProps> = ({
       ).slice(0, 3)
     : [];
 
+  const matchingBucketEntries = cleanQ
+    ? bucketListEntries.filter(
+        b =>
+          b.title.toLowerCase().includes(cleanQ) ||
+          (b.category && b.category.toLowerCase().includes(cleanQ)) ||
+          (b.notes && b.notes.toLowerCase().includes(cleanQ))
+      ).slice(0, 3)
+    : [];
+
+  const matchingAccounts = cleanQ
+    ? accounts.filter(
+        a =>
+          !a.archived &&
+          (a.name.toLowerCase().includes(cleanQ) || a.type.toLowerCase().includes(cleanQ))
+      ).slice(0, 3)
+    : [];
+
   const hasSearchResults = cleanQ.length > 0;
-  const totalResults = matchingItems.length + matchingHabits.length + matchingTasks.length + matchingSkills.length;
+  const totalResults =
+    matchingItems.length +
+    matchingHabits.length +
+    matchingTasks.length +
+    matchingSkills.length +
+    matchingBucketEntries.length +
+    matchingAccounts.length;
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,8 +295,67 @@ export const TopBar: React.FC<TopBarProps> = ({
                                 <span className="text-[11px] text-[#6B645A] truncate block">{item.subCategory} • {item.location || 'Vault'}</span>
                               </div>
                             </div>
-                            <span className="text-[11px] text-[#6B645A] shrink-0 tabular-nums">
+                            <span className={`text-[11px] text-[#6B645A] shrink-0 tabular-nums ${privacyMode ? 'filter blur-[5px]' : ''}`}>
                               {settings.currencySymbol || '৳'}{item.goldValue.toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {matchingBucketEntries.length > 0 && (
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Bucket List
+                      </div>
+                      <div className="space-y-0.5">
+                        {matchingBucketEntries.map(entry => (
+                          <div
+                            key={entry.id}
+                            onClick={() => {
+                              onSelectTab('bucket-list');
+                              setIsSearchFocused(false);
+                            }}
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Compass className="w-3.5 h-3.5 text-[#3F6B4F] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[13px] font-medium text-[#1F1B16] truncate block">{entry.title}</span>
+                                <span className="text-[11px] text-[#6B645A] truncate block">{entry.category || 'General'}</span>
+                              </div>
+                            </div>
+                            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider shrink-0">
+                              {entry.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {matchingAccounts.length > 0 && (
+                    <div className="p-2">
+                      <div className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider px-2 py-1">
+                        Money Accounts
+                      </div>
+                      <div className="space-y-0.5">
+                        {matchingAccounts.map(acc => (
+                          <div
+                            key={acc.id}
+                            onClick={() => {
+                              onSelectTab('money');
+                              setIsSearchFocused(false);
+                            }}
+                            className="flex items-center justify-between p-2 rounded-[4px] hover:bg-[#F6F2EA] cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Landmark className="w-3.5 h-3.5 text-[#2D4A6B] shrink-0" />
+                              <span className="text-[13px] font-medium text-[#1F1B16] truncate">{acc.name}</span>
+                            </div>
+                            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider shrink-0">
+                              {acc.type}
                             </span>
                           </div>
                         ))}

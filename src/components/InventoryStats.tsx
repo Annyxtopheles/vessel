@@ -11,6 +11,7 @@ interface InventoryStatsProps {
   currencySymbol?: string;
   numberGrouping?: NumberGroupingOption;
   items: InventoryItem[];
+  privacyMode?: boolean;
 }
 
 export const InventoryStats: React.FC<InventoryStatsProps> = ({
@@ -22,7 +23,9 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
   currencySymbol = '৳',
   numberGrouping = 'bangladeshi',
   items,
+  privacyMode = false,
 }) => {
+  const blurClass = privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : '';
   // Wardrobe by color (owned clothing only)
   const ownedClothing = items.filter(
     (i) => (i.ownershipStatus || 'owned') === 'owned' && i.category === 'apparel'
@@ -69,7 +72,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
         <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6B645A]">Total value</span>
           <div className="mt-2">
-            <div className="editorial-stat-num">
+            <div className={`editorial-stat-num ${blurClass}`}>
               {formatCurrency(vaultValuation, currencySymbol, numberGrouping)}
             </div>
             <div className="text-[12px] text-[#6B645A] mt-1 truncate">
@@ -82,7 +85,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
         <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6B645A]">Wishlist cost</span>
           <div className="mt-2">
-            <div className="editorial-stat-num">
+            <div className={`editorial-stat-num ${blurClass}`}>
               {formatCurrency(wishlistCost, currencySymbol, numberGrouping)}
             </div>
             <div className="text-[12px] text-[#6B645A] mt-1 truncate tabular-nums">

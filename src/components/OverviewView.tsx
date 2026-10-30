@@ -62,6 +62,7 @@ interface OverviewViewProps {
   onInspectItem?: (item: InventoryItem) => void;
   onOpenAddItem?: () => void;
   onOpenAddTask?: () => void;
+  privacyMode?: boolean;
 }
 
 const PILLAR_BADGES = {
@@ -92,7 +93,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   onInspectItem,
   onOpenAddItem,
   onOpenAddTask,
+  privacyMode = false,
 }) => {
+  const blurClass = privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : '';
   const todayStr = getTodayLocalDateStr();
   const todayRecord = dayRecords[todayStr];
 
@@ -566,10 +569,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <span className="text-[11px] uppercase tracking-wider text-[#6B645A] font-medium block">
                     Net Worth
                   </span>
-                  <div className="font-serif text-[32px] text-[#1F1B16] tabular-nums font-normal leading-tight mt-0.5">
+                  <div className={`font-serif text-[32px] text-[#1F1B16] tabular-nums font-normal leading-tight mt-0.5 ${blurClass}`}>
                     {formatCurrency(netWorth, currencySymbol, numberGrouping)}
                   </div>
-                  <div className="text-[13px] tabular-nums text-[#6B645A] mt-1">
+                  <div className={`text-[13px] tabular-nums text-[#6B645A] mt-1 ${blurClass}`}>
                     {monthlyCashFlow >= 0 ? '+' : ''}
                     {formatCurrency(monthlyCashFlow, currencySymbol, numberGrouping)} this month
                   </div>
@@ -596,7 +599,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                               <span className="font-medium text-[#1F1B16] truncate max-w-[170px]">
                                 {goal.name}
                               </span>
-                              <span className="tabular-nums text-[#6B645A] text-[12px] shrink-0">
+                              <span className={`tabular-nums text-[#6B645A] text-[12px] shrink-0 ${blurClass}`}>
                                 {formatCurrency(current, currencySymbol, numberGrouping)} / {formatCurrency(target, currencySymbol, numberGrouping)} ({percent}%)
                               </span>
                             </div>
@@ -616,7 +619,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 {/* Total Debt */}
                 <div className="pt-3 border-t border-[#E4DED2] flex items-baseline justify-between">
                   <span className="text-[13px] text-[#6B645A]">Total Debt</span>
-                  <span className="font-serif text-[18px] text-[#9C3D2A] tabular-nums font-medium">
+                  <span className={`font-serif text-[18px] text-[#9C3D2A] tabular-nums font-medium ${blurClass}`}>
                     {formatCurrency(totalDebt, currencySymbol, numberGrouping)}
                   </span>
                 </div>
@@ -664,7 +667,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                     <span className="text-[11px] uppercase tracking-wider text-[#6B645A] block">
                       Total value
                     </span>
-                    <span className="font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5">
+                    <span className={`font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5 ${blurClass}`}>
                       {formatCurrency(totalValue, currencySymbol, numberGrouping)}
                     </span>
                   </div>
@@ -672,7 +675,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                     <span className="text-[11px] uppercase tracking-wider text-[#6B645A] block">
                       Wishlist
                     </span>
-                    <span className="font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5">
+                    <span className={`font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5 ${blurClass}`}>
                       {formatCurrency(wishlistCost, currencySymbol, numberGrouping)}
                     </span>
                   </div>
@@ -715,7 +718,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         <span className="text-[11px] text-[#6B645A] block truncate">
                           {item.subCategory} · {item.location || 'Vault'}
                         </span>
-                        <span className="text-[12px] font-serif tabular-nums text-[#1F1B16] block mt-0.5">
+                        <span className={`text-[12px] font-serif tabular-nums text-[#1F1B16] block mt-0.5 ${blurClass}`}>
                           {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                         </span>
                       </div>

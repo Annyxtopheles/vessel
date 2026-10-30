@@ -26,6 +26,7 @@ interface InventoryGridProps {
   wearCounts?: Record<string, number>;
   palette?: PaletteColor[];
   filterNode?: InventoryTreeNode;
+  privacyMode?: boolean;
 }
 
 const RARITY_DOT_COLORS: Record<ItemRarity, string> = {
@@ -55,7 +56,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
   wearCounts = {},
   palette = [],
   filterNode = { type: 'all' },
+  privacyMode = false,
 }) => {
+  const blurClass = privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : '';
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<string>('all');
   const [paletteFilter, setPaletteFilter] = useState<'all' | 'suits' | 'avoid'>('all');
@@ -459,7 +462,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         {item.location || 'Vault'}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right font-medium tabular-nums text-[#1F1B16] whitespace-nowrap">
+                      <td className={`py-2.5 px-3 text-right font-medium tabular-nums text-[#1F1B16] whitespace-nowrap ${blurClass}`}>
                         {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                       </td>
 
@@ -467,7 +470,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                         {wears}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap">
+                      <td className={`py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap ${wears > 0 ? blurClass : ''}`}>
                         {wears > 0 && costPerWear ? (
                           `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}`
                         ) : (
@@ -575,7 +578,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
                           {/* Category + Price in Secondary Text */}
                           <p className="text-[13px] text-[#6B645A] mt-1 truncate">
-                            {item.subCategory || item.category} · <span className="tabular-nums">{formatCurrency(item.goldValue, currencySymbol, numberGrouping)}</span>
+                            {item.subCategory || item.category} · <span className={`tabular-nums ${blurClass}`}>{formatCurrency(item.goldValue, currencySymbol, numberGrouping)}</span>
                           </p>
 
                           {/* Wear Count & Cost Per Wear Metric Line */}
@@ -583,7 +586,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                             <div className="text-[12px] text-[#6B645A] mt-1.5 flex items-center gap-2 tabular-nums">
                               <span>{wears} wears</span>
                               <span>·</span>
-                              <span>
+                              <span className={costPerWear ? blurClass : ''}>
                                 {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}/wear` : 'Unworn'}
                               </span>
                             </div>

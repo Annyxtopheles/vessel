@@ -609,6 +609,15 @@ export const App: React.FC = () => {
     setInspectedItem(hydrated);
   };
 
+  const handleLogWear = async (itemId: string) => {
+    const created = await wearEventRepo.create({
+      itemId,
+      type: 'worn',
+      date: getTodayLocalDateStr(),
+    });
+    setWearEvents((prev) => [created, ...prev]);
+  };
+
   // Tasks (Quests) Management
   const handleAddTask = async (newTaskData: Omit<Quest, 'id' | 'created_at' | 'updated_at' | 'revision'>) => {
     const created = await questRepo.create({
@@ -966,6 +975,8 @@ export const App: React.FC = () => {
           habits={habits}
           skills={skills}
           quests={quests}
+          bucketListEntries={bucketListEntries}
+          accounts={accounts}
           onSelectTab={setActiveTab}
           onInspectItem={setInspectedItem}
           onSelectTask={() => {
@@ -1009,6 +1020,7 @@ export const App: React.FC = () => {
                 onInspectItem={setInspectedItem}
                 onOpenAddItem={() => setIsAddItemOpen(true)}
                 onOpenAddTask={() => setIsAddTaskOpen(true)}
+                privacyMode={privacyMode}
               />
             )}
 
@@ -1024,6 +1036,7 @@ export const App: React.FC = () => {
                   currencySymbol={settings.currencySymbol || '৳'}
                   numberGrouping={settings.numberGrouping || 'bangladeshi'}
                   items={items}
+                  privacyMode={privacyMode}
                 />
 
                 <InventoryGrid
@@ -1038,6 +1051,7 @@ export const App: React.FC = () => {
                   wearCounts={wearCounts}
                   palette={palette}
                   filterNode={inventoryFilter}
+                  privacyMode={privacyMode}
                 />
               </div>
             )}
@@ -1125,6 +1139,7 @@ export const App: React.FC = () => {
                 onDeleteDebt={handleDeleteDebt}
                 onAddSnapshot={handleAddSnapshot}
                 onNavigateToInventory={() => setActiveTab('inventory')}
+                privacyMode={privacyMode}
               />
             )}
 
@@ -1171,10 +1186,12 @@ export const App: React.FC = () => {
         onDeleteItem={handleDeleteItem}
         onUpdateItem={handleUpdateItem}
         onDuplicateItem={handleAddItem}
+        onLogWear={handleLogWear}
         wearCount={inspectedItem ? wearCounts[inspectedItem.id] || 0 : 0}
         currencySymbol={settings.currencySymbol || '৳'}
         numberGrouping={settings.numberGrouping || 'bangladeshi'}
         transactions={transactions}
+        privacyMode={privacyMode}
       />
 
       {/* Add Item Modal */}

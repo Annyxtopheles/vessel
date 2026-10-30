@@ -61,6 +61,7 @@ interface MoneyViewProps {
   onDeleteDebt: (id: string) => Promise<void>;
   onAddSnapshot?: (snapshot: NetWorthSnapshot) => Promise<void>;
   onNavigateToInventory?: () => void;
+  privacyMode?: boolean;
 }
 
 const ACCOUNT_TYPE_ICONS: Record<AccountType, React.ElementType> = {
@@ -102,7 +103,9 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
   onAddDebt,
   onDeleteDebt,
   onNavigateToInventory,
+  privacyMode = false,
 }) => {
+  const blurClass = privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : '';
   const [activeTab, setActiveTab] = useState<MoneySubTab>('summary');
   const todayStr = getTodayLocalDateStr();
 
@@ -369,7 +372,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
         {/* Global Net Worth Badge */}
         <div className="flex items-center gap-2 text-[12px] tabular-nums self-end sm:self-center">
           <span className="text-[#6B645A]">Net Worth:</span>
-          <span className="font-serif text-[16px] font-medium text-[#1F1B16]">
+          <span className={`font-serif text-[16px] font-medium text-[#1F1B16] ${blurClass}`}>
             {formatCurrency(netWorth, currencySymbol, numberGrouping)}
           </span>
         </div>
@@ -386,10 +389,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
             <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
               <span className="text-[13px] font-medium text-[#6B645A]">Current Net Worth</span>
               <div className="my-2">
-                <div className="font-serif text-[32px] font-normal text-[#1F1B16] tabular-nums leading-none">
+                <div className={`font-serif text-[32px] font-normal text-[#1F1B16] tabular-nums leading-none ${blurClass}`}>
                   {formatCurrency(netWorth, currencySymbol, numberGrouping)}
                 </div>
-                <div className="flex items-center gap-1.5 mt-2 text-[12px] tabular-nums">
+                <div className={`flex items-center gap-1.5 mt-2 text-[12px] tabular-nums ${blurClass}`}>
                   <span
                     className={
                       netWorthDelta >= 0 ? 'text-[#3F6B4F] font-medium' : 'text-[#9C3D2A] font-medium'
@@ -401,7 +404,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   <span className="text-[#6B645A]">vs last month</span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between">
+              <div className={`pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between ${blurClass}`}>
                 <span>Assets: {formatCurrency(assets, currencySymbol, numberGrouping)}</span>
                 <span>Liabilities: {formatCurrency(liabilities, currencySymbol, numberGrouping)}</span>
               </div>
@@ -410,7 +413,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
             {/* This Month's Income & Inflow */}
             <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
               <span className="text-[13px] font-medium text-[#6B645A]">October Cash Flow</span>
-              <div className="my-2 space-y-1">
+              <div className={`my-2 space-y-1 ${blurClass}`}>
                 <div className="flex items-center justify-between text-[13px] tabular-nums">
                   <span className="text-[#6B645A]">Income Received</span>
                   <span className="font-serif text-[18px] text-[#3F6B4F]">
@@ -426,7 +429,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
               <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#1F1B16] flex items-center justify-between font-medium">
                 <span>Net Savings</span>
-                <span className={`tabular-nums ${cashFlow.net >= 0 ? 'text-[#3F6B4F]' : 'text-[#9C3D2A]'}`}>
+                <span className={`tabular-nums ${cashFlow.net >= 0 ? 'text-[#3F6B4F]' : 'text-[#9C3D2A]'} ${blurClass}`}>
                   {cashFlow.net >= 0 ? '+' : ''}
                   {formatCurrency(cashFlow.net, currencySymbol, numberGrouping)}
                 </span>
@@ -452,7 +455,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
               <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between">
                 <span>Outstanding Debts</span>
-                <span className="font-serif text-[#1F1B16] tabular-nums">
+                <span className={`font-serif text-[#1F1B16] tabular-nums ${blurClass}`}>
                   {formatCurrency(
                     debts.reduce((sum, d) => sum + deriveDebtBalance(d, transactions).remaining, 0),
                     currencySymbol,
@@ -590,7 +593,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                       </h4>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#E4DED2] flex items-baseline justify-between">
+                    <div className={`mt-4 pt-3 border-t border-[#E4DED2] flex items-baseline justify-between ${blurClass}`}>
                       <span className="text-[11px] text-[#6B645A]">
                         Opening: {formatCurrency(acc.opening_balance, currencySymbol, numberGrouping)}
                       </span>
@@ -653,7 +656,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
                       <div className="mt-4 pt-3 border-t border-[#E4DED2] flex items-baseline justify-between">
                         <span className="text-[11px] text-[#6B645A]">Outstanding Liability</span>
-                        <div className="font-serif text-[20px] font-medium text-[#9C3D2A] tabular-nums">
+                        <div className={`font-serif text-[20px] font-medium text-[#9C3D2A] tabular-nums ${blurClass}`}>
                           {formatCurrency(bal, currencySymbol, numberGrouping)}
                         </div>
                       </div>
@@ -908,7 +911,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                           <td
                             className={`py-2 px-3 text-right font-serif tabular-nums font-medium whitespace-nowrap ${
                               tx.type === 'income' ? 'text-[#3F6B4F]' : 'text-[#1F1B16]'
-                            }`}
+                            } ${blurClass}`}
                           >
                             {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
                             {formatCurrency(tx.amount, currencySymbol, numberGrouping)}
@@ -1033,7 +1036,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <div className="flex items-baseline justify-between text-[13px] tabular-nums">
+                    <div className={`flex items-baseline justify-between text-[13px] tabular-nums ${blurClass}`}>
                       <span className="font-serif text-[16px] text-[#1F1B16] font-medium">
                         {formatCurrency(current, currencySymbol, numberGrouping)}
                       </span>
@@ -1121,7 +1124,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <div className="flex items-baseline justify-between text-[13px] tabular-nums">
+                    <div className={`flex items-baseline justify-between text-[13px] tabular-nums ${blurClass}`}>
                       <div>
                         <span className="text-[11px] text-[#6B645A] block">Remaining Owed</span>
                         <span className="font-serif text-[20px] text-[#9C3D2A] font-medium">
