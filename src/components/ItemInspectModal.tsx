@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import type { InventoryItem, ItemCondition, OwnershipStatus, PastReason, ItemCategory, NumberGroupingOption } from '../types';
+import type {
+  InventoryItem,
+  ItemCondition,
+  OwnershipStatus,
+  PastReason,
+  ItemCategory,
+  NumberGroupingOption,
+  Transaction,
+} from '../types';
 import { X, Trash2, Edit3, Copy, MapPin } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
@@ -38,6 +46,7 @@ interface ItemInspectModalProps {
   currencySymbol?: string;
   numberGrouping?: NumberGroupingOption;
   wearCount?: number;
+  transactions?: Transaction[];
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
@@ -57,6 +66,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   currencySymbol = '৳',
   numberGrouping = 'bangladeshi',
   wearCount = 0,
+  transactions = [],
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPastReason, setSelectedPastReason] = useState<PastReason>('sold');
@@ -99,6 +109,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const conditionInfo = CONDITION_MAP[item.condition] || CONDITION_MAP.pristine;
   const costPerWear = wearCount > 0 ? (item.goldValue / wearCount).toFixed(2) : null;
   const initialChar = (item.name[0] || 'V').toUpperCase();
+  const linkedTx = transactions.find((t) => t.item_id === item.id);
+  const derivedPricePaid = linkedTx ? linkedTx.amount : item.price_paid;
 
   const handleSetPast = (reason: PastReason) => {
     sfx.playClick();
@@ -387,6 +399,16 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     <span className="font-serif text-[22px] font-normal tabular-nums text-[#1F1B16] block">
                       {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                     </span>
+                    {derivedPricePaid !== undefined && (
+                      <span className="text-[11px] tabular-nums text-[#6B645A] block mt-0.5">
+                        Paid: {formatCurrency(derivedPricePaid, currencySymbol, numberGrouping)}
+                        {linkedTx && (
+                          <span className="ml-1 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E4DED2] text-[#1F1B16]">
+                            Tx
+                          </span>
+                        )}
+                      </span>
+                    )}
                     {currentStatus === 'wishlist' && item.targetPrice && (
                       <span className="text-[11px] tabular-nums text-[#6B645A]">
                         Target: {formatCurrency(item.targetPrice, currencySymbol, numberGrouping)}
@@ -530,11 +552,26 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
         {/* Footer Metrics & Actions */}
         <div className="px-6 py-3.5 bg-[#FBF9F4] border-t border-[#E4DED2] flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 text-[13px] text-[#6B645A]">
-            <span>Value:</span>
-            <span className="text-[#1F1B16] font-medium tabular-nums">
-              {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
-            </span>
+          <div className="flex items-center gap-3 text-[13px] text-[#6B645A]">
+            <div className="flex items-center gap-1.5">
+              <span>Value:</span>
+              <span className="text-[#1F1B16] font-medium tabular-nums">
+                {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
+              </span>
+            </div>
+            {derivedPricePaid !== undefined && (
+              <div className="flex items-center gap-1.5 border-l border-[#E4DED2] pl-3">
+                <span>Price Paid:</span>
+                <span className="text-[#1F1B16] font-medium tabular-nums">
+                  {formatCurrency(derivedPricePaid, currencySymbol, numberGrouping)}
+                </span>
+                {linkedTx && (
+                  <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E4DED2] text-[#1F1B16]">
+                    Linked Tx
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <button

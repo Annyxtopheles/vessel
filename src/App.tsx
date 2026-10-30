@@ -22,6 +22,12 @@ import type {
   Reminder,
   BucketListEntry,
   SalahStatus,
+  Account,
+  FinanceCategory,
+  Transaction,
+  SavingsGoal,
+  Debt,
+  NetWorthSnapshot,
 } from './types';
 import {
   initDatabase,
@@ -42,6 +48,12 @@ import {
   profileRepo,
   reminderRepo,
   bucketListRepo,
+  accountRepo,
+  financeCategoryRepo,
+  transactionRepo,
+  savingsGoalRepo,
+  debtRepo,
+  netWorthSnapshotRepo,
 } from './repositories';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
@@ -51,8 +63,8 @@ import { TopBar } from './components/TopBar';
 import { OverviewView } from './components/OverviewView';
 import { InventoryStats } from './components/InventoryStats';
 import { InventoryGrid } from './components/InventoryGrid';
-import { EmptyPageView } from './components/EmptyPageView';
 import { BucketListView } from './components/BucketListView';
+import { MoneyView } from './components/MoneyView';
 import { ItemInspectModal } from './components/ItemInspectModal';
 import { AddItemModal } from './components/AddItemModal';
 import { ImportItemsModal } from './components/ImportItemsModal';
@@ -62,6 +74,7 @@ import { DailyRituals } from './components/DailyRituals';
 import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
 import { formatCurrency } from './utils/numberFormat';
+import { ensureNetWorthSnapshots } from './utils/finance';
 
 const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
   try {
@@ -152,6 +165,22 @@ export const App: React.FC = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [bucketListEntries, setBucketListEntries] = useState<BucketListEntry[]>([]);
 
+  // Financial States
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [financeCategories, setFinanceCategories] = useState<FinanceCategory[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [netWorthSnapshots, setNetWorthSnapshots] = useState<NetWorthSnapshot[]>([]);
+
+  // Wanted-to-Owned Expense Prompt State
+  const [purchaseExpensePromptItem, setPurchaseExpensePromptItem] = useState<InventoryItem | null>(null);
+  const [expenseAccountId, setExpenseAccountId] = useState<string>('');
+  const [expenseCategoryId, setExpenseCategoryId] = useState<string>('');
+  const [expenseAmount, setExpenseAmount] = useState<string>('');
+  const [expenseDate, setExpenseDate] = useState<string>(getTodayLocalDateStr());
+  const [expenseNote, setExpenseNote] = useState<string>('');
+
   // App-wide Privacy Mode
   const [privacyMode, setPrivacyMode] = useState<boolean>(false);
 
@@ -192,6 +221,12 @@ export const App: React.FC = () => {
         loadedTraits,
         loadedReminders,
         loadedBucket,
+        loadedAccounts,
+        loadedCategories,
+        loadedTransactions,
+        loadedGoals,
+        loadedDebts,
+        loadedSnapshots,
       ] = await Promise.all([
         itemRepo.list(),
         profileRepo.getProfile(),
@@ -210,6 +245,12 @@ export const App: React.FC = () => {
         traitRepo.list(),
         reminderRepo.listOrdered(),
         bucketListRepo.listActive(),
+        accountRepo.list(),
+        financeCategoryRepo.list(),
+        transactionRepo.list(),
+        savingsGoalRepo.list(),
+        debtRepo.list(),
+        netWorthSnapshotRepo.list(),
       ]);
 
       setItems(loadedItems);
@@ -229,6 +270,23 @@ export const App: React.FC = () => {
       setTraits(loadedTraits);
       setReminders(loadedReminders);
       setBucketListEntries(loadedBucket);
+      setAccounts(loadedAccounts);
+      setFinanceCategories(loadedCategories);
+      setTransactions(loadedTransactions);
+      setSavingsGoals(loadedGoals);
+      setDebts(loadedDebts);
+
+      const { snapshots: reconciledSnapshots, createdSnapshot } = ensureNetWorthSnapshots(
+        loadedSnapshots,
+        loadedAccounts,
+        loadedDebts,
+        loadedTransactions
+      );
+      if (createdSnapshot) {
+        await netWorthSnapshotRepo.create(createdSnapshot);
+      }
+      setNetWorthSnapshots(reconciledSnapshots);
+
       if (loadedSettings.privacyMode !== undefined) {
         setPrivacyMode(loadedSettings.privacyMode);
       }
@@ -295,6 +353,7 @@ export const App: React.FC = () => {
         setIsBackupModalOpen(false);
         setIsImportItemsOpen(false);
         setWishlistPromptItem(null);
+        setPurchaseExpensePromptItem(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -371,6 +430,7 @@ export const App: React.FC = () => {
     pastReason?: PastReason,
     pastDate?: string
   ) => {
+    const wasWishlist = (item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned')) === 'wishlist';
     const isNowLocked = newStatus === 'wishlist';
     const patch: Partial<InventoryItem> = {
       ownershipStatus: newStatus,
@@ -385,6 +445,126 @@ export const App: React.FC = () => {
     if (inspectedItem && inspectedItem.id === item.id) {
       setInspectedItem(updated);
     }
+
+    // Offer to create matching expense when moving from wishlist to owned
+    if (wasWishlist && newStatus === 'owned') {
+      const defaultAcc = accounts.find((a) => !a.archived && ['bank', 'cash', 'mobile_wallet'].includes(a.type)) || accounts[0];
+      const defaultCat = financeCategories.find((c) => c.name.toLowerCase().includes('shopping') || c.name.toLowerCase().includes('gear') || c.name.toLowerCase().includes('apparel')) || financeCategories[0];
+      setExpenseAccountId(defaultAcc ? defaultAcc.id : '');
+      setExpenseCategoryId(defaultCat ? defaultCat.id : '');
+      setExpenseAmount(String(item.targetPrice || item.goldValue || 0));
+      setExpenseDate(getTodayLocalDateStr());
+      setExpenseNote(`Acquired ${item.name}`);
+      setPurchaseExpensePromptItem(updated);
+    }
+  };
+
+  const handleConfirmPurchaseExpense = async () => {
+    if (!purchaseExpensePromptItem) return;
+    const amountNum = Math.max(0, parseFloat(expenseAmount) || 0);
+    if (expenseAccountId) {
+      const createdTx = await transactionRepo.create({
+        account_id: expenseAccountId,
+        date: expenseDate || getTodayLocalDateStr(),
+        amount: amountNum,
+        type: 'expense',
+        category_id: expenseCategoryId,
+        note: expenseNote.trim() || `Acquired ${purchaseExpensePromptItem.name}`,
+        item_id: purchaseExpensePromptItem.id,
+      });
+      setTransactions((prev) => [createdTx, ...prev]);
+
+      const updated = await itemRepo.update(purchaseExpensePromptItem.id, {
+        price_paid: amountNum,
+      });
+      setItems((prev) => prev.map((it) => (it.id === updated.id ? updated : it)));
+      if (inspectedItem && inspectedItem.id === updated.id) {
+        setInspectedItem(updated);
+      }
+      sfx.playClick();
+    }
+    setPurchaseExpensePromptItem(null);
+  };
+
+  // Money CRUD handlers
+  const handleAddAccount = async (newAcc: Omit<Account, 'id'>) => {
+    const created = await accountRepo.create(newAcc);
+    setAccounts((prev) => [...prev, created]);
+    sfx.playClick();
+  };
+
+  const handleUpdateAccount = async (updated: Account) => {
+    const res = await accountRepo.update(updated.id, updated);
+    setAccounts((prev) => prev.map((a) => (a.id === updated.id ? res : a)));
+    sfx.playClick();
+  };
+
+  const handleDeleteAccount = async (id: string) => {
+    await accountRepo.softDelete(id);
+    setAccounts((prev) => prev.filter((a) => a.id !== id));
+    sfx.playClick();
+  };
+
+  const handleAddTransaction = async (txData: Omit<Transaction, 'id'>) => {
+    const created = await transactionRepo.create(txData);
+    setTransactions((prev) => [created, ...prev]);
+
+    // If transaction is linked to an inventory item, sync item's price_paid
+    if (txData.item_id && txData.type === 'expense') {
+      const matched = items.find((it) => it.id === txData.item_id);
+      if (matched) {
+        const updated = await itemRepo.update(matched.id, { price_paid: txData.amount });
+        setItems((prev) => prev.map((it) => (it.id === matched.id ? updated : it)));
+      }
+    }
+    sfx.playClick();
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    await transactionRepo.softDelete(id);
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    sfx.playClick();
+  };
+
+  const handleAddSavingsGoal = async (newGoal: Omit<SavingsGoal, 'id'>) => {
+    const created = await savingsGoalRepo.create(newGoal);
+    setSavingsGoals((prev) => [...prev, created]);
+    sfx.playClick();
+  };
+
+  const handleUpdateSavingsGoal = async (updated: SavingsGoal) => {
+    const res = await savingsGoalRepo.update(updated.id, updated);
+    setSavingsGoals((prev) => prev.map((g) => (g.id === updated.id ? res : g)));
+    sfx.playClick();
+  };
+
+  const handleDeleteSavingsGoal = async (id: string) => {
+    await savingsGoalRepo.softDelete(id);
+    setSavingsGoals((prev) => prev.filter((g) => g.id !== id));
+    sfx.playClick();
+  };
+
+  const handleAddDebt = async (newDebt: Omit<Debt, 'id'>) => {
+    const created = await debtRepo.create(newDebt);
+    setDebts((prev) => [...prev, created]);
+    sfx.playClick();
+  };
+
+  const handleUpdateDebt = async (updated: Debt) => {
+    const res = await debtRepo.update(updated.id, updated);
+    setDebts((prev) => prev.map((d) => (d.id === updated.id ? res : d)));
+    sfx.playClick();
+  };
+
+  const handleDeleteDebt = async (id: string) => {
+    await debtRepo.softDelete(id);
+    setDebts((prev) => prev.filter((d) => d.id !== id));
+    sfx.playClick();
+  };
+
+  const handleAddSnapshot = async (snapshot: NetWorthSnapshot) => {
+    const created = await netWorthSnapshotRepo.create(snapshot);
+    setNetWorthSnapshots((prev) => [...prev, created]);
   };
 
   const handleDeleteItem = async (itemId: string) => {
@@ -884,7 +1064,30 @@ export const App: React.FC = () => {
 
             {/* Money */}
             {activeTab === 'money' && (
-              <EmptyPageView title="Money" type="money" />
+              <MoneyView
+                accounts={accounts}
+                financeCategories={financeCategories}
+                transactions={transactions}
+                savingsGoals={savingsGoals}
+                debts={debts}
+                netWorthSnapshots={netWorthSnapshots}
+                items={items}
+                currencySymbol={settings.currencySymbol || '৳'}
+                numberGrouping={settings.numberGrouping || 'bangladeshi'}
+                onAddAccount={handleAddAccount}
+                onUpdateAccount={handleUpdateAccount}
+                onDeleteAccount={handleDeleteAccount}
+                onAddTransaction={handleAddTransaction}
+                onDeleteTransaction={handleDeleteTransaction}
+                onAddSavingsGoal={handleAddSavingsGoal}
+                onUpdateSavingsGoal={handleUpdateSavingsGoal}
+                onDeleteSavingsGoal={handleDeleteSavingsGoal}
+                onAddDebt={handleAddDebt}
+                onUpdateDebt={handleUpdateDebt}
+                onDeleteDebt={handleDeleteDebt}
+                onAddSnapshot={handleAddSnapshot}
+                onNavigateToInventory={() => setActiveTab('inventory')}
+              />
             )}
 
             {/* Character */}
@@ -930,6 +1133,7 @@ export const App: React.FC = () => {
         wearCount={inspectedItem ? wearCounts[inspectedItem.id] || 0 : 0}
         currencySymbol={settings.currencySymbol || '৳'}
         numberGrouping={settings.numberGrouping || 'bangladeshi'}
+        transactions={transactions}
       />
 
       {/* Add Item Modal */}
@@ -1023,6 +1227,127 @@ export const App: React.FC = () => {
                 className="editorial-btn-primary"
               >
                 Mark Item as Owned
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Wanted-to-Owned Expense Logging Modal */}
+      {purchaseExpensePromptItem && (
+        <div
+          onClick={() => setPurchaseExpensePromptItem(null)}
+          className="fixed inset-0 z-50 bg-[#1F1B16]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
+          >
+            <div className="pb-3 border-b border-[#E4DED2]">
+              <h3 className="font-serif text-[20px] font-semibold text-[#1F1B16] leading-snug">
+                Record Acquisition Expense
+              </h3>
+              <p className="text-[13px] text-[#6B645A] mt-0.5">
+                Link purchase transaction to {purchaseExpensePromptItem.name}
+              </p>
+            </div>
+
+            <div className="py-4 space-y-3.5">
+              <p className="text-[14px] text-[#6B645A] leading-relaxed">
+                You marked <strong className="text-[#1F1B16]">{purchaseExpensePromptItem.name}</strong> as owned. Would you like to log this expense in your ledger?
+              </p>
+
+              <div>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  Amount ({settings.currencySymbol || '৳'})
+                </label>
+                <input
+                  type="number"
+                  value={expenseAmount}
+                  onChange={(e) => setExpenseAmount(e.target.value)}
+                  className="ship-input w-full tabular-nums font-serif text-[16px]"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    Account
+                  </label>
+                  <select
+                    value={expenseAccountId}
+                    onChange={(e) => setExpenseAccountId(e.target.value)}
+                    className="ship-input w-full text-[13px]"
+                  >
+                    {accounts
+                      .filter((a) => !a.archived)
+                      .map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    Category
+                  </label>
+                  <select
+                    value={expenseCategoryId}
+                    onChange={(e) => setExpenseCategoryId(e.target.value)}
+                    className="ship-input w-full text-[13px]"
+                  >
+                    {financeCategories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={expenseDate}
+                  onChange={(e) => setExpenseDate(e.target.value)}
+                  className="ship-input w-full text-[13px]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  Note
+                </label>
+                <input
+                  type="text"
+                  value={expenseNote}
+                  onChange={(e) => setExpenseNote(e.target.value)}
+                  className="ship-input w-full text-[13px]"
+                  placeholder="Acquisition note..."
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setPurchaseExpensePromptItem(null)}
+                className="editorial-btn-secondary"
+              >
+                Skip Expense
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPurchaseExpense}
+                className="editorial-btn-primary"
+              >
+                Log Expense
               </button>
             </div>
           </div>
