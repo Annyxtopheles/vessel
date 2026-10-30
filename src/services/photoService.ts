@@ -1,6 +1,6 @@
 import { photoRepo } from '../repositories';
 import { generateUuid } from '../repositories/base';
-import type { PhotoRecord } from '../types';
+import type { PhotoRecord, InventoryItem } from '../types';
 
 const urlCache = new Map<string, string>();
 
@@ -139,4 +139,33 @@ export async function getPhotoBlobUrl(
 export function clearPhotoUrlCache(): void {
   urlCache.forEach((url) => URL.revokeObjectURL(url));
   urlCache.clear();
+}
+
+/**
+ * Hydrates items with fresh session ObjectURLs from IndexedDB photo blobs.
+ * Prevents stale `blob:` URLs from breaking after browser reload.
+ */
+export async function hydrateItemPhotos(items: InventoryItem[]): Promise<InventoryItem[]> {
+  return Promise.all(
+    items.map(async (item) => {
+      if (item.photoId) {
+        const blobUrl = await getPhotoBlobUrl(item.photoId, 'full');
+        if (blobUrl) {
+          return { ...item, imageUrl: blobUrl };
+        }
+      }
+      if (item.imageUrl && item.imageUrl.startsWith('blob:')) {
+        const linkedPhotos = await photoRepo.getByItemId(item.id);
+        if (linkedPhotos.length > 0) {
+          const latest = linkedPhotos[linkedPhotos.length - 1];
+          const blobUrl = await getPhotoBlobUrl(latest.id, 'full');
+          if (blobUrl) {
+            return { ...item, photoId: latest.id, imageUrl: blobUrl };
+          }
+        }
+        return { ...item, imageUrl: undefined };
+      }
+      return item;
+    })
+  );
 }

@@ -48,6 +48,11 @@ import {
   INITIAL_QUESTS,
   INITIAL_QUEST_EVIDENCE,
   DEFAULT_SETTINGS,
+  INITIAL_BODY_MEASUREMENTS,
+  INITIAL_APPEARANCE,
+  INITIAL_COLOR_PALETTE,
+  INITIAL_PERSONALITY,
+  INITIAL_TRAITS,
 } from '../utils/storage';
 
 export class ItemRepository extends BaseRepository<InventoryItem> {
@@ -402,6 +407,42 @@ export async function initDatabase(): Promise<void> {
     }
   } catch (err) {
     console.warn('[Vessel DB] Could not migrate habits non_negotiable:', err);
+  }
+
+  // Ensure Stat Sheet & event tables are populated if empty
+  try {
+    if ((await db.measurements.count()) === 0) {
+      const raw = localStorage.getItem('vessel_body_measurements_v1');
+      const seed: BodyMeasurement[] = raw ? JSON.parse(raw) : INITIAL_BODY_MEASUREMENTS;
+      await measurementRepo.batchPut(seed.map((m) => normalizeRecord(m)));
+    }
+    if ((await db.palette.count()) === 0) {
+      const raw = localStorage.getItem('vessel_color_palette_v1');
+      const seed: PaletteColor[] = raw ? JSON.parse(raw) : INITIAL_COLOR_PALETTE;
+      await paletteRepo.batchPut(seed.map((p) => normalizeRecord(p)));
+    }
+    if ((await db.personality.count()) === 0) {
+      const raw = localStorage.getItem('vessel_personality_v1');
+      const seed: PersonalityEntry[] = raw ? JSON.parse(raw) : INITIAL_PERSONALITY;
+      await personalityRepo.batchPut(seed.map((p) => normalizeRecord(p)));
+    }
+    if ((await db.traits.count()) === 0) {
+      const raw = localStorage.getItem('vessel_character_traits_v1');
+      const seed: CharacterTrait[] = raw ? JSON.parse(raw) : INITIAL_TRAITS;
+      await traitRepo.batchPut(seed.map((t) => normalizeRecord(t)));
+    }
+    if ((await db.appearance.count()) === 0) {
+      const raw = localStorage.getItem('vessel_character_appearance_v1');
+      const seed: CharacterAppearance = raw ? JSON.parse(raw) : INITIAL_APPEARANCE;
+      await appearanceRepo.batchPut([normalizeRecord(seed, 'default_appearance')]);
+    }
+    if ((await db.xpEvents.count()) === 0) {
+      const rawXp = localStorage.getItem('vessel_xp_events_v1');
+      const seedXp: XpEvent[] = rawXp ? JSON.parse(rawXp) : INITIAL_XP_EVENTS;
+      await xpEventRepo.batchPut(seedXp.map((x) => normalizeRecord(x)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed Stat Sheet / XP tables:', err);
   }
 
   const itemsCount = await db.items.count();

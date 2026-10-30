@@ -75,6 +75,7 @@ import { QuestsView } from './components/QuestsView';
 import { sfx } from './utils/audio';
 import { formatCurrency } from './utils/numberFormat';
 import { ensureNetWorthSnapshots } from './utils/finance';
+import { hydrateItemPhotos } from './services/photoService';
 
 const getInitialUrlState = (): { tab: NavTab; filter: InventoryTreeNode } => {
   try {
@@ -253,7 +254,8 @@ export const App: React.FC = () => {
         netWorthSnapshotRepo.list(),
       ]);
 
-      setItems(loadedItems);
+      const hydratedItems = await hydrateItemPhotos(loadedItems);
+      setItems(hydratedItems);
       setProfile(loadedProfile);
       setSkills(loadedSkills);
       setHabits(loadedHabits);
@@ -576,14 +578,24 @@ export const App: React.FC = () => {
   };
 
   const handleAddItem = async (newItem: InventoryItem) => {
-    const created = await itemRepo.create(newItem);
-    setItems((prev) => [created, ...prev]);
+    const cleanForDb: InventoryItem = {
+      ...newItem,
+      imageUrl: newItem.imageUrl?.startsWith('blob:') ? undefined : newItem.imageUrl,
+    };
+    const created = await itemRepo.create(cleanForDb);
+    const [hydrated] = await hydrateItemPhotos([created]);
+    setItems((prev) => [hydrated, ...prev]);
   };
 
   const handleUpdateItem = async (updated: InventoryItem) => {
-    const res = await itemRepo.update(updated.id, updated);
-    setItems((prev) => prev.map((it) => (it.id === updated.id ? res : it)));
-    setInspectedItem(res);
+    const cleanForDb: InventoryItem = {
+      ...updated,
+      imageUrl: updated.imageUrl?.startsWith('blob:') ? undefined : updated.imageUrl,
+    };
+    const res = await itemRepo.update(updated.id, cleanForDb);
+    const [hydrated] = await hydrateItemPhotos([res]);
+    setItems((prev) => prev.map((it) => (it.id === updated.id ? hydrated : it)));
+    setInspectedItem(hydrated);
   };
 
   // Tasks (Quests) Management
@@ -1108,7 +1120,10 @@ export const App: React.FC = () => {
                 dayRecords={dayRecords}
                 xpEvents={xpEvents}
                 onUnlockSkill={handleUnlockSkill}
-                onUpdateProfile={(updated) => setProfile((prev) => ({ ...prev, ...updated }))}
+                onUpdateProfile={async (updated) => {
+                  const saved = await profileRepo.saveProfile(updated);
+                  setProfile(saved);
+                }}
                 measurements={measurements}
                 appearance={appearance}
                 palette={palette}
