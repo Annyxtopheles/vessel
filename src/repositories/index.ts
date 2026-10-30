@@ -35,6 +35,15 @@ import {
   INITIAL_REMINDERS,
   INITIAL_BUCKET_LIST,
   INITIAL_XP_EVENTS,
+  INITIAL_QUESTS,
+  INITIAL_QUEST_EVIDENCE,
+  DEFAULT_SETTINGS,
+  INITIAL_BODY_MEASUREMENTS,
+  INITIAL_APPEARANCE,
+  INITIAL_COLOR_PALETTE,
+  INITIAL_PERSONALITY,
+  INITIAL_TRAITS,
+  INITIAL_WEAR_EVENTS,
 } from '../data/mockData';
 import {
   INITIAL_ACCOUNTS,
@@ -44,16 +53,6 @@ import {
   INITIAL_DEBTS,
   INITIAL_NET_WORTH_SNAPSHOTS,
 } from '../utils/finance';
-import {
-  INITIAL_QUESTS,
-  INITIAL_QUEST_EVIDENCE,
-  DEFAULT_SETTINGS,
-  INITIAL_BODY_MEASUREMENTS,
-  INITIAL_APPEARANCE,
-  INITIAL_COLOR_PALETTE,
-  INITIAL_PERSONALITY,
-  INITIAL_TRAITS,
-} from '../utils/storage';
 
 export class ItemRepository extends BaseRepository<InventoryItem> {
   async findByExternalId(externalId: string): Promise<InventoryItem | undefined> {
@@ -440,6 +439,11 @@ export async function initDatabase(): Promise<void> {
       const rawXp = localStorage.getItem('vessel_xp_events_v1');
       const seedXp: XpEvent[] = rawXp ? JSON.parse(rawXp) : INITIAL_XP_EVENTS;
       await xpEventRepo.batchPut(seedXp.map((x) => normalizeRecord(x)));
+    }
+    if ((await db.wearEvents.count()) === 0) {
+      const rawWear = localStorage.getItem('vessel_wear_events_v1');
+      const seedWear: WearEvent[] = rawWear ? JSON.parse(rawWear) : INITIAL_WEAR_EVENTS;
+      await wearEventRepo.batchPut(seedWear.map((w) => normalizeRecord(w)));
     }
   } catch (err) {
     console.warn('[Vessel DB] Could not seed Stat Sheet / XP tables:', err);

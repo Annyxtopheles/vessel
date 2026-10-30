@@ -7,6 +7,15 @@ import type {
   Reminder,
   BucketListEntry,
   XpEvent,
+  Quest,
+  QuestEvidence,
+  AppSettings,
+  BodyMeasurement,
+  CharacterAppearance,
+  PaletteColor,
+  PersonalityEntry,
+  CharacterTrait,
+  WearEvent,
 } from '../types';
 
 export const INITIAL_ITEMS: InventoryItem[] = [
@@ -622,3 +631,208 @@ export const INITIAL_XP_EVENTS: XpEvent[] = [
   { id: 'xp-38', action: 'Deep Work Session (+240m)', pillar: 'INT', points: 240, date: '2026-10-28' },
   { id: 'xp-39', action: 'Salah: 5 Daily Prayers', pillar: 'WIS', points: 250, date: '2026-10-28' },
 ];
+
+export const INITIAL_QUESTS: Quest[] = [
+  {
+    id: 'quest-1',
+    title: 'Benchpress Bodyweight Milestone',
+    description: 'Achieve a clean single repetition of bodyweight (75 kg) with paused form.',
+    status: 'doing',
+    pillar: 'STR',
+    difficulty: 'Hard',
+    dueDate: '2026-11-05',
+    evidenceRequired: true,
+    linkedItemId: 'item-wish-1',
+    createdAt: '2026-10-20',
+  },
+  {
+    id: 'quest-2',
+    title: 'Audit & Refactor Event Bus Architecture',
+    description: 'Replace polling listeners with decoupled event-driven reactive stores.',
+    status: 'todo',
+    pillar: 'INT',
+    difficulty: 'Medium',
+    dueDate: '2026-10-30',
+    evidenceRequired: false,
+    createdAt: '2026-10-24',
+  },
+  {
+    id: 'quest-3',
+    title: 'Memorize Surah Al-Mulk with Tajweed',
+    description: 'Commit all 30 verses of the protective Surah to daily recitation memory.',
+    status: 'doing',
+    pillar: 'WIS',
+    difficulty: 'Hard',
+    dueDate: '2026-11-15',
+    evidenceRequired: true,
+    linkedItemId: 'item-wish-2',
+    createdAt: '2026-10-18',
+  },
+  {
+    id: 'quest-4',
+    title: 'Conduct Q4 Architecture Onboarding',
+    description: 'Pair with 2 engineering apprentices to walk through state machines.',
+    status: 'done',
+    pillar: 'CHA',
+    difficulty: 'Easy',
+    dueDate: '2026-10-27',
+    evidenceRequired: false,
+    createdAt: '2026-10-22',
+    completedAt: '2026-10-27',
+  },
+];
+
+export const INITIAL_QUEST_EVIDENCE: QuestEvidence[] = [
+  {
+    id: 'ev-1',
+    questId: 'quest-1',
+    type: 'note',
+    content: 'Hit 70kg for 3 reps comfortably on Tuesday. Will test 75kg next session.',
+    addedAt: '2026-10-25',
+  },
+];
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  currencySymbol: '৳',
+  numberGrouping: 'bangladeshi',
+  unitSystem: 'metric',
+  targetWeightKg: 73.0,
+};
+
+export const INITIAL_BODY_MEASUREMENTS: BodyMeasurement[] = [
+  { id: 'bm-1', type: 'weight', value: 76.2, unit: 'kg', date: '2026-10-07', note: 'Baseline weight' },
+  { id: 'bm-2', type: 'weight', value: 75.8, unit: 'kg', date: '2026-10-14', note: 'Calisthenics volume increase' },
+  { id: 'bm-3', type: 'weight', value: 75.0, unit: 'kg', date: '2026-10-21', note: 'Fasting day hydration' },
+  { id: 'bm-4', type: 'weight', value: 74.5, unit: 'kg', date: '2026-10-28', note: 'Target reached' },
+  { id: 'bm-5', type: 'height', value: 178, unit: 'cm', date: '2026-09-01', note: 'Morning measured height' },
+  { id: 'bm-6', type: 'waist', value: 79, unit: 'cm', date: '2026-10-20', note: 'Natural waist circumference' },
+  { id: 'bm-7', type: 'chest', value: 100, unit: 'cm', date: '2026-10-20', note: 'Chest under arms' },
+];
+
+export const INITIAL_APPEARANCE: CharacterAppearance = {
+  skinToneHex: '#D7A781',
+  skinToneNote: 'Warm golden olive undertones; thrives in rich earth tones, muted teal, charcoal.',
+  hair: 'Dark Espresso Brown, medium textured crop',
+  eyeColor: 'Deep Hazel / Amber',
+  photoUrl: undefined,
+  updatedAt: '2026-10-28',
+};
+
+export const INITIAL_COLOR_PALETTE: PaletteColor[] = [
+  { id: 'pal-1', colorHex: '#18181B', label: 'Deep Carbon', verdict: 'suits', note: 'High contrast foundational base' },
+  { id: 'pal-2', colorHex: '#0891B2', label: 'Celeste Teal', verdict: 'suits', note: 'Signature accent & talisman' },
+  { id: 'pal-3', colorHex: '#3F4E28', label: 'Olive Drab', verdict: 'suits', note: 'Harmonizes with warm olive skin' },
+  { id: 'pal-4', colorHex: '#27272A', label: 'Charcoal Heather', verdict: 'suits', note: 'Sophisticated neutral' },
+  { id: 'pal-5', colorHex: '#451A03', label: 'Espresso Brown', verdict: 'suits', note: 'Warm grounding leather tone' },
+  { id: 'pal-6', colorHex: '#064E3B', label: 'Forest Emerald', verdict: 'suits', note: 'Rich jewel tone' },
+  { id: 'pal-7', colorHex: '#F4EFE6', label: 'Natural Linen', verdict: 'neutral', note: 'Gentle contrast against dark outerwear' },
+  { id: 'pal-8', colorHex: '#71717A', label: 'Slate Grey', verdict: 'neutral', note: 'Balanced middle ground' },
+  { id: 'pal-9', colorHex: '#FDE047', label: 'Electric Yellow', verdict: 'avoid', note: 'Washes out warm undertones' },
+  { id: 'pal-10', colorHex: '#F43F5E', label: 'Vivid Magenta', verdict: 'avoid', note: 'Clashes with olive undertones' },
+  { id: 'pal-11', colorHex: '#D97706', label: 'High-Vis Amber', verdict: 'avoid', note: 'Overpowering artificial saturation' },
+];
+
+export const INITIAL_PERSONALITY: PersonalityEntry[] = [
+  {
+    id: 'pers-1',
+    system: 'MBTI',
+    result: 'INTJ-A (The Architect)',
+    dateTaken: '2026-05-12',
+    source: '16Personalities',
+    notes: 'Strategic long-range synthesis with pragmatic execution and high independence.',
+  },
+  {
+    id: 'pers-2',
+    system: 'Enneagram',
+    result: 'Type 5w6 (The Investigator with Loyalist Wing)',
+    dateTaken: '2026-06-20',
+    notes: 'Analytical observer focused on mastery, intellectual competence, and clarity.',
+  },
+  {
+    id: 'pers-3',
+    system: 'Big Five',
+    result: 'High Conscientiousness (91%), High Openness (86%), Low Neuroticism (22%)',
+    dateTaken: '2026-07-15',
+    notes: 'Strong executive function, intellectual curiosity, high emotional stability.',
+  },
+];
+
+export const INITIAL_TRAITS: CharacterTrait[] = [
+  {
+    id: 'trait-1',
+    name: 'Deep Focus & Systems Craft',
+    kind: 'strength',
+    level: 5,
+    note: 'Sustained 3+ hour flow states on engineering architecture and UI systems.',
+  },
+  {
+    id: 'trait-2',
+    name: 'Minimalist Restraint',
+    kind: 'strength',
+    level: 4,
+    note: 'Zero tolerance for bloat, clutter, or superfluous tools.',
+  },
+  {
+    id: 'trait-3',
+    name: 'Kinetic Consistency',
+    kind: 'strength',
+    level: 4,
+    note: 'Committed bodyweight pushup & squat discipline.',
+  },
+  {
+    id: 'trait-4',
+    name: 'Circadian Prayer Anchoring',
+    kind: 'strength',
+    level: 4,
+    note: 'Grounding ambition to the five daily prayers.',
+  },
+  {
+    id: 'trait-5',
+    name: 'Verbal Articulation in High Stakes',
+    kind: 'working_on',
+    level: 3,
+    note: 'Framing thoughts into punchy, immediate verbal summaries for stakeholders.',
+  },
+  {
+    id: 'trait-6',
+    name: 'Thoracic Mobility & Spinal Integrity',
+    kind: 'working_on',
+    level: 2,
+    note: 'Overcoming prolonged desk postures with daily hangs and spinal extension.',
+  },
+  {
+    id: 'trait-7',
+    name: 'Asynchronous Delegation',
+    kind: 'working_on',
+    level: 3,
+    note: 'Providing complete architectural specs before delegating tasks.',
+  },
+];
+
+export const INITIAL_WEAR_EVENTS: WearEvent[] = (() => {
+  const events: WearEvent[] = [];
+  const wearCounts: Record<string, number> = {
+    'item-apparel-1': 24,
+    'item-apparel-2': 42,
+    'item-apparel-3': 38,
+    'item-apparel-4': 56,
+    'item-apparel-5': 18,
+    'item-tech-1': 140,
+    'item-tech-2': 110,
+    'item-tome-1': 85,
+    'item-tome-2': 12,
+    'item-edc-1': 165,
+    'item-edc-2': 45,
+  };
+  Object.entries(wearCounts).forEach(([itemId, count]) => {
+    for (let i = 0; i < count; i++) {
+      events.push({
+        id: `wear-${itemId}-${i}`,
+        itemId,
+        type: 'worn',
+        date: '2026-10-01',
+      });
+    }
+  });
+  return events;
+})();

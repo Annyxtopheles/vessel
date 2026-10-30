@@ -133,7 +133,7 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
   ]);
 
   // Strip blobs from JSON metadata
-  const photoMetadata = photos.map(({ fullBlob, thumbBlob, ...meta }) => meta);
+  const photoMetadata = photos.map(({ fullBlob: _fullBlob, thumbBlob: _thumbBlob, ...meta }) => meta);
 
   const exportPayload = {
     version: 3,
