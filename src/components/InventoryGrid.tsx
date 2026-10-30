@@ -540,8 +540,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     >
                       {/* Top Part: Image & Content */}
                       <div>
-                        {/* Image Container: Consistent 4:5 Crop */}
-                        <div className="aspect-[4/5] w-full bg-[#EFEAE0] relative overflow-hidden flex items-center justify-center border-b border-[#E4DED2]">
+                        {/* Image Container: Ultra-wide horizontal banner (21:6) */}
+                        <div className="aspect-[21/6] w-full bg-[#EFEAE0] relative overflow-hidden flex items-center justify-center border-b border-[#E4DED2]">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -549,14 +549,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                             />
                           ) : (
-                            <div className="w-full h-full bg-[#EFEAE0] text-[#6B645A] font-serif flex items-center justify-center text-3xl font-normal select-none">
+                            <div className="w-full h-full bg-[#EFEAE0] text-[#6B645A] font-serif flex items-center justify-center text-xl font-normal select-none">
                               {initialChar}
                             </div>
                           )}
 
                           {/* Quick Condition Pill in top left */}
                           {item.condition && (
-                            <div className="absolute top-2.5 left-2.5 bg-[#FBF9F4]/95 text-[#6B645A] rounded-[4px] border border-[#E4DED2] flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 capitalize">
+                            <div className="absolute top-2 left-2 bg-[#FBF9F4]/95 text-[#6B645A] rounded-[4px] border border-[#E4DED2] flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 capitalize">
                               <span>{item.condition.replace('_', ' ')}</span>
                             </div>
                           )}

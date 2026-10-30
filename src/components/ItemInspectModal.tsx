@@ -236,8 +236,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-6 max-h-[75vh] overflow-y-auto space-y-5">
-          {/* Main Visual Banner */}
-          <div className="h-56 rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#6B645A]">
+          {/* Main Visual Banner (Ultra-wide horizontal banner) */}
+          <div className="aspect-[21/6] max-h-48 w-full rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-2xl text-[#6B645A]">
             {(isEditing ? editImageUrl : item.imageUrl) ? (
               <img
                 src={isEditing ? editImageUrl : item.imageUrl}
@@ -249,7 +249,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             )}
 
             {isEditing && (
-              <label className="absolute bottom-3 right-3 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors">
+              <label className="absolute bottom-2.5 right-2.5 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-2.5 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors">
                 <span>{isUploadingPhoto ? 'Processing...' : 'Upload Photo'}</span>
                 <input
                   type="file"
