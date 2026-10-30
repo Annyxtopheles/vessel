@@ -322,18 +322,6 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                 List
               </button>
             </div>
-
-            {/* New Task Button */}
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setInternalAddOpen(true);
-              }}
-              className="editorial-btn-primary"
-            >
-              New Task
-            </button>
           </div>
         </div>
 
@@ -520,12 +508,22 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                               )}
 
                               {linkedItem && (
-                                <span
-                                  className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] truncate max-w-[80px]"
+                                <div
+                                  className="w-5 h-5 rounded-[4px] border border-[#E4DED2] bg-[#EFEAE0] flex items-center justify-center overflow-hidden shrink-0"
                                   title={`Linked to: ${linkedItem.name}`}
                                 >
-                                  {linkedItem.name}
-                                </span>
+                                  {linkedItem.imageUrl ? (
+                                    <img
+                                      src={linkedItem.imageUrl}
+                                      alt={linkedItem.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="font-serif text-[10px] font-medium text-[#1F1B16]">
+                                      {(linkedItem.name || '?')[0].toUpperCase()}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -639,14 +637,24 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                         </span>
                       )}
 
-                      {/* Linked Item Pill */}
+                      {/* Linked Item Thumbnail */}
                       {linkedItem && (
-                        <span
-                          className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] truncate max-w-[90px]"
+                        <div
+                          className="w-5 h-5 rounded-[4px] border border-[#E4DED2] bg-[#EFEAE0] flex items-center justify-center overflow-hidden shrink-0"
                           title={`Linked to: ${linkedItem.name}`}
                         >
-                          {linkedItem.name}
-                        </span>
+                          {linkedItem.imageUrl ? (
+                            <img
+                              src={linkedItem.imageUrl}
+                              alt={linkedItem.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="font-serif text-[10px] font-medium text-[#1F1B16]">
+                              {(linkedItem.name || '?')[0].toUpperCase()}
+                            </span>
+                          )}
+                        </div>
                       )}
 
                       {/* Inspect / Edit */}
@@ -845,9 +853,29 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
                 {/* Linked Item Picker */}
                 <div className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4]">
-                  <label className="block text-[13px] font-medium text-[#1F1B16] mb-1">
-                    Linked Possession (Optional)
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[13px] font-medium text-[#1F1B16]">
+                      Linked Possession (Optional)
+                    </label>
+                    {selectedQuest.linkedItemId && (() => {
+                      const linked = items.find((i) => i.id === selectedQuest.linkedItemId);
+                      if (!linked) return null;
+                      return (
+                        <div
+                          className="w-5 h-5 rounded-[4px] border border-[#E4DED2] bg-[#EFEAE0] flex items-center justify-center overflow-hidden shrink-0"
+                          title={`Linked to: ${linked.name}`}
+                        >
+                          {linked.imageUrl ? (
+                            <img src={linked.imageUrl} alt={linked.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-serif text-[10px] font-medium text-[#1F1B16]">
+                              {(linked.name || '?')[0].toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                   <CustomSelect
                     value={selectedQuest.linkedItemId || ''}
                     options={[
