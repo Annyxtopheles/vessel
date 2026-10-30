@@ -17,6 +17,8 @@ import type {
   CharacterTrait,
   AppSettings,
   CharacterProfile,
+  Reminder,
+  BucketListEntry,
 } from '../types';
 import {
   INITIAL_ITEMS,
@@ -24,6 +26,8 @@ import {
   INITIAL_SKILLS,
   INITIAL_DAY_RECORDS,
   INITIAL_HABITS,
+  INITIAL_REMINDERS,
+  INITIAL_BUCKET_LIST,
 } from '../data/mockData';
 import {
   INITIAL_QUESTS,
@@ -179,6 +183,23 @@ export class ProfileRepository extends BaseRepository<CharacterProfile> {
   }
 }
 
+export class ReminderRepository extends BaseRepository<Reminder> {
+  async listOrdered(): Promise<Reminder[]> {
+    const all = await this.list();
+    return all.sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return a.order - b.order;
+    });
+  }
+}
+
+export class BucketListRepository extends BaseRepository<BucketListEntry> {
+  async listActive(): Promise<BucketListEntry[]> {
+    const all = await this.list();
+    return all.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+  }
+}
+
 // Repositories singletons
 export const itemRepo = new ItemRepository(db.items);
 export const photoRepo = new PhotoRepository(db.photos);
@@ -196,6 +217,8 @@ export const personalityRepo = new PersonalityRepository(db.personality);
 export const traitRepo = new TraitRepository(db.traits);
 export const settingsRepo = new SettingsRepository(db.settings);
 export const profileRepo = new ProfileRepository(db.profile);
+export const reminderRepo = new ReminderRepository(db.reminders);
+export const bucketListRepo = new BucketListRepository(db.bucketList);
 
 export * from './base';
 
@@ -231,6 +254,39 @@ export async function initDatabase(): Promise<void> {
     }
   } catch (err) {
     console.warn('[Vessel DB] Could not purge unsplash photos:', err);
+  }
+
+  // Ensure reminders table is populated
+  try {
+    const remindersCount = await db.reminders.count();
+    if (remindersCount === 0) {
+      await reminderRepo.batchPut(INITIAL_REMINDERS.map((r) => normalizeRecord(r)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed reminders:', err);
+  }
+
+  // Ensure bucketList table is populated
+  try {
+    const bucketCount = await db.bucketList.count();
+    if (bucketCount === 0) {
+      await bucketListRepo.batchPut(INITIAL_BUCKET_LIST.map((b) => normalizeRecord(b)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed bucket list:', err);
+  }
+
+  // Ensure habits have default non_negotiable values if undefined
+  try {
+    const habits = await db.habits.toArray();
+    for (const habit of habits) {
+      if (typeof habit.non_negotiable !== 'boolean') {
+        const isDefaultNonNeg = habit.id === 'h-1' || habit.id === 'h-2';
+        await db.habits.update(habit.id, { non_negotiable: isDefaultNonNeg });
+      }
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not migrate habits non_negotiable:', err);
   }
 
   const itemsCount = await db.items.count();

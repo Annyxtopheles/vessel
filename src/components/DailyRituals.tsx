@@ -5,6 +5,12 @@ import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
 import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
 import { CustomSelect } from './CustomSelect';
+import {
+  getActiveNonNegotiableItems,
+  isDayRecordFullyComplete,
+  calculateNonNegotiableStreak,
+  ALL_PRAYER_KEYS,
+} from '../utils/nonNegotiables';
 
 const HABIT_ATTR_OPTIONS = [
   { id: 'STR', label: 'Strength (Body)' },
@@ -20,6 +26,7 @@ interface DailyRitualsProps {
   setSelectedDate: (date: string) => void;
   onUpdateDayRecord: (record: DayRecord, xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }) => void;
   onAddHabit: (habit: CustomHabit) => void;
+  onUpdateHabit?: (habit: CustomHabit) => void;
   onDeleteHabit: (habitId: string) => void;
   onRestoreHabit?: (habitId: string) => void;
   onPermanentDeleteHabit?: (habitId: string) => void;
@@ -27,6 +34,8 @@ interface DailyRitualsProps {
   quests?: Quest[];
   onNavigateToQuests?: () => void;
   onCompleteQuest?: (quest: Quest) => void;
+  nonNegotiablePrayers?: (keyof SalahStatus)[];
+  onTogglePrayerNonNegotiable?: (prayerKey: keyof SalahStatus) => void;
 }
 
 const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] = [
@@ -51,6 +60,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   setSelectedDate,
   onUpdateDayRecord,
   onAddHabit,
+  onUpdateHabit,
   onDeleteHabit,
   onRestoreHabit,
   onPermanentDeleteHabit,
@@ -58,16 +68,23 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   quests = [],
   onNavigateToQuests,
   onCompleteQuest: _onCompleteQuest,
+  nonNegotiablePrayers = ALL_PRAYER_KEYS,
+  onTogglePrayerNonNegotiable,
 }) => {
   const [isAddingHabit, setIsAddingHabit] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitAttr, setNewHabitAttr] = useState<AttributeType>('WIS');
+  const [newHabitNonNeg, setNewHabitNonNeg] = useState(true);
 
   const todayStr = getTodayLocalDateStr();
 
   const activeHabits = habits.filter((h) => !h.isArchived);
   const archivedHabits = habits.filter((h) => h.isArchived);
+
+  // Non-negotiables & Log-derived Streak
+  const nonNegotiables = getActiveNonNegotiableItems(habits, nonNegotiablePrayers);
+  const streak = calculateNonNegotiableStreak(dayRecords, nonNegotiables, todayStr);
 
   // Quests due soon: open quests with due date within 7 days or overdue
   const questsDueSoon = quests
@@ -276,10 +293,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       id: `habit-${Date.now()}`,
       name: newHabitName.trim(),
       attribute: newHabitAttr,
+      non_negotiable: newHabitNonNeg,
     };
 
     onAddHabit(newHabit);
     setNewHabitName('');
+    setNewHabitNonNeg(true);
     setIsAddingHabit(false);
     sfx.playClick();
   };
@@ -357,11 +376,33 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       {/* 1. 7-Day Navigation Strip & Prayers */}
       <section className="space-y-6">
         
+        {/* Strip Header with Streak */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+              Daily Cadence
+            </h3>
+            <p className="text-[12px] text-[#6B645A]">
+              Selected: {selectedDate === todayStr ? 'Today' : selectedDate}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] text-[12px]">
+              <span className="text-[#6B645A]">Streak:</span>
+              <span className="font-serif text-[16px] font-medium text-[#1F1B16] tabular-nums">
+                {streak} {streak === 1 ? 'day' : 'days'}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* 7-Day Date Navigation Strip */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#E4DED2]">
           {dayStrip.map((day) => {
             const isSelected = day.dateStr === selectedDate;
             const record = dayRecords[day.dateStr];
+            const isDayComplete = isDayRecordFullyComplete(record, nonNegotiables);
             const prayerCount = record ? Object.values(record.salah).filter(Boolean).length : 0;
             const habitCount = record ? record.completedHabitIds.length : 0;
 
@@ -383,11 +424,19 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
                 <div className="flex items-center gap-1 mt-1">
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      prayerCount === 5 ? 'bg-[#3F6B4F]' : prayerCount > 0 ? 'bg-[#7A5C1E]' : 'bg-[#E4DED2]'
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      isDayComplete
+                        ? 'bg-[#3F6B4F]'
+                        : prayerCount > 0 || habitCount > 0
+                        ? 'bg-[#7A5C1E]'
+                        : 'bg-[#E4DED2]'
                     }`}
+                    title={
+                      isDayComplete
+                        ? 'Every non-negotiable completed on this day'
+                        : 'Non-negotiables missed or in-progress'
+                    }
                   />
-                  {habitCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-[#1F1B16]" />}
                 </div>
               </button>
             );
@@ -416,32 +465,52 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {SALAH_LIST.map(({ key, name, timeOfDay }) => {
               const isDone = currentRecord.salah[key];
+              const isNonNeg = (nonNegotiablePrayers || ALL_PRAYER_KEYS).includes(key);
 
               return (
-                <button
+                <div
                   key={key}
-                  onClick={() => handleToggleSalah(key)}
-                  className={`p-3.5 rounded-[6px] border flex flex-col items-center justify-between text-center transition-colors cursor-pointer ${
+                  className={`p-3.5 rounded-[6px] border flex flex-col items-center justify-between text-center transition-colors ${
                     isDone
                       ? 'bg-[#FBF9F4] border-[#3F6B4F] text-[#1F1B16]'
-                      : 'bg-[#FBF9F4] border-[#E4DED2] text-[#1F1B16] hover:border-[#1F1B16]'
+                      : 'bg-[#FBF9F4] border-[#E4DED2] text-[#1F1B16]'
                   }`}
                 >
-                  <div className="text-[11px] text-[#6B645A] mb-1">
-                    {timeOfDay}
+                  <div className="flex items-center justify-between w-full text-[11px] mb-1">
+                    <span className="text-[#6B645A]">{timeOfDay}</span>
+                    {onTogglePrayerNonNegotiable && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          sfx.playClick();
+                          onTogglePrayerNonNegotiable(key);
+                        }}
+                        className={`text-[9px] px-1 py-0.5 rounded-[3px] border cursor-pointer font-medium transition-colors ${
+                          isNonNeg
+                            ? 'bg-[#1F1B16] text-[#FBF9F4] border-[#1F1B16]'
+                            : 'bg-[#EFEAE0] text-[#6B645A] border-[#E4DED2]'
+                        }`}
+                        title="Toggle whether this prayer is non-negotiable"
+                      >
+                        {isNonNeg ? 'Required' : 'Optional'}
+                      </button>
+                    )}
                   </div>
                   <div className="font-serif text-[16px] font-normal text-[#1F1B16] mb-3">{name}</div>
 
-                  <div
-                    className={`w-6 h-6 rounded-[4px] flex items-center justify-center border transition-colors ${
+                  <button
+                    type="button"
+                    onClick={() => handleToggleSalah(key)}
+                    className={`w-7 h-7 rounded-[4px] flex items-center justify-center border transition-colors cursor-pointer ${
                       isDone
                         ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
-                        : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent hover:border-[#1F1B16]'
                     }`}
                   >
-                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </div>
-                </button>
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -485,6 +554,16 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 buttonClassName="py-1.5 text-[13px]"
               />
             </div>
+
+            <label className="flex items-center gap-1.5 text-[12px] text-[#1F1B16] cursor-pointer shrink-0 px-1">
+              <input
+                type="checkbox"
+                checked={newHabitNonNeg}
+                onChange={(e) => setNewHabitNonNeg(e.target.checked)}
+                className="w-3.5 h-3.5 rounded-[3px] accent-[#1F1B16]"
+              />
+              <span>Non-negotiable</span>
+            </label>
 
             <div className="flex items-center gap-2">
               <button
@@ -550,6 +629,28 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sfx.playClick();
+                        if (onUpdateHabit) {
+                          onUpdateHabit({
+                            ...habit,
+                            non_negotiable: !habit.non_negotiable,
+                          });
+                        }
+                      }}
+                      className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium transition-colors cursor-pointer ${
+                        habit.non_negotiable
+                          ? 'bg-[#1F1B16] text-[#FBF9F4] border-[#1F1B16]'
+                          : 'bg-[#EFEAE0] text-[#6B645A] border-[#E4DED2] hover:text-[#1F1B16]'
+                      }`}
+                      title="Click to toggle non-negotiable status"
+                    >
+                      {habit.non_negotiable ? 'Non-negotiable' : 'Optional'}
+                    </button>
+
                     <span className={`text-[11px] px-2 py-0.5 rounded-[4px] border font-medium ${HABIT_ATTR_BADGES[habit.attribute]}`}>
                       {habit.attribute}
                     </span>

@@ -4,7 +4,8 @@ import type {
   InventoryItem, 
   CustomHabit, 
   DayRecord, 
-  XpEvent 
+  XpEvent,
+  SalahStatus
 } from '../types';
 import { 
   LayoutDashboard, 
@@ -27,6 +28,11 @@ import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr } from '../utils/date';
 import { deriveTotalXp, getOverallLevelProgress } from '../data/xpConfig';
 import { isBackupDue } from '../services/backupService';
+import {
+  getActiveNonNegotiableItems,
+  isNonNegotiableItemDone,
+  ALL_PRAYER_KEYS,
+} from '../utils/nonNegotiables';
 
 export type NavTab = 'overview' | 'inventory' | 'routine' | 'tasks' | 'bucket-list' | 'money' | 'character';
 
@@ -52,6 +58,7 @@ interface SidebarProps {
   onExport: () => void;
   onImport: () => void;
   lastBackupAt?: string;
+  nonNegotiablePrayers?: (keyof SalahStatus)[];
 }
 
 const CATEGORY_NAMES: Record<string, string> = {
@@ -77,6 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onExport,
   onImport,
   lastBackupAt,
+  nonNegotiablePrayers = ALL_PRAYER_KEYS,
 }) => {
   const [isInventoryTreeOpen, setIsInventoryTreeOpen] = useState(true);
   const [isCategoriesSubTreeOpen, setIsCategoriesSubTreeOpen] = useState(true);
@@ -86,16 +94,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const totalXp = deriveTotalXp(xpEvents);
   const overall = getOverallLevelProgress(totalXp);
 
-  // Compute non-negotiables for today
+  // Compute non-negotiables for today (single source of truth)
   const todayStr = getTodayLocalDateStr();
   const todayRecord = dayRecords[todayStr];
-  const activeHabits = habits.filter(h => !h.isArchived);
-  const prayersDone = todayRecord ? Object.values(todayRecord.salah).filter(Boolean).length : 0;
-  const habitsDone = todayRecord
-    ? (todayRecord.completedHabitIds || []).filter(id => activeHabits.some(h => h.id === id)).length
-    : 0;
-  const totalNonNegotiables = 5 + activeHabits.length;
-  const completedNonNegotiables = prayersDone + habitsDone;
+  const nonNegotiables = getActiveNonNegotiableItems(habits, nonNegotiablePrayers);
+  const completedNonNegotiables = nonNegotiables.filter(item => isNonNegotiableItemDone(todayRecord, item)).length;
+  const totalNonNegotiables = nonNegotiables.length;
 
   // Inventory Tree Counts
   const ownedCount = items.filter(i => (i.ownershipStatus || 'owned') === 'owned').length;

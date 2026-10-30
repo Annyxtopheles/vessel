@@ -110,6 +110,7 @@ export interface AppSettings extends BaseEntity {
   lastBackupAt?: string;
   autoBackupEnabled?: boolean;
   autoBackupFolderName?: string;
+  nonNegotiablePrayers?: (keyof SalahStatus)[];
 }
 
 export interface SalahStatus {
@@ -125,6 +126,7 @@ export interface CustomHabit extends BaseEntity {
   name: string;
   attribute: AttributeType;
   description?: string;
+  non_negotiable?: boolean;
   isArchived?: boolean;
   archivedAt?: string;
 }
@@ -190,6 +192,7 @@ export interface Quest extends BaseEntity {
   dueDate?: string; // YYYY-MM-DD
   evidenceRequired: boolean;
   linkedItemId?: string;
+  bucketEntryId?: string;
   createdAt?: string; // Legacy compatibility
   completedAt?: string;
   deletedAt?: string; // soft delete compatibility
@@ -258,4 +261,28 @@ export interface CharacterTrait extends BaseEntity {
   level: number; // 1 - 5
   note?: string;
   deletedAt?: string;
+}
+
+// REMINDERS & PRINCIPLES
+export interface Reminder extends BaseEntity {
+  id: string;
+  text: string;
+  order: number;
+  pinned: boolean;
+}
+
+// BUCKET LIST
+export type BucketListStatus = 'someday' | 'planned' | 'done';
+
+export interface BucketListEntry extends BaseEntity {
+  id: string;
+  title: string;
+  category: string;
+  notes?: string;
+  status: BucketListStatus;
+  created_at?: string;
+  done_at?: string;
+  evidence?: string;
+  pillar?: AttributeType;
+  promotedTaskId?: string;
 }

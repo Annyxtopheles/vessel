@@ -17,6 +17,8 @@ import {
   traitRepo,
   settingsRepo,
   profileRepo,
+  reminderRepo,
+  bucketListRepo,
 } from '../repositories';
 import type { PhotoRecord } from '../types';
 
@@ -32,6 +34,8 @@ export interface BackupCounts {
   palette: number;
   personality: number;
   traits: number;
+  reminders?: number;
+  bucketList?: number;
 }
 
 export interface BackupInspectionResult {
@@ -83,6 +87,8 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
     traits,
     settings,
     profile,
+    reminders,
+    bucketList,
   ] = await Promise.all([
     itemRepo.list(true),
     photoRepo.list(true),
@@ -100,6 +106,8 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
     traitRepo.list(true),
     settingsRepo.list(true),
     profileRepo.list(true),
+    reminderRepo.list(true),
+    bucketListRepo.list(true),
   ]);
 
   // Strip blobs from JSON metadata
@@ -125,6 +133,8 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
       traits,
       settings,
       profile,
+      reminders,
+      bucketList,
       photos: photoMetadata,
     },
   };
@@ -360,6 +370,8 @@ export async function restoreBackup(inspection: BackupInspectionResult): Promise
     personalityRepo.clear(),
     traitRepo.clear(),
     photoRepo.clear(),
+    reminderRepo.clear(),
+    bucketListRepo.clear(),
   ]);
 
   if (parsedData.items) await itemRepo.batchPut(parsedData.items);
@@ -382,6 +394,8 @@ export async function restoreBackup(inspection: BackupInspectionResult): Promise
   if (parsedData.traits) await traitRepo.batchPut(parsedData.traits);
   if (parsedData.settings) await settingsRepo.batchPut(parsedData.settings);
   if (parsedData.profile) await profileRepo.batchPut(parsedData.profile);
+  if (parsedData.reminders) await reminderRepo.batchPut(parsedData.reminders);
+  if (parsedData.bucketList) await bucketListRepo.batchPut(parsedData.bucketList);
 
   // Restore photos with reconstructed Blobs
   if (photosList && photosList.length > 0) {

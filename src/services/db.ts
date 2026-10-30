@@ -16,6 +16,8 @@ import type {
   CharacterTrait,
   AppSettings,
   CharacterProfile,
+  Reminder,
+  BucketListEntry,
 } from '../types';
 
 export interface KeyValRecord {
@@ -40,6 +42,8 @@ export class VesselDatabase extends Dexie {
   traits!: Table<CharacterTrait, string>;
   settings!: Table<AppSettings, string>;
   profile!: Table<CharacterProfile, string>;
+  reminders!: Table<Reminder, string>;
+  bucketList!: Table<BucketListEntry, string>;
   keyval!: Table<KeyValRecord, string>;
 
   constructor() {
@@ -62,6 +66,11 @@ export class VesselDatabase extends Dexie {
       settings: 'id, deleted_at, updated_at',
       profile: 'id, deleted_at, updated_at',
       keyval: 'key',
+    });
+
+    this.version(2).stores({
+      reminders: 'id, order, pinned, deleted_at, updated_at',
+      bucketList: 'id, category, status, pillar, deleted_at, updated_at',
     });
   }
 }

@@ -1,4 +1,12 @@
-import type { InventoryItem, CharacterProfile, SkillNode, DayRecord, CustomHabit } from '../types';
+import type {
+  InventoryItem,
+  CharacterProfile,
+  SkillNode,
+  DayRecord,
+  CustomHabit,
+  Reminder,
+  BucketListEntry,
+} from '../types';
 
 export const INITIAL_ITEMS: InventoryItem[] = [
   // CURRENTLY OWNED — APPAREL
@@ -295,11 +303,11 @@ export const INITIAL_ITEMS: InventoryItem[] = [
 ];
 
 export const INITIAL_HABITS: CustomHabit[] = [
-  { id: 'h-1', name: 'Morning Adhkar & Quran reading', attribute: 'WIS', description: 'At least 15 minutes of recitation before starting the work day.' },
-  { id: 'h-2', name: 'Ship code commit / client milestone', attribute: 'INT', description: 'Meaningful engineering contribution pushed and reviewed.' },
-  { id: 'h-3', name: 'Daily posture & mobility stretch', attribute: 'STR', description: 'Spinal decompression, dead-hangs, and hip openers.' },
-  { id: 'h-4', name: 'No mindless phone before 10 AM', attribute: 'WIS', description: 'Protect early morning mental clarity from notification overload.' },
-  { id: 'h-5', name: 'Check in with peer or team member', attribute: 'CHA', description: 'Active mentorship or collaborative unblocking.' },
+  { id: 'h-1', name: 'Morning Adhkar & Quran reading', attribute: 'WIS', non_negotiable: true, description: 'At least 15 minutes of recitation before starting the work day.' },
+  { id: 'h-2', name: 'Ship code commit / client milestone', attribute: 'INT', non_negotiable: true, description: 'Meaningful engineering contribution pushed and reviewed.' },
+  { id: 'h-3', name: 'Daily posture & mobility stretch', attribute: 'STR', non_negotiable: false, description: 'Spinal decompression, dead-hangs, and hip openers.' },
+  { id: 'h-4', name: 'No mindless phone before 10 AM', attribute: 'WIS', non_negotiable: false, description: 'Protect early morning mental clarity from notification overload.' },
+  { id: 'h-5', name: 'Check in with peer or team member', attribute: 'CHA', non_negotiable: false, description: 'Active mentorship or collaborative unblocking.' },
 ];
 
 export const INITIAL_SKILLS: SkillNode[] = [
@@ -505,3 +513,54 @@ export const INITIAL_DAY_RECORDS: Record<string, DayRecord> = {
     notes: 'Peak output. Clean execution across physical, craft, and soul.',
   },
 };
+
+export const INITIAL_REMINDERS: Reminder[] = [
+  {
+    id: 'rem-1',
+    text: 'Mastery is a byproduct of relentless daily consistency, not sporadic heroics.',
+    order: 0,
+    pinned: true,
+  },
+  {
+    id: 'rem-2',
+    text: 'Protect your deep work hours with uncompromising resolve.',
+    order: 1,
+    pinned: false,
+  },
+  {
+    id: 'rem-3',
+    text: 'Simplicity in physical possession; boundless depth in thought and spirit.',
+    order: 2,
+    pinned: false,
+  },
+];
+
+export const INITIAL_BUCKET_LIST: BucketListEntry[] = [
+  {
+    id: 'bl-1',
+    title: 'Perform Hajj with family',
+    category: 'Spiritual',
+    notes: 'Complete pilgrimage preparations, physical endurance training, and spiritual study.',
+    status: 'planned',
+    pillar: 'WIS',
+    created_at: '2026-01-10T10:00:00.000Z',
+  },
+  {
+    id: 'bl-2',
+    title: 'Publish open-source architectural manifesto',
+    category: 'Craft',
+    notes: 'Distill 10 years of systems programming and local-first architecture into an open compendium.',
+    status: 'someday',
+    pillar: 'INT',
+    created_at: '2026-02-14T10:00:00.000Z',
+  },
+  {
+    id: 'bl-3',
+    title: 'Hike the Annapurna Circuit',
+    category: 'Travel',
+    notes: '21-day trek through high Himalayan passes, summiting Thorong La (5,416m).',
+    status: 'someday',
+    pillar: 'STR',
+    created_at: '2026-03-01T10:00:00.000Z',
+  },
+];
