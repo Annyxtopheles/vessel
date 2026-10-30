@@ -18,6 +18,12 @@ import type {
   CharacterProfile,
   Reminder,
   BucketListEntry,
+  Account,
+  FinanceCategory,
+  Transaction,
+  SavingsGoal,
+  Debt,
+  NetWorthSnapshot,
 } from '../types';
 
 export interface KeyValRecord {
@@ -44,6 +50,12 @@ export class VesselDatabase extends Dexie {
   profile!: Table<CharacterProfile, string>;
   reminders!: Table<Reminder, string>;
   bucketList!: Table<BucketListEntry, string>;
+  accounts!: Table<Account, string>;
+  financeCategories!: Table<FinanceCategory, string>;
+  transactions!: Table<Transaction, string>;
+  savingsGoals!: Table<SavingsGoal, string>;
+  debts!: Table<Debt, string>;
+  netWorthSnapshots!: Table<NetWorthSnapshot, string>;
   keyval!: Table<KeyValRecord, string>;
 
   constructor() {
@@ -71,6 +83,15 @@ export class VesselDatabase extends Dexie {
     this.version(2).stores({
       reminders: 'id, order, pinned, deleted_at, updated_at',
       bucketList: 'id, category, status, pillar, deleted_at, updated_at',
+    });
+
+    this.version(3).stores({
+      accounts: 'id, type, archived, deleted_at, updated_at',
+      financeCategories: 'id, parent_id, deleted_at, updated_at',
+      transactions: 'id, account_id, date, type, category_id, item_id, transfer_pair_id, debt_id, deleted_at, updated_at',
+      savingsGoals: 'id, account_id, wishlist_item_id, deleted_at, updated_at',
+      debts: 'id, lender, deleted_at, updated_at',
+      netWorthSnapshots: 'date, deleted_at, updated_at',
     });
   }
 }

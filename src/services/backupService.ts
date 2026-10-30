@@ -19,6 +19,12 @@ import {
   profileRepo,
   reminderRepo,
   bucketListRepo,
+  accountRepo,
+  financeCategoryRepo,
+  transactionRepo,
+  savingsGoalRepo,
+  debtRepo,
+  netWorthSnapshotRepo,
 } from '../repositories';
 import type { PhotoRecord } from '../types';
 
@@ -36,6 +42,10 @@ export interface BackupCounts {
   traits: number;
   reminders?: number;
   bucketList?: number;
+  accounts?: number;
+  transactions?: number;
+  savingsGoals?: number;
+  debts?: number;
 }
 
 export interface BackupInspectionResult {
@@ -89,6 +99,12 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
     profile,
     reminders,
     bucketList,
+    accounts,
+    financeCategories,
+    transactions,
+    savingsGoals,
+    debts,
+    netWorthSnapshots,
   ] = await Promise.all([
     itemRepo.list(true),
     photoRepo.list(true),
@@ -108,13 +124,19 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
     profileRepo.list(true),
     reminderRepo.list(true),
     bucketListRepo.list(true),
+    accountRepo.list(true),
+    financeCategoryRepo.list(true),
+    transactionRepo.list(true),
+    savingsGoalRepo.list(true),
+    debtRepo.list(true),
+    netWorthSnapshotRepo.list(true),
   ]);
 
   // Strip blobs from JSON metadata
   const photoMetadata = photos.map(({ fullBlob, thumbBlob, ...meta }) => meta);
 
   const exportPayload = {
-    version: 2,
+    version: 3,
     exportedAt: new Date().toISOString(),
     appName: 'Vessel',
     data: {
@@ -135,6 +157,12 @@ export async function exportFullBackupZip(): Promise<{ filename: string; blob: B
       profile,
       reminders,
       bucketList,
+      accounts,
+      financeCategories,
+      transactions,
+      savingsGoals,
+      debts,
+      netWorthSnapshots,
       photos: photoMetadata,
     },
   };
@@ -318,6 +346,10 @@ export async function inspectBackupZip(file: File): Promise<BackupInspectionResu
         palette: palette.length,
         personality: personality.length,
         traits: traits.length,
+        accounts: (data.accounts || []).length,
+        transactions: (data.transactions || []).length,
+        savingsGoals: (data.savingsGoals || []).length,
+        debts: (data.debts || []).length,
       },
       dateExported: parsed.exportedAt,
       parsedData: data,
@@ -339,6 +371,10 @@ export async function inspectBackupZip(file: File): Promise<BackupInspectionResu
         palette: 0,
         personality: 0,
         traits: 0,
+        accounts: 0,
+        transactions: 0,
+        savingsGoals: 0,
+        debts: 0,
       },
     };
   }
@@ -372,6 +408,12 @@ export async function restoreBackup(inspection: BackupInspectionResult): Promise
     photoRepo.clear(),
     reminderRepo.clear(),
     bucketListRepo.clear(),
+    accountRepo.clear(),
+    financeCategoryRepo.clear(),
+    transactionRepo.clear(),
+    savingsGoalRepo.clear(),
+    debtRepo.clear(),
+    netWorthSnapshotRepo.clear(),
   ]);
 
   if (parsedData.items) await itemRepo.batchPut(parsedData.items);
@@ -396,6 +438,12 @@ export async function restoreBackup(inspection: BackupInspectionResult): Promise
   if (parsedData.profile) await profileRepo.batchPut(parsedData.profile);
   if (parsedData.reminders) await reminderRepo.batchPut(parsedData.reminders);
   if (parsedData.bucketList) await bucketListRepo.batchPut(parsedData.bucketList);
+  if (parsedData.accounts) await accountRepo.batchPut(parsedData.accounts);
+  if (parsedData.financeCategories) await financeCategoryRepo.batchPut(parsedData.financeCategories);
+  if (parsedData.transactions) await transactionRepo.batchPut(parsedData.transactions);
+  if (parsedData.savingsGoals) await savingsGoalRepo.batchPut(parsedData.savingsGoals);
+  if (parsedData.debts) await debtRepo.batchPut(parsedData.debts);
+  if (parsedData.netWorthSnapshots) await netWorthSnapshotRepo.batchPut(parsedData.netWorthSnapshots);
 
   // Restore photos with reconstructed Blobs
   if (photosList && photosList.length > 0) {

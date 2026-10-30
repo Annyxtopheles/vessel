@@ -19,6 +19,12 @@ import type {
   CharacterProfile,
   Reminder,
   BucketListEntry,
+  Account,
+  FinanceCategory,
+  Transaction,
+  SavingsGoal,
+  Debt,
+  NetWorthSnapshot,
 } from '../types';
 import {
   INITIAL_ITEMS,
@@ -29,6 +35,14 @@ import {
   INITIAL_REMINDERS,
   INITIAL_BUCKET_LIST,
 } from '../data/mockData';
+import {
+  INITIAL_ACCOUNTS,
+  INITIAL_FINANCE_CATEGORIES,
+  INITIAL_TRANSACTIONS,
+  INITIAL_SAVINGS_GOALS,
+  INITIAL_DEBTS,
+  INITIAL_NET_WORTH_SNAPSHOTS,
+} from '../utils/finance';
 import {
   INITIAL_QUESTS,
   INITIAL_QUEST_EVIDENCE,
@@ -200,6 +214,40 @@ export class BucketListRepository extends BaseRepository<BucketListEntry> {
   }
 }
 
+export class AccountRepository extends BaseRepository<Account> {
+  async listActive(): Promise<Account[]> {
+    const all = await this.list();
+    return all.filter((a) => !a.archived);
+  }
+}
+
+export class FinanceCategoryRepository extends BaseRepository<FinanceCategory> {}
+
+export class TransactionRepository extends BaseRepository<Transaction> {
+  async listByAccount(accountId: string): Promise<Transaction[]> {
+    const all = await this.list();
+    return all.filter((t) => t.account_id === accountId);
+  }
+
+  async listRecent(limitCount: number = 50): Promise<Transaction[]> {
+    const all = await this.list();
+    return all
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+      .slice(0, limitCount);
+  }
+}
+
+export class SavingsGoalRepository extends BaseRepository<SavingsGoal> {}
+
+export class DebtRepository extends BaseRepository<Debt> {}
+
+export class NetWorthSnapshotRepository extends BaseRepository<NetWorthSnapshot> {
+  async listOrdered(): Promise<NetWorthSnapshot[]> {
+    const all = await this.list();
+    return all.sort((a, b) => a.date.localeCompare(b.date));
+  }
+}
+
 // Repositories singletons
 export const itemRepo = new ItemRepository(db.items);
 export const photoRepo = new PhotoRepository(db.photos);
@@ -219,6 +267,12 @@ export const settingsRepo = new SettingsRepository(db.settings);
 export const profileRepo = new ProfileRepository(db.profile);
 export const reminderRepo = new ReminderRepository(db.reminders);
 export const bucketListRepo = new BucketListRepository(db.bucketList);
+export const accountRepo = new AccountRepository(db.accounts);
+export const financeCategoryRepo = new FinanceCategoryRepository(db.financeCategories);
+export const transactionRepo = new TransactionRepository(db.transactions);
+export const savingsGoalRepo = new SavingsGoalRepository(db.savingsGoals);
+export const debtRepo = new DebtRepository(db.debts);
+export const netWorthSnapshotRepo = new NetWorthSnapshotRepository(db.netWorthSnapshots);
 
 export * from './base';
 
@@ -274,6 +328,66 @@ export async function initDatabase(): Promise<void> {
     }
   } catch (err) {
     console.warn('[Vessel DB] Could not seed bucket list:', err);
+  }
+
+  // Ensure accounts table is populated
+  try {
+    const accountsCount = await db.accounts.count();
+    if (accountsCount === 0) {
+      await accountRepo.batchPut(INITIAL_ACCOUNTS.map((a) => normalizeRecord(a)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed accounts:', err);
+  }
+
+  // Ensure financeCategories table is populated
+  try {
+    const catCount = await db.financeCategories.count();
+    if (catCount === 0) {
+      await financeCategoryRepo.batchPut(INITIAL_FINANCE_CATEGORIES.map((c) => normalizeRecord(c)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed finance categories:', err);
+  }
+
+  // Ensure transactions table is populated
+  try {
+    const txCount = await db.transactions.count();
+    if (txCount === 0) {
+      await transactionRepo.batchPut(INITIAL_TRANSACTIONS.map((t) => normalizeRecord(t)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed transactions:', err);
+  }
+
+  // Ensure savingsGoals table is populated
+  try {
+    const goalsCount = await db.savingsGoals.count();
+    if (goalsCount === 0) {
+      await savingsGoalRepo.batchPut(INITIAL_SAVINGS_GOALS.map((g) => normalizeRecord(g)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed savings goals:', err);
+  }
+
+  // Ensure debts table is populated
+  try {
+    const debtsCount = await db.debts.count();
+    if (debtsCount === 0) {
+      await debtRepo.batchPut(INITIAL_DEBTS.map((d) => normalizeRecord(d)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed debts:', err);
+  }
+
+  // Ensure netWorthSnapshots table is populated
+  try {
+    const nwCount = await db.netWorthSnapshots.count();
+    if (nwCount === 0) {
+      await netWorthSnapshotRepo.batchPut(INITIAL_NET_WORTH_SNAPSHOTS.map((s) => normalizeRecord(s)));
+    }
+  } catch (err) {
+    console.warn('[Vessel DB] Could not seed net worth snapshots:', err);
   }
 
   // Ensure habits have default non_negotiable values if undefined

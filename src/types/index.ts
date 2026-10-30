@@ -286,3 +286,73 @@ export interface BucketListEntry extends BaseEntity {
   pillar?: AttributeType;
   promotedTaskId?: string;
 }
+
+// ==========================================
+// MONEY & FINANCIAL REGISTERS
+// ==========================================
+
+export type AccountType = 
+  | 'cash' 
+  | 'bank' 
+  | 'mobile_wallet' 
+  | 'savings' 
+  | 'investment' 
+  | 'credit' 
+  | 'loan';
+
+export interface Account extends BaseEntity {
+  id: string;
+  name: string;
+  type: AccountType;
+  opening_balance: number;
+  archived?: boolean;
+}
+
+export interface FinanceCategory extends BaseEntity {
+  id: string;
+  name: string;
+  parent_id?: string;
+  monthly_budget?: number;
+}
+
+export type TransactionType = 'income' | 'expense' | 'transfer';
+
+export interface Transaction extends BaseEntity {
+  id: string;
+  account_id: string;
+  date: string; // YYYY-MM-DD
+  amount: number;
+  type: TransactionType;
+  category_id?: string;
+  note?: string;
+  item_id?: string;
+  transfer_pair_id?: string;
+  transfer_direction?: 'in' | 'out';
+  debt_id?: string;
+}
+
+export interface SavingsGoal extends BaseEntity {
+  id: string;
+  name: string;
+  target_amount: number;
+  target_date?: string; // YYYY-MM-DD
+  account_id?: string;
+  wishlist_item_id?: string;
+}
+
+export interface Debt extends BaseEntity {
+  id: string;
+  name: string;
+  lender: string;
+  principal: number;
+  interest_rate?: number; // e.g. 5.5 for 5.5%
+  minimum_payment?: number;
+  due_day?: number; // 1 to 31
+}
+
+export interface NetWorthSnapshot extends BaseEntity {
+  id?: string;
+  date: string; // YYYY-MM-DD (typically YYYY-MM-01)
+  assets: number;
+  liabilities: number;
+}
