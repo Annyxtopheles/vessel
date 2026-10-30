@@ -19,6 +19,9 @@ import type {
   PaletteColor,
   PersonalityEntry,
   CharacterTrait,
+  Reminder,
+  BucketListEntry,
+  SalahStatus,
 } from './types';
 import {
   initDatabase,
@@ -37,6 +40,8 @@ import {
   traitRepo,
   settingsRepo,
   profileRepo,
+  reminderRepo,
+  bucketListRepo,
 } from './repositories';
 import { deriveTotalXp, getOverallLevelProgress, getQuestXp } from './data/xpConfig';
 import { getTodayLocalDateStr, shiftDate } from './utils/date';
@@ -47,6 +52,7 @@ import { OverviewView } from './components/OverviewView';
 import { InventoryStats } from './components/InventoryStats';
 import { InventoryGrid } from './components/InventoryGrid';
 import { EmptyPageView } from './components/EmptyPageView';
+import { BucketListView } from './components/BucketListView';
 import { ItemInspectModal } from './components/ItemInspectModal';
 import { AddItemModal } from './components/AddItemModal';
 import { ImportItemsModal } from './components/ImportItemsModal';
@@ -143,6 +149,8 @@ export const App: React.FC = () => {
   const [palette, setPalette] = useState<PaletteColor[]>([]);
   const [personality, setPersonality] = useState<PersonalityEntry[]>([]);
   const [traits, setTraits] = useState<CharacterTrait[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [bucketListEntries, setBucketListEntries] = useState<BucketListEntry[]>([]);
 
   // App-wide Privacy Mode
   const [privacyMode, setPrivacyMode] = useState<boolean>(false);
@@ -182,6 +190,8 @@ export const App: React.FC = () => {
         loadedPalette,
         loadedPersonality,
         loadedTraits,
+        loadedReminders,
+        loadedBucket,
       ] = await Promise.all([
         itemRepo.list(),
         profileRepo.getProfile(),
@@ -198,6 +208,8 @@ export const App: React.FC = () => {
         paletteRepo.list(),
         personalityRepo.list(),
         traitRepo.list(),
+        reminderRepo.listOrdered(),
+        bucketListRepo.listActive(),
       ]);
 
       setItems(loadedItems);
@@ -215,6 +227,8 @@ export const App: React.FC = () => {
       setPalette(loadedPalette);
       setPersonality(loadedPersonality);
       setTraits(loadedTraits);
+      setReminders(loadedReminders);
+      setBucketListEntries(loadedBucket);
       if (loadedSettings.privacyMode !== undefined) {
         setPrivacyMode(loadedSettings.privacyMode);
       }
@@ -553,6 +567,100 @@ export const App: React.FC = () => {
     setHabits((prev) => [...prev, created]);
   };
 
+  const handleUpdateHabit = async (updated: CustomHabit) => {
+    await habitRepo.update(updated.id, updated);
+    setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)));
+  };
+
+  const handleTogglePrayerNonNegotiable = async (prayerKey: keyof SalahStatus) => {
+    const currentList = settings.nonNegotiablePrayers || ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    const nextList = currentList.includes(prayerKey)
+      ? currentList.filter((k) => k !== prayerKey)
+      : [...currentList, prayerKey];
+    const updatedSettings: AppSettings = {
+      ...settings,
+      nonNegotiablePrayers: nextList,
+    };
+    await settingsRepo.saveSettings(updatedSettings);
+    setSettings(updatedSettings);
+  };
+
+  // Reminders handlers
+  const handleAddReminder = async (text: string) => {
+    const newReminder: Reminder = {
+      id: `rem-${Date.now()}`,
+      text,
+      order: reminders.length,
+      pinned: false,
+    };
+    await reminderRepo.create(newReminder);
+    setReminders((prev) => [...prev, newReminder]);
+  };
+
+  const handleUpdateReminder = async (updated: Reminder) => {
+    await reminderRepo.update(updated.id, updated);
+    setReminders((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    await reminderRepo.softDelete(id);
+    setReminders((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleReorderReminders = async (reordered: Reminder[]) => {
+    setReminders(reordered);
+    for (const item of reordered) {
+      await reminderRepo.update(item.id, { order: item.order });
+    }
+  };
+
+  // Bucket list handlers
+  const handleAddBucketEntry = async (entry: Omit<BucketListEntry, 'id' | 'created_at'>) => {
+    const newEntry: BucketListEntry = {
+      ...entry,
+      id: `bl-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    await bucketListRepo.create(newEntry);
+    setBucketListEntries((prev) => [newEntry, ...prev]);
+  };
+
+  const handleUpdateBucketEntry = async (entry: BucketListEntry) => {
+    await bucketListRepo.update(entry.id, entry);
+    setBucketListEntries((prev) => prev.map((b) => (b.id === entry.id ? entry : b)));
+  };
+
+  const handleDeleteBucketEntry = async (id: string) => {
+    await bucketListRepo.softDelete(id);
+    setBucketListEntries((prev) => prev.filter((b) => b.id !== id));
+  };
+
+  const handlePromoteBucketToTask = async (entry: BucketListEntry) => {
+    const newTaskId = `task-${Date.now()}`;
+    const newQuest: Quest = {
+      id: newTaskId,
+      title: entry.title,
+      description: entry.notes || 'Created from Bucket List pursuit',
+      status: 'todo',
+      pillar: entry.pillar || 'INT',
+      difficulty: 'Medium',
+      evidenceRequired: false,
+      bucketEntryId: entry.id,
+      created_at: new Date().toISOString(),
+    };
+    await questRepo.create(newQuest);
+    setQuests((prev) => [newQuest, ...prev]);
+
+    const updatedEntry: BucketListEntry = {
+      ...entry,
+      status: 'planned',
+      promotedTaskId: newTaskId,
+    };
+    await bucketListRepo.update(entry.id, updatedEntry);
+    setBucketListEntries((prev) => prev.map((b) => (b.id === entry.id ? updatedEntry : b)));
+    sfx.playEquip();
+  };
+
   const handleArchiveHabit = async (habitId: string) => {
     await habitRepo.softDelete(habitId);
     setHabits((prev) =>
@@ -616,7 +724,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#F4F4F6] text-[#111113] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#F6F2EA] text-[#1F1B16] overflow-hidden">
       {/* Sidebar Navigation */}
       <Sidebar
         profile={profile}
@@ -634,6 +742,7 @@ export const App: React.FC = () => {
         onExport={() => setIsBackupModalOpen(true)}
         onImport={() => setIsImportItemsOpen(true)}
         lastBackupAt={settings.lastBackupAt}
+        nonNegotiablePrayers={settings.nonNegotiablePrayers}
       />
 
       {/* Main Content Area */}
@@ -676,9 +785,17 @@ export const App: React.FC = () => {
                 dayRecords={dayRecords}
                 quests={quests}
                 xpEvents={xpEvents}
+                reminders={reminders}
+                nonNegotiablePrayers={settings.nonNegotiablePrayers}
                 currencySymbol={settings.currencySymbol || '৳'}
                 numberGrouping={settings.numberGrouping || 'bangladeshi'}
                 onNavigate={setActiveTab}
+                onUpdateDayRecord={handleUpdateDayRecord}
+                onRecordXpEvent={handleRecordXpEvent}
+                onAddReminder={handleAddReminder}
+                onUpdateReminder={handleUpdateReminder}
+                onDeleteReminder={handleDeleteReminder}
+                onReorderReminders={handleReorderReminders}
               />
             )}
 
@@ -721,6 +838,7 @@ export const App: React.FC = () => {
                 setSelectedDate={setSelectedDate}
                 onUpdateDayRecord={handleUpdateDayRecord}
                 onAddHabit={handleAddHabit}
+                onUpdateHabit={handleUpdateHabit}
                 onDeleteHabit={handleArchiveHabit}
                 onRestoreHabit={handleRestoreHabit}
                 onPermanentDeleteHabit={handlePermanentDeleteHabit}
@@ -728,6 +846,8 @@ export const App: React.FC = () => {
                 quests={quests}
                 onNavigateToQuests={() => setActiveTab('tasks')}
                 onCompleteQuest={handleCompleteTask}
+                nonNegotiablePrayers={settings.nonNegotiablePrayers}
+                onTogglePrayerNonNegotiable={handleTogglePrayerNonNegotiable}
               />
             )}
 
@@ -751,7 +871,15 @@ export const App: React.FC = () => {
 
             {/* Bucket List */}
             {activeTab === 'bucket-list' && (
-              <EmptyPageView title="Bucket List" type="bucket-list" />
+              <BucketListView
+                entries={bucketListEntries}
+                onAddEntry={handleAddBucketEntry}
+                onUpdateEntry={handleUpdateBucketEntry}
+                onDeleteEntry={handleDeleteBucketEntry}
+                onPromoteToTask={handlePromoteBucketToTask}
+                onRecordXpEvent={handleRecordXpEvent}
+                onNavigateToTasks={() => setActiveTab('tasks')}
+              />
             )}
 
             {/* Money */}
