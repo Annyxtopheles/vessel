@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { InventoryItem, ItemRarity, PaletteColor, NumberGroupingOption } from '../types';
 import type { InventoryTreeNode } from './Sidebar';
 import { matchColorPalette } from '../utils/color';
@@ -546,7 +546,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                             <img
                               src={item.imageUrl}
                               alt={item.name}
-                              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                              className="w-full h-full object-cover object-[center_18%] group-hover:scale-102 transition-transform duration-300"
                             />
                           ) : (
                             <div className="w-full h-full bg-[#F1F5F9] text-[#64748B] font-serif flex items-center justify-center text-2xl font-normal select-none">

@@ -53,6 +53,7 @@ export interface InventoryItem extends BaseEntity {
   lore: string;
   dateAcquired?: string;
   imageUrl?: string;
+  images?: string[]; // Multiple photos / studio + real-life detail captures
   isLocked?: boolean;
   // Import & sync schema enhancements
   external_id?: string;
