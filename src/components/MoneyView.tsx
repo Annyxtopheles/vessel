@@ -454,10 +454,24 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 </div>
               </div>
               <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between">
-                <span>Outstanding Debts</span>
-                <span className={`font-serif text-[#1F1B16] tabular-nums ${blurClass}`}>
+                <span>Outstanding Debts (I Owe)</span>
+                <span className={`font-serif text-[#3F6B4F] font-medium tabular-nums ${blurClass}`}>
                   {formatCurrency(
-                    debts.reduce((sum, d) => sum + deriveDebtBalance(d, transactions).remaining, 0),
+                    debts
+                      .filter((d) => d.direction !== 'owed_to_me')
+                      .reduce((sum, d) => sum + deriveDebtBalance(d, transactions).remaining, 0),
+                    currencySymbol,
+                    numberGrouping
+                  )} (Dues Paid)
+                </span>
+              </div>
+              <div className="pt-1.5 text-[12px] text-[#6B645A] flex items-center justify-between">
+                <span>Receivables (Owed to Me)</span>
+                <span className={`font-serif text-[#2D4A6B] font-medium tabular-nums ${blurClass}`}>
+                  {formatCurrency(
+                    debts
+                      .filter((d) => d.direction === 'owed_to_me')
+                      .reduce((sum, d) => sum + deriveDebtBalance(d, transactions).remaining, 0),
                     currencySymbol,
                     numberGrouping
                   )}
@@ -1094,6 +1108,8 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {debts.map((debt) => {
               const { remaining, paid, percent } = deriveDebtBalance(debt, transactions);
+              const isReceivable = debt.direction === 'owed_to_me';
+              const isSettled = debt.status === 'settled' || remaining === 0;
 
               return (
                 <div
@@ -1103,15 +1119,31 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h4 className="font-serif text-[18px] font-medium text-[#1F1B16]">
-                          {debt.name}
-                        </h4>
-                        <span className="text-[12px] text-[#6B645A]">
-                          Lender: {debt.lender} {debt.interest_rate ? `• ${debt.interest_rate}% APR` : ''}
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-serif text-[18px] font-medium text-[#1F1B16]">
+                            {debt.name}
+                          </h4>
+                          {isReceivable && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#2D4A6B]/10 text-[#2D4A6B] border border-[#2D4A6B]/20">
+                              Receivable (Owed to Me)
+                            </span>
+                          )}
+                          {isSettled && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#3F6B4F]/10 text-[#3F6B4F] border border-[#3F6B4F]/20">
+                              Settled / Paid in Full
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[12px] text-[#6B645A] block mt-0.5">
+                          {isReceivable ? `Debtor: ${debt.lender}` : `Lender / Dues: ${debt.lender}`}{' '}
+                          {debt.interest_rate ? `• ${debt.interest_rate}% APR` : ''}
                         </span>
+                        {debt.notes && (
+                          <p className="text-[11px] text-[#6B645A] italic mt-1">{debt.notes}</p>
+                        )}
                       </div>
                       <span className="font-serif text-[16px] font-medium text-[#3F6B4F] tabular-nums">
-                        {percent}% Paid
+                        {isSettled ? '100% Cleared' : `${percent}% Paid`}
                       </span>
                     </div>
                   </div>
@@ -1121,19 +1153,29 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                     <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-[#3F6B4F] transition-all"
-                        style={{ width: `${percent}%` }}
+                        style={{ width: `${isSettled ? 100 : percent}%` }}
                       />
                     </div>
                     <div className={`flex items-baseline justify-between text-[13px] tabular-nums ${blurClass}`}>
                       <div>
-                        <span className="text-[11px] text-[#6B645A] block">Remaining Owed</span>
-                        <span className="font-serif text-[20px] text-[#9C3D2A] font-medium">
+                        <span className="text-[11px] text-[#6B645A] block">
+                          {isReceivable ? 'Due to You' : 'Remaining Owed'}
+                        </span>
+                        <span
+                          className={`font-serif text-[20px] font-medium ${
+                            isSettled
+                              ? 'text-[#3F6B4F]'
+                              : isReceivable
+                              ? 'text-[#2D4A6B]'
+                              : 'text-[#9C3D2A]'
+                          }`}
+                        >
                           {formatCurrency(remaining, currencySymbol, numberGrouping)}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="text-[11px] text-[#6B645A] block">
-                          Paid: {formatCurrency(paid, currencySymbol, numberGrouping)}
+                          {isReceivable ? 'Recovered' : 'Paid'}: {formatCurrency(paid, currencySymbol, numberGrouping)}
                         </span>
                         <span className="text-[13px] text-[#1F1B16]">
                           of {formatCurrency(debt.principal, currencySymbol, numberGrouping)}
@@ -1153,16 +1195,18 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActivePayDebt(debt);
-                          setPayDebtAmount(String(debt.minimum_payment || remaining));
-                        }}
-                        className="editorial-btn-primary py-1 px-3 text-[12px]"
-                      >
-                        Log Payment
-                      </button>
+                      {!isSettled && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActivePayDebt(debt);
+                            setPayDebtAmount(String(debt.minimum_payment || remaining));
+                          }}
+                          className="editorial-btn-primary py-1 px-3 text-[12px]"
+                        >
+                          {isReceivable ? 'Log Receipt' : 'Log Payment'}
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => {

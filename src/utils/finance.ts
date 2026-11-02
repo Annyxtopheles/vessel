@@ -122,6 +122,9 @@ export function deriveDebtBalance(
   transactions: Transaction[]
 ): { remaining: number; paid: number; percent: number } {
   const principal = debt.principal || 0;
+  if (debt.status === 'settled') {
+    return { remaining: 0, paid: principal, percent: 100 };
+  }
   const payments = transactions.filter(
     (t) =>
       !t.deleted_at &&
@@ -162,7 +165,11 @@ export function deriveNetWorth(
 
   for (const d of activeDebts) {
     const { remaining } = deriveDebtBalance(d, transactions);
-    totalLiabilities += remaining;
+    if (d.direction === 'owed_to_me') {
+      totalAssets += remaining; // Receivables coming to me count as assets
+    } else {
+      totalLiabilities += remaining;
+    }
   }
 
   return {
@@ -246,148 +253,158 @@ export function ensureNetWorthSnapshots(
 // ==========================================
 
 export const INITIAL_FINANCE_CATEGORIES: FinanceCategory[] = [
-  { id: 'cat-income-salary', name: 'Primary Salary / Client Retainer' },
-  { id: 'cat-income-freelance', name: 'Software Consulting & Royalties' },
-  { id: 'cat-living-housing', name: 'Housing & Utilities', monthly_budget: 35000 },
-  { id: 'cat-living-groceries', name: 'Clean Nutrition & Provisions', monthly_budget: 18000 },
-  { id: 'cat-living-health', name: 'Physical Training & Health', monthly_budget: 6000 },
-  { id: 'cat-gear-inventory', name: 'Hardware & Apparel Acquisitions', monthly_budget: 15000 },
-  { id: 'cat-craft-software', name: 'Servers & Digital Subscriptions', monthly_budget: 4500 },
-  { id: 'cat-debt-payoff', name: 'Debt & Obligation Repayments' },
+  { id: 'cat-income-salary', name: 'Work Monthly Salary', monthly_budget: 32000 },
+  { id: 'cat-family-mom', name: 'Mother Allowance (Fixed Monthly)', monthly_budget: 15000 },
+  { id: 'cat-living-rent', name: 'Room & Living Rent Fees', monthly_budget: 2000 },
+  { id: 'cat-travel-commute', name: 'Travel & Commute Expenses', monthly_budget: 3000 },
+  { id: 'cat-living-provisions', name: 'Food, Provisions & Health', monthly_budget: 5000 },
+  { id: 'cat-gear-inventory', name: 'Gear & Apparel Maintenance', monthly_budget: 3000 },
+  { id: 'cat-debt-payoff', name: 'Settled Dues & Repayments' },
 ];
 
 export const INITIAL_ACCOUNTS: Account[] = [
   {
     id: 'acc-bank-main',
-    name: 'Standard Chartered Checking',
+    name: 'Primary Salary Account',
     type: 'bank',
-    opening_balance: 145000,
-  },
-  {
-    id: 'acc-cash-vault',
-    name: 'Physical Reserve & Cash',
-    type: 'cash',
-    opening_balance: 12500,
+    opening_balance: 32000,
   },
   {
     id: 'acc-mobile-bKash',
-    name: 'bKash Primary Mobile Wallet',
+    name: 'bKash Mobile Wallet',
     type: 'mobile_wallet',
-    opening_balance: 8400,
+    opening_balance: 4500,
   },
   {
-    id: 'acc-savings-hajj',
-    name: 'Hajj & Sacred Journey Fund',
-    type: 'savings',
-    opening_balance: 220000,
-  },
-  {
-    id: 'acc-inv-equity',
-    name: 'Equities & Long-term Index',
-    type: 'investment',
-    opening_balance: 480000,
-  },
-  {
-    id: 'acc-credit-platinum',
-    name: 'City Bank Amex Platinum',
-    type: 'credit',
-    opening_balance: 18500,
+    id: 'acc-cash-reserve',
+    name: 'Physical Cash in Hand',
+    type: 'cash',
+    opening_balance: 2500,
   },
 ];
 
 export const INITIAL_SAVINGS_GOALS: SavingsGoal[] = [
   {
-    id: 'goal-hajj',
-    name: 'Hajj Pilgrimage Endowment',
-    target_amount: 850000,
-    target_date: '2028-06-01',
-    account_id: 'acc-savings-hajj',
-  },
-  {
-    id: 'goal-macbook',
-    name: 'Studio M3 Max Workstation Upgrade',
-    target_amount: 320000,
-    target_date: '2027-01-15',
-    wishlist_item_id: 'item-tech-2',
+    id: 'goal-emergency',
+    name: '3-Month Resilience Reserve',
+    target_amount: 60000,
+    target_date: '2027-06-01',
+    account_id: 'acc-bank-main',
   },
 ];
 
 export const INITIAL_DEBTS: Debt[] = [
+  // Settled / Cleared Dues (Zero money owed to anyone)
   {
-    id: 'debt-study',
-    name: 'Higher Studies Family Loan',
-    lender: 'Family Elder Council',
-    principal: 150000,
-    minimum_payment: 10000,
-    due_day: 5,
+    id: 'debt-utshob-bus',
+    name: 'Utshob Bus Transport Dues',
+    lender: 'Utshob Bus Counter',
+    principal: 2000,
+    direction: 'i_owe',
+    status: 'settled',
+    notes: 'Paid and settled in full. Zero outstanding dues.',
+  },
+  {
+    id: 'debt-past-dues',
+    name: 'Historical Academic & Personal Dues',
+    lender: 'Past Dues & Obligations',
+    principal: 15000,
+    direction: 'i_owe',
+    status: 'settled',
+    notes: 'All dues cleared. I owe nobody money.',
+  },
+  // Receivables (Money Owed To Me)
+  {
+    id: 'recv-shihab',
+    name: 'Personal Advance to Shihab',
+    lender: 'Shihab',
+    principal: 5500,
+    direction: 'owed_to_me',
+    status: 'active',
+    notes: 'Shihab owes 5,000 – 6,000 BDT.',
+  },
+  {
+    id: 'recv-rafayet',
+    name: 'Personal Advance to Rafayet',
+    lender: 'Rafayet',
+    principal: 5000,
+    direction: 'owed_to_me',
+    status: 'active',
+    notes: 'Rafayet owes 5,000 BDT.',
+  },
+  {
+    id: 'recv-kamrul',
+    name: 'Mohakhali Room Rent from Kamrul',
+    lender: 'Kamrul',
+    principal: 1000,
+    direction: 'owed_to_me',
+    status: 'active',
+    notes: '1,000 BDT minus final electricity bill deduction.',
   },
 ];
 
 export const INITIAL_TRANSACTIONS: Transaction[] = [
   {
-    id: 'tx-1',
+    id: 'tx-salary-nov',
     account_id: 'acc-bank-main',
-    date: '2026-10-01',
-    amount: 220000,
+    date: '2026-11-01',
+    amount: 32000,
     type: 'income',
     category_id: 'cat-income-salary',
-    note: 'October Engineering Retainer & Architectural Deliverable',
+    note: 'November Work Salary (32,000 BDT)',
   },
   {
-    id: 'tx-2',
+    id: 'tx-mom-nov',
     account_id: 'acc-bank-main',
-    date: '2026-10-02',
-    amount: 32000,
+    date: '2026-11-01',
+    amount: 15000,
     type: 'expense',
-    category_id: 'cat-living-housing',
-    note: 'October Studio Rent & Fiber Optic Connection',
+    category_id: 'cat-family-mom',
+    note: 'Mother Monthly Allowance (15,000 BDT)',
   },
   {
-    id: 'tx-3',
+    id: 'tx-rent-nov',
     account_id: 'acc-bank-main',
-    date: '2026-10-05',
-    amount: 10000,
+    date: '2026-11-02',
+    amount: 2000,
+    type: 'expense',
+    category_id: 'cat-living-rent',
+    note: 'Monthly Rent Fees (2,000 BDT)',
+  },
+  {
+    id: 'tx-travel-nov',
+    account_id: 'acc-cash-reserve',
+    date: '2026-11-02',
+    amount: 1200,
+    type: 'expense',
+    category_id: 'cat-travel-commute',
+    note: 'Weekly Commute & Travel Expenses',
+  },
+  {
+    id: 'tx-utshob-cleared',
+    account_id: 'acc-mobile-bKash',
+    date: '2026-10-25',
+    amount: 2000,
     type: 'expense',
     category_id: 'cat-debt-payoff',
-    debt_id: 'debt-study',
-    note: 'October Installment - Higher Studies Loan',
+    debt_id: 'debt-utshob-bus',
+    note: 'Utshob Bus settlement payment — cleared in full',
   },
   {
-    id: 'tx-4',
+    id: 'tx-past-dues-cleared',
     account_id: 'acc-bank-main',
-    date: '2026-10-08',
-    amount: 14500,
+    date: '2026-10-15',
+    amount: 15000,
     type: 'expense',
-    category_id: 'cat-gear-inventory',
-    item_id: 'item-apparel-1',
-    note: 'Acquisition: Canvas Field Overshirt (Direct Payment)',
-  },
-  {
-    id: 'tx-5',
-    account_id: 'acc-bank-main',
-    date: '2026-10-15',
-    amount: 25000,
-    type: 'transfer',
-    transfer_pair_id: 'pair-hajj-oct',
-    transfer_direction: 'out',
-    note: 'Monthly Hajj Allocation -> Hajj Savings Account',
-  },
-  {
-    id: 'tx-6',
-    account_id: 'acc-savings-hajj',
-    date: '2026-10-15',
-    amount: 25000,
-    type: 'transfer',
-    transfer_pair_id: 'pair-hajj-oct',
-    transfer_direction: 'in',
-    note: 'Monthly Inflow from Main Checking for Hajj',
+    category_id: 'cat-debt-payoff',
+    debt_id: 'debt-past-dues',
+    note: 'All outstanding historical dues paid in full',
   },
 ];
 
 export const INITIAL_NET_WORTH_SNAPSHOTS: NetWorthSnapshot[] = [
-  { id: 'nw-2026-06', date: '2026-06-01', assets: 680000, liabilities: 190000 },
-  { id: 'nw-2026-07', date: '2026-07-01', assets: 725000, liabilities: 180000 },
-  { id: 'nw-2026-08', date: '2026-08-01', assets: 770000, liabilities: 170000 },
-  { id: 'nw-2026-09', date: '2026-09-01', assets: 815000, liabilities: 160000 },
-  { id: 'nw-2026-10', date: '2026-10-01', assets: 865900, liabilities: 158500 },
+  { id: 'nw-2026-08', date: '2026-08-01', assets: 25000, liabilities: 0 },
+  { id: 'nw-2026-09', date: '2026-09-01', assets: 32000, liabilities: 0 },
+  { id: 'nw-2026-10', date: '2026-10-01', assets: 39000, liabilities: 0 },
+  { id: 'nw-2026-11', date: '2026-11-01', assets: 50500, liabilities: 0 },
 ];

@@ -337,8 +337,10 @@ export async function initDatabase(): Promise<void> {
 
   // Ensure accounts table is populated
   try {
-    const accountsCount = await db.accounts.count();
-    if (accountsCount === 0) {
+    const existingAccounts = await accountRepo.list();
+    const hasOldDummyAccount = existingAccounts.some((a) => a.id === 'acc-credit-platinum');
+    if (hasOldDummyAccount || existingAccounts.length === 0) {
+      if (hasOldDummyAccount) await db.accounts.clear();
       await accountRepo.batchPut(INITIAL_ACCOUNTS.map((a) => normalizeRecord(a)));
     }
   } catch (err) {
@@ -347,8 +349,10 @@ export async function initDatabase(): Promise<void> {
 
   // Ensure financeCategories table is populated
   try {
-    const catCount = await db.financeCategories.count();
-    if (catCount === 0) {
+    const existingCats = await financeCategoryRepo.list();
+    const hasOldDummyCats = existingCats.some((c) => c.id === 'cat-living-housing');
+    if (hasOldDummyCats || existingCats.length === 0) {
+      if (hasOldDummyCats) await db.financeCategories.clear();
       await financeCategoryRepo.batchPut(INITIAL_FINANCE_CATEGORIES.map((c) => normalizeRecord(c)));
     }
   } catch (err) {
@@ -357,8 +361,10 @@ export async function initDatabase(): Promise<void> {
 
   // Ensure transactions table is populated
   try {
-    const txCount = await db.transactions.count();
-    if (txCount === 0) {
+    const existingTx = await transactionRepo.list();
+    const hasOldDummyTx = existingTx.some((t) => t.id === 'tx-1');
+    if (hasOldDummyTx || existingTx.length === 0) {
+      if (hasOldDummyTx) await db.transactions.clear();
       await transactionRepo.batchPut(INITIAL_TRANSACTIONS.map((t) => normalizeRecord(t)));
     }
   } catch (err) {
@@ -368,7 +374,10 @@ export async function initDatabase(): Promise<void> {
   // Ensure savingsGoals table is populated
   try {
     const goalsCount = await db.savingsGoals.count();
-    if (goalsCount === 0) {
+    const existingGoals = await savingsGoalRepo.list();
+    const hasOldGoals = existingGoals.some((g) => g.id === 'goal-macbook');
+    if (hasOldGoals || goalsCount === 0) {
+      if (hasOldGoals) await db.savingsGoals.clear();
       await savingsGoalRepo.batchPut(INITIAL_SAVINGS_GOALS.map((g) => normalizeRecord(g)));
     }
   } catch (err) {
@@ -377,8 +386,10 @@ export async function initDatabase(): Promise<void> {
 
   // Ensure debts table is populated
   try {
-    const debtsCount = await db.debts.count();
-    if (debtsCount === 0) {
+    const existingDebts = await debtRepo.list();
+    const hasOldStudyDebt = existingDebts.some((d) => d.id === 'debt-study');
+    if (hasOldStudyDebt || existingDebts.length === 0) {
+      if (hasOldStudyDebt) await db.debts.clear();
       await debtRepo.batchPut(INITIAL_DEBTS.map((d) => normalizeRecord(d)));
     }
   } catch (err) {

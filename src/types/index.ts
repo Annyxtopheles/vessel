@@ -349,6 +349,9 @@ export interface Debt extends BaseEntity {
   interest_rate?: number; // e.g. 5.5 for 5.5%
   minimum_payment?: number;
   due_day?: number; // 1 to 31
+  direction?: 'i_owe' | 'owed_to_me';
+  status?: 'active' | 'settled';
+  notes?: string;
 }
 
 export interface NetWorthSnapshot extends BaseEntity {
