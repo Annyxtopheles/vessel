@@ -1192,6 +1192,7 @@ export const App: React.FC = () => {
         numberGrouping={settings.numberGrouping || 'bangladeshi'}
         transactions={transactions}
         privacyMode={privacyMode}
+        palette={palette}
       />
 
       {/* Add Item Modal */}

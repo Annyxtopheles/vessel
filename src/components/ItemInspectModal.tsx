@@ -5,14 +5,30 @@ import type {
   OwnershipStatus,
   PastReason,
   ItemCategory,
+  ItemSeason,
   NumberGroupingOption,
   Transaction,
+  PaletteColor,
 } from '../types';
-import { X, Trash2, Edit3, Copy, MapPin } from 'lucide-react';
+import { 
+  X, 
+  Trash2, 
+  Edit3, 
+  Copy, 
+  MapPin, 
+  Maximize2, 
+  ZoomIn, 
+  ZoomOut, 
+  RotateCcw, 
+  ChevronDown, 
+  ChevronUp, 
+  Tag 
+} from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
 import { processAndStorePhoto, getPhotoBlobUrl } from '../services/photoService';
 import { formatCurrency } from '../utils/numberFormat';
+import { matchColorPalette } from '../utils/color';
 
 const CATEGORY_OPTIONS = [
   { id: 'apparel', label: 'Apparel & Wardrobe' },
@@ -26,6 +42,13 @@ const CONDITION_OPTIONS = [
   { id: 'seasoned', label: 'Seasoned' },
   { id: 'worn', label: 'Worn' },
   { id: 'needs_repair', label: 'Needs Repair' },
+];
+
+const SEASON_OPTIONS = [
+  { id: 'all', label: 'All Seasons' },
+  { id: 'summer', label: 'Summer' },
+  { id: 'winter', label: 'Winter' },
+  { id: 'transitional', label: 'Transitional' },
 ];
 
 const PAST_REASON_OPTIONS = [
@@ -49,6 +72,7 @@ interface ItemInspectModalProps {
   wearCount?: number;
   transactions?: Transaction[];
   privacyMode?: boolean;
+  palette?: PaletteColor[];
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
@@ -71,15 +95,23 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   wearCount = 0,
   transactions = [],
   privacyMode = false,
+  palette = [],
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPastReason, setSelectedPastReason] = useState<PastReason>('sold');
   const [isChoosingPastReason, setIsChoosingPastReason] = useState(false);
+  const [isPhotoExpanded, setIsPhotoExpanded] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isSpecsExpanded, setIsSpecsExpanded] = useState(true);
 
   // Editable fields
   const [editName, setEditName] = useState('');
   const [editCategory, setEditCategory] = useState<ItemCategory>('apparel');
   const [editSubCategory, setEditSubCategory] = useState('');
+  const [editBrand, setEditBrand] = useState('');
+  const [editSize, setEditSize] = useState('');
+  const [editSeason, setEditSeason] = useState<ItemSeason>('all');
+  const [editDateAcquired, setEditDateAcquired] = useState('');
   const [editGoldValue, setEditGoldValue] = useState('100');
   const [editTargetPrice, setEditTargetPrice] = useState('100');
   const [editLocation, setEditLocation] = useState('Closet');
@@ -95,6 +127,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       setEditName(item.name);
       setEditCategory(item.category);
       setEditSubCategory(item.subCategory);
+      setEditBrand(item.brand || '');
+      setEditSize(item.size || '');
+      setEditSeason(item.season || 'all');
+      setEditDateAcquired(item.dateAcquired || item.acquired_date || '');
       setEditGoldValue(item.goldValue.toString());
       setEditTargetPrice((item.targetPrice || item.goldValue).toString());
       setEditLocation(item.location || 'Closet');
@@ -104,8 +140,22 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       setEditLore(item.lore);
       setIsEditing(false);
       setIsChoosingPastReason(false);
+      setIsPhotoExpanded(false);
+      setZoomLevel(1);
     }
   }, [item]);
+
+  // Handle escape key to close lightbox if open
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isPhotoExpanded) {
+        setIsPhotoExpanded(false);
+        setZoomLevel(1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPhotoExpanded]);
 
   if (!item) return null;
 
@@ -115,6 +165,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   const initialChar = (item.name[0] || 'V').toUpperCase();
   const linkedTx = transactions.find((t) => t.item_id === item.id);
   const derivedPricePaid = linkedTx ? linkedTx.amount : item.price_paid;
+  const paletteMatch = matchColorPalette(item.colorHex, palette);
 
   const handleSetPast = (reason: PastReason) => {
     sfx.playClick();
@@ -152,6 +203,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       name: editName.trim(),
       category: editCategory,
       subCategory: editSubCategory.trim() || 'General',
+      brand: editBrand.trim() || undefined,
+      size: editSize.trim() || undefined,
+      season: editSeason,
+      dateAcquired: editDateAcquired.trim() || undefined,
       goldValue: Math.max(0, parseInt(editGoldValue, 10) || 0),
       targetPrice: Math.max(0, parseInt(editTargetPrice, 10) || 0),
       location: editLocation.trim() || 'Closet',
@@ -170,10 +225,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   };
 
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto cursor-pointer"
-    >
+    <>
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto cursor-pointer"
+      >
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-xl bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden cursor-default my-8"
@@ -237,19 +293,43 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 max-h-[75vh] overflow-y-auto space-y-5">
           {/* Main Visual Banner (16:9 Widescreen) */}
-          <div className="aspect-video max-h-72 w-full rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#6B645A]">
+          <div className="aspect-video max-h-72 w-full rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#6B645A] group">
             {(isEditing ? editImageUrl : item.imageUrl) ? (
-              <img
-                src={isEditing ? editImageUrl : item.imageUrl}
-                alt={item.name}
-                className="w-full h-full object-cover"
-              />
+              <>
+                <img
+                  src={isEditing ? editImageUrl : item.imageUrl}
+                  alt={item.name}
+                  onClick={() => {
+                    if (!isEditing) {
+                      sfx.playClick();
+                      setIsPhotoExpanded(true);
+                      setZoomLevel(1);
+                    }
+                  }}
+                  className={`w-full h-full object-cover ${!isEditing ? 'cursor-zoom-in' : ''}`}
+                />
+                {!isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sfx.playClick();
+                      setIsPhotoExpanded(true);
+                      setZoomLevel(1);
+                    }}
+                    className="absolute bottom-3 right-3 bg-[#FBF9F4]/90 backdrop-blur-xs text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-2.5 py-1 rounded-[4px] text-xs font-medium flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                    title="Expand Photo for Detailed Inspection"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Expand Photo</span>
+                  </button>
+                )}
+              </>
             ) : (
               <span>{initialChar}</span>
             )}
 
             {isEditing && (
-              <label className="absolute bottom-3 right-3 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors">
+              <label className="absolute bottom-3 right-3 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors shadow-xs">
                 <span>{isUploadingPhoto ? 'Processing...' : 'Upload Photo'}</span>
                 <input
                   type="file"
@@ -298,6 +378,57 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       value={editSubCategory}
                       onChange={(e) => setEditSubCategory(e.target.value)}
                       className="ship-input w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                      Brand / Maker
+                    </label>
+                    <input
+                      type="text"
+                      value={editBrand}
+                      onChange={(e) => setEditBrand(e.target.value)}
+                      placeholder="e.g. Patagonia, Uniqlo, Citizen"
+                      className="ship-input w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                      Size / Dimensions
+                    </label>
+                    <input
+                      type="text"
+                      value={editSize}
+                      onChange={(e) => setEditSize(e.target.value)}
+                      placeholder="e.g. M, 32x30, 42mm"
+                      className="ship-input w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                      Season
+                    </label>
+                    <CustomSelect
+                      value={editSeason}
+                      options={SEASON_OPTIONS}
+                      onChange={(val) => setEditSeason(val as ItemSeason)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                      Date Acquired
+                    </label>
+                    <input
+                      type="date"
+                      value={editDateAcquired}
+                      onChange={(e) => setEditDateAcquired(e.target.value)}
+                      className="ship-input w-full text-[13px]"
                     />
                   </div>
                 </div>
@@ -490,6 +621,136 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
                 )}
 
+                {/* Expandable Specifications & Detailed Provenance */}
+                <div className="mb-4 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sfx.playClick();
+                      setIsSpecsExpanded(!isSpecsExpanded);
+                    }}
+                    className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#F6F2EA]/60 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-3.5 h-3.5 text-[#6B645A]" />
+                      <span className="text-[13px] font-medium text-[#1F1B16]">
+                        Object Specifications & Details
+                      </span>
+                      {item.brand && (
+                        <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                          {item.brand}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[12px] text-[#6B645A]">
+                      <span>{isSpecsExpanded ? 'Hide' : 'Expand'}</span>
+                      {isSpecsExpanded ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isSpecsExpanded && (
+                    <div className="p-4 pt-2 border-t border-[#E4DED2] space-y-3 text-[13px]">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        {/* Brand / Maker */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Brand / Maker
+                          </span>
+                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                            {item.brand || 'Unspecified'}
+                          </span>
+                        </div>
+
+                        {/* Size / Fit */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Size / Dimensions
+                          </span>
+                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                            {item.size || 'Standard'}
+                          </span>
+                        </div>
+
+                        {/* Seasonality */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Season
+                          </span>
+                          <span className="font-medium text-[#1F1B16] block mt-0.5 capitalize truncate">
+                            {item.season || 'All Seasons'}
+                          </span>
+                        </div>
+
+                        {/* Date Acquired */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Acquired
+                          </span>
+                          <span className="font-medium text-[#1F1B16] block mt-0.5 tabular-nums truncate">
+                            {item.dateAcquired || item.acquired_date || item.created_at?.slice(0, 10) || 'Recorded'}
+                          </span>
+                        </div>
+
+                        {/* Color & Palette Verdict */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Color & Palette
+                          </span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span
+                              className="w-2.5 h-2.5 rounded-[2px] border border-black/10 shrink-0"
+                              style={{ backgroundColor: item.colorHex || '#6B645A' }}
+                            />
+                            <span className="font-medium text-[#1F1B16] truncate">
+                              {item.colorName || 'Default'}
+                            </span>
+                            {paletteMatch?.verdict === 'suits' && (
+                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#3F6B4F]/10 text-[#3F6B4F] shrink-0">
+                                Suits
+                              </span>
+                            )}
+                            {paletteMatch?.verdict === 'avoid' && (
+                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#9C3D2A]/10 text-[#9C3D2A] shrink-0">
+                                Avoid
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Storage Location */}
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
+                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                            Location
+                          </span>
+                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                            {item.location || 'Vault'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Linked Ledger Record if present */}
+                      {linkedTx && (
+                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between text-[12px]">
+                          <div>
+                            <span className="text-[#6B645A] block">Linked Purchase Ledger Entry:</span>
+                            <span className="font-medium text-[#1F1B16]">{linkedTx.note || 'Acquisition transaction'}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-serif font-medium text-[#1F1B16] tabular-nums block">
+                              {formatCurrency(linkedTx.amount, currencySymbol, numberGrouping)}
+                            </span>
+                            <span className="text-[11px] text-[#6B645A] tabular-nums">{linkedTx.date}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Ownership Lifecycle Transition Control */}
                 <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
                   <span className="text-[12px] font-medium text-[#1F1B16] block mb-2">
@@ -609,5 +870,90 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
       </div>
     </div>
-  );
+
+    {/* High-Resolution Photo Expansion Lightbox Modal */}
+    {isPhotoExpanded && (isEditing ? editImageUrl : item.imageUrl) && (
+      <div
+        onClick={() => {
+          setIsPhotoExpanded(false);
+          setZoomLevel(1);
+        }}
+        className="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex flex-col items-center justify-between p-4 cursor-zoom-out animate-in fade-in duration-200"
+      >
+        {/* Floating Header */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-5xl flex items-center justify-between text-[#FBF9F4] py-2 px-4 rounded-[6px] bg-[#1F1B16]/80 border border-white/10 shrink-0"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="font-serif text-[16px] text-white font-medium">{item.name}</span>
+            <span className="text-[12px] text-[#E4DED2]/80">· High-Resolution Photo Inspection</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setZoomLevel((z) => Math.max(0.5, Number((z - 0.25).toFixed(2))))}
+              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <span className="text-[12px] font-mono tabular-nums px-1.5 text-white">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={() => setZoomLevel((z) => Math.min(3, Number((z + 0.25).toFixed(2))))}
+              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoomLevel(1)}
+              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              title="Reset Zoom"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsPhotoExpanded(false);
+                setZoomLevel(1);
+              }}
+              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-[#9C3D2A] text-white transition-colors cursor-pointer ml-3"
+              title="Close Inspector (Esc)"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Center High-Res Image Display */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 w-full max-w-5xl flex items-center justify-center overflow-auto my-3 p-2 cursor-default"
+        >
+          <img
+            src={isEditing ? editImageUrl : item.imageUrl}
+            alt={item.name}
+            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+            className="max-h-[75vh] max-w-full object-contain rounded-[4px] shadow-2xl transition-transform duration-150 select-none"
+          />
+        </div>
+
+        {/* Footer Caption */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="text-center text-[12px] text-[#E4DED2]/70 py-1"
+        >
+          Inspect stitching, fabric weave, labels, tags, and physical wear · Scroll or click buttons to zoom
+        </div>
+      </div>
+    )}
+  </>
+);
 };
