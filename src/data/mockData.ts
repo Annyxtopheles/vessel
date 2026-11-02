@@ -852,18 +852,23 @@ export const INITIAL_QUEST_EVIDENCE: QuestEvidence[] = [
 export const DEFAULT_SETTINGS: AppSettings = {
   currencySymbol: '৳',
   numberGrouping: 'bangladeshi',
-  unitSystem: 'metric',
-  targetWeightKg: 73.0,
+  unitSystem: 'hybrid',
+  targetWeightKg: 85.0,
 };
 
 export const INITIAL_BODY_MEASUREMENTS: BodyMeasurement[] = [
-  { id: 'bm-1', type: 'weight', value: 76.2, unit: 'kg', date: '2026-10-07', note: 'Baseline weight' },
-  { id: 'bm-2', type: 'weight', value: 75.8, unit: 'kg', date: '2026-10-14', note: 'Calisthenics volume increase' },
-  { id: 'bm-3', type: 'weight', value: 75.0, unit: 'kg', date: '2026-10-21', note: 'Fasting day hydration' },
-  { id: 'bm-4', type: 'weight', value: 74.5, unit: 'kg', date: '2026-10-28', note: 'Target reached' },
-  { id: 'bm-5', type: 'height', value: 178, unit: 'cm', date: '2026-09-01', note: 'Morning measured height' },
-  { id: 'bm-6', type: 'waist', value: 79, unit: 'cm', date: '2026-10-20', note: 'Natural waist circumference' },
-  { id: 'bm-7', type: 'chest', value: 100, unit: 'cm', date: '2026-10-20', note: 'Chest under arms' },
+  { id: 'bm-2021-04', type: 'weight', value: 92.0, unit: 'kg', date: '2021-04-15', note: 'Baseline heaviness' },
+  { id: 'bm-2021-10', type: 'weight', value: 80.0, unit: 'kg', date: '2021-10-15', note: 'First downward cut (-12kg)' },
+  { id: 'bm-2021-12-waist', type: 'waist', value: 36.5, unit: 'in', date: '2021-12-18', note: 'Midsection reduction' },
+  { id: 'bm-2022-03-weight', type: 'weight', value: 72.5, unit: 'kg', date: '2022-03-13', note: 'Historical minimum weight (peak lean phase)' },
+  { id: 'bm-2022-03-waist', type: 'waist', value: 32.0, unit: 'in', date: '2022-03-13', note: 'Peak lean phase waist' },
+  { id: 'bm-2023-07', type: 'weight', value: 85.0, unit: 'kg', date: '2023-07-17', note: 'Mid-range mass' },
+  { id: 'bm-2023-08-waist', type: 'waist', value: 40.0, unit: 'in', date: '2023-08-02', note: 'Waist threshold' },
+  { id: 'bm-2025-04-waist', type: 'waist', value: 41.5, unit: 'in', date: '2025-04-26', note: 'Fasting protocol baseline waist' },
+  { id: 'bm-2026-01-max', type: 'weight', value: 106.0, unit: 'kg', date: '2026-01-15', note: 'All-time peak weight (106kg turning point)' },
+  { id: 'bm-2026-10-current', type: 'weight', value: 96.0, unit: 'kg', date: '2026-10-28', note: 'Current baseline (-10kg from peak, targeting 85kg)' },
+  { id: 'bm-2026-10-waist', type: 'waist', value: 39.0, unit: 'in', date: '2026-10-28', note: 'Current waist' },
+  { id: 'bm-height', type: 'height', value: 70.0, unit: 'in', date: '2026-09-01', note: 'Measured height (5ft 10in)' },
 ];
 
 export const INITIAL_APPEARANCE: CharacterAppearance = {

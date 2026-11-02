@@ -410,11 +410,22 @@ export async function initDatabase(): Promise<void> {
 
   // Ensure Stat Sheet & event tables are populated if empty
   try {
-    if ((await db.measurements.count()) === 0) {
-      const raw = localStorage.getItem('vessel_body_measurements_v1');
-      const seed: BodyMeasurement[] = raw ? JSON.parse(raw) : INITIAL_BODY_MEASUREMENTS;
-      await measurementRepo.batchPut(seed.map((m) => normalizeRecord(m)));
+    const existingMeasurements = await measurementRepo.list();
+    const hasOldPlaceholder = existingMeasurements.some((m) => m.id === 'bm-1');
+    if (hasOldPlaceholder || existingMeasurements.length === 0) {
+      await measurementRepo.batchPut(INITIAL_BODY_MEASUREMENTS.map((m) => normalizeRecord(m)));
     }
+
+    const currentSettings = await settingsRepo.get('default_settings');
+    if (currentSettings) {
+      if (currentSettings.unitSystem !== 'hybrid' || currentSettings.targetWeightKg !== 85) {
+        await settingsRepo.update('default_settings', {
+          unitSystem: 'hybrid',
+          targetWeightKg: 85,
+        });
+      }
+    }
+
     if ((await db.palette.count()) === 0) {
       const raw = localStorage.getItem('vessel_color_palette_v1');
       const seed: PaletteColor[] = raw ? JSON.parse(raw) : INITIAL_COLOR_PALETTE;

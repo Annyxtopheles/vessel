@@ -99,12 +99,13 @@ export interface XpEvent extends BaseEntity {
 }
 
 export type NumberGroupingOption = 'bangladeshi' | 'international';
+export type UnitSystem = 'metric' | 'imperial' | 'hybrid';
 
 export interface AppSettings extends BaseEntity {
   id?: string;
   currencySymbol: string;
   numberGrouping?: NumberGroupingOption;
-  unitSystem?: 'metric' | 'imperial';
+  unitSystem?: UnitSystem;
   targetWeightKg?: number;
   privacyMode?: boolean;
   lastBackupAt?: string;

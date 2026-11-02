@@ -159,13 +159,21 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   );
   const activeTraits = useMemo(() => traits.filter((t) => !t.deletedAt), [traits]);
 
-  // Unit preference conversion helper
-  const isImperial = settings.unitSystem === 'imperial';
+  // Unit preference conversion helper (supports 'hybrid' [kg & in], 'metric' [kg & cm], 'imperial' [lbs & in])
   const formatMeasurementValue = (val: number, unit: string) => {
-    if (isImperial) {
+    if (settings.unitSystem === 'imperial') {
       if (unit === 'kg') return { val: (val * 2.20462).toFixed(1), unit: 'lbs' };
       if (unit === 'cm') return { val: (val / 2.54).toFixed(1), unit: 'in' };
+      return { val: val.toFixed(1), unit };
     }
+    if (settings.unitSystem === 'metric') {
+      if (unit === 'lbs') return { val: (val / 2.20462).toFixed(1), unit: 'kg' };
+      if (unit === 'in') return { val: (val * 2.54).toFixed(1), unit: 'cm' };
+      return { val: val.toFixed(1), unit };
+    }
+    // Hybrid (default): weight in kg, lengths and circumferences in inches
+    if (unit === 'lbs') return { val: (val / 2.20462).toFixed(1), unit: 'kg' };
+    if (unit === 'cm') return { val: (val / 2.54).toFixed(1), unit: 'in' };
     return { val: val.toFixed(1), unit };
   };
 
@@ -530,12 +538,20 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               >
                 {latestWeight ? `${formatMeasurementValue(latestWeight.value, latestWeight.unit).val} ${formatMeasurementValue(latestWeight.value, latestWeight.unit).unit}` : '—'}
               </div>
-              <div className="mt-1">
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {getDeltaBadge(
                   latestWeight ? latestWeight.value : null,
                   prevWeight ? prevWeight.value : null,
                   latestWeight ? formatMeasurementValue(latestWeight.value, latestWeight.unit).unit : ''
                 )}
+                {settings.targetWeightKg && (
+                  <span className="text-[11px] text-[#6B645A] tabular-nums">
+                    Target: {settings.targetWeightKg}kg
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-[#6B645A]/80 mt-1 tabular-nums">
+                Current: {latestWeight ? latestWeight.value : 96}kg · Target: {settings.targetWeightKg ?? 85}kg · Peak: 106kg
               </div>
             </div>
           </div>

@@ -74,8 +74,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [tempCurrency, setTempCurrency] = useState(settings.currencySymbol || '৳');
   const [tempNumberGrouping, setTempNumberGrouping] = useState<NumberGroupingOption>(settings.numberGrouping || 'bangladeshi');
-  const [tempUnitSystem, setTempUnitSystem] = useState<'metric' | 'imperial'>(settings.unitSystem || 'metric');
-  const [tempTargetWeight, setTempTargetWeight] = useState(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
+  const [tempUnitSystem, setTempUnitSystem] = useState<'metric' | 'imperial' | 'hybrid'>(settings.unitSystem || 'hybrid');
+  const [tempTargetWeight, setTempTargetWeight] = useState(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '85');
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -83,8 +83,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   useEffect(() => {
     setTempCurrency(settings.currencySymbol || '৳');
     setTempNumberGrouping(settings.numberGrouping || 'bangladeshi');
-    setTempUnitSystem(settings.unitSystem || 'metric');
-    setTempTargetWeight(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '');
+    setTempUnitSystem(settings.unitSystem || 'hybrid');
+    setTempTargetWeight(settings.targetWeightKg !== undefined ? String(settings.targetWeightKg) : '85');
   }, [settings, isSettingsOpen]);
 
   // Click outside search container to close results
@@ -643,11 +643,22 @@ export const TopBar: React.FC<TopBarProps> = ({
                 <label className="block text-[11px] font-medium text-[#6B645A] uppercase tracking-wider mb-1.5">
                   Measurements Unit
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTempUnitSystem('hybrid')}
+                    className={`px-2.5 py-1.5 rounded-[6px] border text-[12px] font-medium transition-colors cursor-pointer text-center ${
+                      tempUnitSystem === 'hybrid'
+                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
+                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
+                    }`}
+                  >
+                    Hybrid (kg & in)
+                  </button>
                   <button
                     type="button"
                     onClick={() => setTempUnitSystem('metric')}
-                    className={`px-3 py-1.5 rounded-[6px] border text-[13px] font-medium transition-colors cursor-pointer ${
+                    className={`px-2.5 py-1.5 rounded-[6px] border text-[12px] font-medium transition-colors cursor-pointer text-center ${
                       tempUnitSystem === 'metric'
                         ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
                         : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
@@ -658,7 +669,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   <button
                     type="button"
                     onClick={() => setTempUnitSystem('imperial')}
-                    className={`px-3 py-1.5 rounded-[6px] border text-[13px] font-medium transition-colors cursor-pointer ${
+                    className={`px-2.5 py-1.5 rounded-[6px] border text-[12px] font-medium transition-colors cursor-pointer text-center ${
                       tempUnitSystem === 'imperial'
                         ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
                         : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:border-[#1F1B16]'
