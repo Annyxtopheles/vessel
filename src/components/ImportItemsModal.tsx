@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import {
   X,
   FileText,
@@ -107,17 +107,17 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
           <div>
-            <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Import Items</h2>
-            <p className="text-[12px] text-[#6B645A]">JSON & CSV file import with idempotent reconciliation</p>
+            <h2 className="font-serif text-[20px] font-normal text-[#0F172A]">Import Items</h2>
+            <p className="text-[12px] text-[#64748B]">JSON & CSV file import with idempotent reconciliation</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
+            className="p-1 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -127,28 +127,28 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {importResult ? (
             <div className="p-8 text-center space-y-4">
-              <div className="w-12 h-12 rounded-[6px] bg-[#F6F2EA] border border-[#3F6B4F]/30 text-[#3F6B4F] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-[6px] bg-[#F8FAFC] border border-[#059669]/30 text-[#059669] flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-serif text-[18px] text-[#1F1B16]">Import Complete</h3>
-                <p className="text-[13px] text-[#6B645A] mt-1">
+                <h3 className="font-serif text-[18px] text-[#0F172A]">Import Complete</h3>
+                <p className="text-[13px] text-[#64748B] mt-1">
                   Reconciled inventory records into local storage.
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-3 max-w-md mx-auto pt-2">
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
                   <div className="editorial-stat-num text-[22px]">{importResult.created}</div>
-                  <div className="text-[11px] text-[#6B645A] mt-0.5">Created</div>
+                  <div className="text-[11px] text-[#64748B] mt-0.5">Created</div>
                 </div>
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
                   <div className="editorial-stat-num text-[22px]">{importResult.updated}</div>
-                  <div className="text-[11px] text-[#6B645A] mt-0.5">Updated</div>
+                  <div className="text-[11px] text-[#64748B] mt-0.5">Updated</div>
                 </div>
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
                   <div className="editorial-stat-num text-[22px]">{importResult.skipped}</div>
-                  <div className="text-[11px] text-[#6B645A] mt-0.5">Skipped</div>
+                  <div className="text-[11px] text-[#64748B] mt-0.5">Skipped</div>
                 </div>
               </div>
 
@@ -173,7 +173,7 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
             <div className="space-y-4">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-[#E4DED2] hover:border-[#1F1B16] bg-[#F6F2EA] rounded-[6px] p-8 text-center cursor-pointer transition-colors group"
+                className="border-2 border-dashed border-[#E2E8F0] hover:border-[#0F172A] bg-[#F8FAFC] rounded-[6px] p-8 text-center cursor-pointer transition-colors group"
               >
                 <input
                   type="file"
@@ -182,35 +182,35 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
                   accept=".json,.csv"
                   className="hidden"
                 />
-                <div className="font-serif text-[16px] text-[#1F1B16]">
+                <div className="font-serif text-[16px] text-[#0F172A]">
                   Select or drop a JSON / CSV file
                 </div>
-                <div className="text-[12px] text-[#6B645A] mt-1">
+                <div className="text-[12px] text-[#64748B] mt-1">
                   Conforming to the Vessel import format
                 </div>
               </div>
 
-              <div className="p-4 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px] text-[12px] text-[#6B645A] space-y-1.5">
-                <div className="font-medium text-[#1F1B16]">
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px] text-[12px] text-[#64748B] space-y-1.5">
+                <div className="font-medium text-[#0F172A]">
                   Schema Documentation & Samples
                 </div>
                 <p>
-                  Reference specifications in <code className="text-[#1F1B16] bg-[#EFEAE0] px-1 py-0.5 rounded-[3px]">/docs/import-format.md</code> or sample items in <code className="text-[#1F1B16] bg-[#EFEAE0] px-1 py-0.5 rounded-[3px]">/data/import/sample-items.json</code>.
+                  Reference specifications in <code className="text-[#0F172A] bg-[#F1F5F9] px-1 py-0.5 rounded-[3px]">/docs/import-format.md</code> or sample items in <code className="text-[#0F172A] bg-[#F1F5F9] px-1 py-0.5 rounded-[3px]">/data/import/sample-items.json</code>.
                 </p>
               </div>
             </div>
           ) : (
             <div className="space-y-6">
               {/* File Info Bar */}
-              <div className="flex items-center justify-between p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
+              <div className="flex items-center justify-between p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#6B645A]" />
-                  <span className="text-[12px] font-mono text-[#1F1B16]">{fileName}</span>
+                  <FileText className="w-4 h-4 text-[#64748B]" />
+                  <span className="text-[12px] font-mono text-[#0F172A]">{fileName}</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="text-[12px] text-[#6B645A] hover:text-[#1F1B16] underline"
+                  className="text-[12px] text-[#64748B] hover:text-[#0F172A] underline"
                 >
                   Change file
                 </button>
@@ -218,17 +218,17 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
 
               {/* Validation Summary Report */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
-                  <div className="text-[11px] text-[#6B645A]">Total Rows</div>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
+                  <div className="text-[11px] text-[#64748B]">Total Rows</div>
                   <div className="editorial-stat-num text-[20px] mt-0.5">{report.totalRows}</div>
                 </div>
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
-                  <div className="text-[11px] text-[#6B645A]">Valid Items</div>
-                  <div className="editorial-stat-num text-[20px] text-[#3F6B4F] mt-0.5">{report.validRows}</div>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
+                  <div className="text-[11px] text-[#64748B]">Valid Items</div>
+                  <div className="editorial-stat-num text-[20px] text-[#059669] mt-0.5">{report.validRows}</div>
                 </div>
-                <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
-                  <div className="text-[11px] text-[#6B645A]">Rows with Errors</div>
-                  <div className={`editorial-stat-num text-[20px] mt-0.5 ${report.errorRows > 0 ? 'text-[#9C3D2A]' : 'text-[#6B645A]'}`}>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
+                  <div className="text-[11px] text-[#64748B]">Rows with Errors</div>
+                  <div className={`editorial-stat-num text-[20px] mt-0.5 ${report.errorRows > 0 ? 'text-[#E11D48]' : 'text-[#64748B]'}`}>
                     {report.errorRows}
                   </div>
                 </div>
@@ -236,12 +236,12 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
 
               {/* Error List */}
               {report.errors.length > 0 && (
-                <div className="p-4 bg-[#F6F2EA] border border-[#9C3D2A]/30 rounded-[6px] space-y-2">
-                  <div className="flex items-center gap-2 text-[12px] font-medium text-[#9C3D2A]">
+                <div className="p-4 bg-[#F8FAFC] border border-[#E11D48]/30 rounded-[6px] space-y-2">
+                  <div className="flex items-center gap-2 text-[12px] font-medium text-[#E11D48]">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>Validation Errors ({report.errors.length}):</span>
                   </div>
-                  <ul className="text-[12px] text-[#9C3D2A] space-y-1 max-h-36 overflow-y-auto pl-5 list-disc">
+                  <ul className="text-[12px] text-[#E11D48] space-y-1 max-h-36 overflow-y-auto pl-5 list-disc">
                     {report.errors.map((err, i) => (
                       <li key={i}>
                         <span className="font-medium">Row {err.row}</span> ({err.field}): {err.message}
@@ -252,19 +252,19 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
               )}
 
               {/* Duplicate Strategy Option */}
-              <div className="p-4 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px] space-y-3">
-                <div className="text-[12px] font-medium text-[#1F1B16]">Duplicate Handling Strategy</div>
-                <div className="space-y-2 text-[12px] text-[#6B645A]">
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px] space-y-3">
+                <div className="text-[12px] font-medium text-[#0F172A]">Duplicate Handling Strategy</div>
+                <div className="space-y-2 text-[12px] text-[#64748B]">
                   <label className="flex items-center gap-2.5 cursor-pointer">
                     <input
                       type="radio"
                       name="dupStrategy"
                       checked={duplicateStrategy === 'overwrite'}
                       onChange={() => setDuplicateStrategy('overwrite')}
-                      className="accent-[#1F1B16]"
+                      className="accent-[#0F172A]"
                     />
                     <span>
-                      <strong className="text-[#1F1B16]">Overwrite:</strong> Update matching items by external_id and increment revision
+                      <strong className="text-[#0F172A]">Overwrite:</strong> Update matching items by external_id and increment revision
                     </span>
                   </label>
                   <label className="flex items-center gap-2.5 cursor-pointer">
@@ -273,10 +273,10 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
                       name="dupStrategy"
                       checked={duplicateStrategy === 'skip'}
                       onChange={() => setDuplicateStrategy('skip')}
-                      className="accent-[#1F1B16]"
+                      className="accent-[#0F172A]"
                     />
                     <span>
-                      <strong className="text-[#1F1B16]">Skip:</strong> Keep existing items unchanged if external_id matches
+                      <strong className="text-[#0F172A]">Skip:</strong> Keep existing items unchanged if external_id matches
                     </span>
                   </label>
                   <label className="flex items-center gap-2.5 cursor-pointer">
@@ -285,10 +285,10 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
                       name="dupStrategy"
                       checked={duplicateStrategy === 'create_new'}
                       onChange={() => setDuplicateStrategy('create_new')}
-                      className="accent-[#1F1B16]"
+                      className="accent-[#0F172A]"
                     />
                     <span>
-                      <strong className="text-[#1F1B16]">Create New:</strong> Always generate a new record regardless of external_id
+                      <strong className="text-[#0F172A]">Create New:</strong> Always generate a new record regardless of external_id
                     </span>
                   </label>
                 </div>
@@ -296,10 +296,10 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
 
               {/* Dry-Run Preview Table */}
               <div className="space-y-2">
-                <div className="text-[12px] font-medium text-[#1F1B16]">Preview ({report.validRows} valid items)</div>
-                <div className="border border-[#E4DED2] rounded-[6px] overflow-x-auto max-h-56 bg-[#FBF9F4]">
+                <div className="text-[12px] font-medium text-[#0F172A]">Preview ({report.validRows} valid items)</div>
+                <div className="border border-[#E2E8F0] rounded-[6px] overflow-x-auto max-h-56 bg-[#FFFFFF]">
                   <table className="w-full text-left text-[12px] border-collapse">
-                    <thead className="bg-[#F6F2EA] text-[#6B645A] border-b border-[#E4DED2]">
+                    <thead className="bg-[#F8FAFC] text-[#64748B] border-b border-[#E2E8F0]">
                       <tr>
                         <th className="py-2 px-3">Name</th>
                         <th className="py-2 px-3">External ID</th>
@@ -309,19 +309,19 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
                         <th className="py-2 px-3">Location</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4DED2] text-[#1F1B16]">
+                    <tbody className="divide-y divide-[#E2E8F0] text-[#0F172A]">
                       {report.items.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-[#F6F2EA]/60">
+                        <tr key={idx} className="hover:bg-[#F8FAFC]/60">
                           <td className="py-2 px-3 font-medium">
                             {item.name}
-                            {item.brand && <span className="text-[#6B645A] ml-1 font-normal">({item.brand})</span>}
+                            {item.brand && <span className="text-[#64748B] ml-1 font-normal">({item.brand})</span>}
                           </td>
-                          <td className="py-2 px-3 font-mono text-[#6B645A] text-[11px]">
+                          <td className="py-2 px-3 font-mono text-[#64748B] text-[11px]">
                             {item.external_id || '—'}
                           </td>
-                          <td className="py-2 px-3 capitalize text-[#6B645A]">{item.category}</td>
+                          <td className="py-2 px-3 capitalize text-[#64748B]">{item.category}</td>
                           <td className="py-2 px-3 capitalize">
-                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
                               {item.status}
                             </span>
                           </td>
@@ -332,7 +332,7 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
                               settings.numberGrouping
                             )}
                           </td>
-                          <td className="py-2 px-3 text-[#6B645A]">{item.location || '—'}</td>
+                          <td className="py-2 px-3 text-[#64748B]">{item.location || '—'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -345,7 +345,7 @@ export const ImportItemsModal: React.FC<ImportItemsModalProps> = ({
 
         {/* Footer Actions */}
         {!importResult && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-[#E4DED2] bg-[#FBF9F4]">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[#E2E8F0] bg-[#FFFFFF]">
             <button
               type="button"
               onClick={onClose}

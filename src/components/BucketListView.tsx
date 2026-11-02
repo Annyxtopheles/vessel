@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { BucketListEntry, BucketListStatus, AttributeType, XpEvent } from '../types';
 import { ATTRIBUTE_NAMES } from '../types';
 import { Check, Trash2, ArrowUpRight, X } from 'lucide-react';
@@ -34,10 +34,10 @@ const STATUS_OPTIONS: { id: BucketListStatus | 'ALL'; label: string }[] = [
 ];
 
 const PILLAR_BADGES: Record<AttributeType, string> = {
-  STR: 'text-[#9C3D2A] bg-[#F6F2EA] border-[#9C3D2A]/30',
-  INT: 'text-[#2D4A6B] bg-[#F6F2EA] border-[#2D4A6B]/30',
-  WIS: 'text-[#7A5C1E] bg-[#F6F2EA] border-[#7A5C1E]/30',
-  CHA: 'text-[#3F6B4F] bg-[#F6F2EA] border-[#3F6B4F]/30',
+  STR: 'text-[#E11D48] bg-[#F8FAFC] border-[#E11D48]/30',
+  INT: 'text-[#2563EB] bg-[#F8FAFC] border-[#2563EB]/30',
+  WIS: 'text-[#D97706] bg-[#F8FAFC] border-[#D97706]/30',
+  CHA: 'text-[#059669] bg-[#F8FAFC] border-[#059669]/30',
 };
 
 export const BucketListView: React.FC<BucketListViewProps> = ({
@@ -174,31 +174,31 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Header Toolbar & Counts */}
-      <div className="pb-4 border-b border-[#E4DED2] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="pb-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="font-serif text-[24px] font-normal text-[#1F1B16]">
+          <h2 className="font-serif text-[24px] font-normal text-[#0F172A]">
             Bucket List
           </h2>
-          <p className="text-[13px] text-[#6B645A] mt-0.5">
+          <p className="text-[13px] text-[#64748B] mt-0.5">
             Aspirational milestones, lifelong explorations, and deep pursuits without artificial due dates.
           </p>
         </div>
 
         <div className="flex items-center gap-2 text-[12px] tabular-nums">
-          <span className="px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+          <span className="px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
             {doneCount} completed
           </span>
-          <span className="px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+          <span className="px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
             {plannedCount} planned
           </span>
-          <span className="px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+          <span className="px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
             {somedayCount} someday
           </span>
         </div>
       </div>
 
       {/* 2. Quick Add Bar */}
-      <form onSubmit={handleQuickAdd} className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 space-y-3">
+      <form onSubmit={handleQuickAdd} className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-4 space-y-3">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <input
             type="text"
@@ -240,32 +240,32 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
           <button
             type="button"
             onClick={() => setIsExpandedAdd(!isExpandedAdd)}
-            className="text-[#6B645A] hover:text-[#1F1B16] underline cursor-pointer transition-colors"
+            className="text-[#64748B] hover:text-[#0F172A] underline cursor-pointer transition-colors"
           >
             {isExpandedAdd ? 'Fewer details' : '+ Add notes, custom category, or initial status'}
           </button>
 
-          <span className="text-[11px] text-[#6B645A]">
+          <span className="text-[11px] text-[#64748B]">
             Completing an entry earns +150 XP if an attribute pillar is assigned.
           </span>
         </div>
 
         {isExpandedAdd && (
-          <div className="pt-2 border-t border-[#E4DED2] grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="pt-2 border-t border-[#E2E8F0] grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1">
-              <label className="text-[12px] font-medium text-[#6B645A]">Notes or Vision</label>
+              <label className="text-[12px] font-medium text-[#64748B]">Notes or Vision</label>
               <textarea
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Key details, equipment needed, prerequisites, or why this matters..."
-                className="w-full p-2 bg-[#F6F2EA] border border-[#E4DED2] rounded-[4px] text-[13px] text-[#1F1B16] focus:outline-none focus:border-[#1F1B16] resize-none"
+                className="w-full p-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] text-[13px] text-[#0F172A] focus:outline-none focus:border-[#0F172A] resize-none"
               />
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="text-[12px] font-medium text-[#6B645A] block mb-1">Status</label>
+                <label className="text-[12px] font-medium text-[#64748B] block mb-1">Status</label>
                 <div className="flex items-center gap-2">
                   {(['someday', 'planned'] as BucketListStatus[]).map((st) => (
                     <button
@@ -274,8 +274,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                       onClick={() => setStatus(st)}
                       className={`px-3 py-1 rounded-[4px] border text-[12px] capitalize transition-colors cursor-pointer ${
                         status === st
-                          ? 'bg-[#1F1B16] text-[#FBF9F4] border-[#1F1B16]'
-                          : 'bg-[#F6F2EA] text-[#6B645A] border-[#E4DED2] hover:text-[#1F1B16]'
+                          ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
+                          : 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0] hover:text-[#0F172A]'
                       }`}
                     >
                       {st}
@@ -285,13 +285,13 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
               </div>
 
               <div>
-                <label className="text-[12px] font-medium text-[#6B645A] block mb-1">Or Custom Category</label>
+                <label className="text-[12px] font-medium text-[#64748B] block mb-1">Or Custom Category</label>
                 <input
                   type="text"
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value)}
                   placeholder="e.g. Architecture, Culinary..."
-                  className="w-full px-2 py-1 bg-[#F6F2EA] border border-[#E4DED2] rounded-[4px] text-[12px] text-[#1F1B16] focus:outline-none focus:border-[#1F1B16]"
+                  className="w-full px-2 py-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] text-[12px] text-[#0F172A] focus:outline-none focus:border-[#0F172A]"
                 />
               </div>
             </div>
@@ -303,14 +303,14 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
       <div className="space-y-3">
         {/* Category Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[13px]">
-          <span className="text-[#6B645A] text-xs font-medium mr-1 shrink-0">Category:</span>
+          <span className="text-[#64748B] text-xs font-medium mr-1 shrink-0">Category:</span>
           <button
             type="button"
             onClick={() => setCategoryFilter('ALL')}
             className={`px-3 py-1 rounded-[4px] text-xs transition-colors shrink-0 cursor-pointer ${
               categoryFilter === 'ALL'
-                ? 'bg-[#1F1B16] text-[#FBF9F4]'
-                : 'bg-[#FBF9F4] text-[#6B645A] border border-[#E4DED2] hover:text-[#1F1B16]'
+                ? 'bg-[#0F172A] text-[#FFFFFF]'
+                : 'bg-[#FFFFFF] text-[#64748B] border border-[#E2E8F0] hover:text-[#0F172A]'
             }`}
           >
             All
@@ -325,8 +325,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                 onClick={() => setCategoryFilter(cat)}
                 className={`px-3 py-1 rounded-[4px] text-xs transition-colors shrink-0 cursor-pointer flex items-center gap-1.5 ${
                   categoryFilter === cat
-                    ? 'bg-[#1F1B16] text-[#FBF9F4]'
-                    : 'bg-[#FBF9F4] text-[#6B645A] border border-[#E4DED2] hover:text-[#1F1B16]'
+                    ? 'bg-[#0F172A] text-[#FFFFFF]'
+                    : 'bg-[#FFFFFF] text-[#64748B] border border-[#E2E8F0] hover:text-[#0F172A]'
                 }`}
               >
                 <span>{cat}</span>
@@ -338,7 +338,7 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
 
         {/* Status Filters & Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-[13px]">
-          <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2]">
+          <div className="inline-flex p-0.5 bg-[#F1F5F9] rounded-[6px] border border-[#E2E8F0]">
             {STATUS_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
@@ -349,8 +349,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                 }}
                 className={`px-3 py-1 rounded-[4px] text-[12px] font-medium transition-colors cursor-pointer ${
                   statusFilter === opt.id
-                    ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                    : 'text-[#6B645A] hover:text-[#1F1B16]'
+                    ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                    : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
               >
                 {opt.label}
@@ -364,7 +364,7 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter bucket list entries..."
-              className="w-full px-3 py-1.5 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] text-[13px] text-[#1F1B16] placeholder:text-[#6B645A]/60 focus:outline-none focus:border-[#1F1B16]"
+              className="w-full px-3 py-1.5 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] text-[13px] text-[#0F172A] placeholder:text-[#64748B]/60 focus:outline-none focus:border-[#0F172A]"
             />
           </div>
         </div>
@@ -373,8 +373,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
       {/* 4. List View */}
       <div className="space-y-2">
         {filteredEntries.length === 0 ? (
-          <div className="py-12 text-center text-[#6B645A] bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px]">
-            <p className="font-serif text-[17px] text-[#1F1B16]">No entries match your filter</p>
+          <div className="py-12 text-center text-[#64748B] bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px]">
+            <p className="font-serif text-[17px] text-[#0F172A]">No entries match your filter</p>
             <p className="text-[13px] mt-1">Add a new pursuit or switch the category/status filter above.</p>
           </div>
         ) : (
@@ -386,8 +386,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                 key={entry.id}
                 className={`group p-4 rounded-[6px] border transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   isDone
-                    ? 'bg-[#FBF9F4] border-[#E4DED2] opacity-75'
-                    : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                    ? 'bg-[#FFFFFF] border-[#E2E8F0] opacity-75'
+                    : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
                 }`}
               >
                 {/* Left: Checkbox + Content */}
@@ -398,8 +398,8 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                     onClick={() => handleToggleDone(entry)}
                     className={`mt-0.5 w-5 h-5 rounded-[4px] border flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                       isDone
-                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
-                        : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent hover:border-[#1F1B16]'
+                        ? 'bg-[#0F172A] border-[#0F172A] text-[#FFFFFF]'
+                        : 'bg-[#FFFFFF] border-[#E2E8F0] text-transparent hover:border-[#0F172A]'
                     }`}
                     title={isDone ? 'Mark as incomplete' : 'Mark as done'}
                   >
@@ -411,15 +411,15 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                       <span
                         className={`font-serif text-[16px] leading-snug transition-colors ${
                           isDone
-                            ? 'line-through text-[#6B645A]'
-                            : 'text-[#1F1B16] font-medium'
+                            ? 'line-through text-[#64748B]'
+                            : 'text-[#0F172A] font-medium'
                         }`}
                       >
                         {entry.title}
                       </span>
 
                       {/* Category Badge */}
-                      <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                      <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
                         {entry.category}
                       </span>
 
@@ -437,10 +437,10 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                       <span
                         className={`px-1.5 py-0.5 rounded-[4px] text-[10px] uppercase tracking-wider font-medium border ${
                           entry.status === 'done'
-                            ? 'bg-[#3F6B4F]/10 text-[#3F6B4F] border-[#3F6B4F]/30'
+                            ? 'bg-[#059669]/10 text-[#059669] border-[#059669]/30'
                             : entry.status === 'planned'
-                            ? 'bg-[#2D4A6B]/10 text-[#2D4A6B] border-[#2D4A6B]/30'
-                            : 'bg-[#EFEAE0] text-[#6B645A] border-[#E4DED2]'
+                            ? 'bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/30'
+                            : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
                         }`}
                       >
                         {entry.status}
@@ -453,7 +453,7 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                           onClick={() => {
                             if (onNavigateToTasks) onNavigateToTasks();
                           }}
-                          className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] hover:bg-[#E4DED2] text-[#1F1B16] border border-[#E4DED2] inline-flex items-center gap-1 transition-colors cursor-pointer"
+                          className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] border border-[#E2E8F0] inline-flex items-center gap-1 transition-colors cursor-pointer"
                           title="View linked task"
                         >
                           <span>Linked Task</span>
@@ -464,15 +464,15 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
 
                     {/* Notes */}
                     {entry.notes && (
-                      <p className="text-[13px] text-[#6B645A] leading-relaxed line-clamp-2">
+                      <p className="text-[13px] text-[#64748B] leading-relaxed line-clamp-2">
                         {entry.notes}
                       </p>
                     )}
 
                     {/* Evidence if logged */}
                     {entry.evidence && (
-                      <div className="text-[12px] text-[#1F1B16] bg-[#F6F2EA] px-2 py-1 rounded-[4px] border border-[#E4DED2] inline-block mt-1">
-                        <span className="text-[#6B645A] mr-1.5 font-medium">Proof:</span>
+                      <div className="text-[12px] text-[#0F172A] bg-[#F8FAFC] px-2 py-1 rounded-[4px] border border-[#E2E8F0] inline-block mt-1">
+                        <span className="text-[#64748B] mr-1.5 font-medium">Proof:</span>
                         <span>{entry.evidence}</span>
                       </div>
                     )}
@@ -512,7 +512,7 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                       sfx.playClick();
                       onDeleteEntry(entry.id);
                     }}
-                    className="p-1.5 text-[#6B645A]/40 group-hover:text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
+                    className="p-1.5 text-[#64748B]/40 group-hover:text-[#64748B] hover:text-[#E11D48] transition-colors cursor-pointer"
                     title="Delete pursuit"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -528,25 +528,25 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
       {editingEntry && (
         <div
           onClick={() => setEditingEntry(null)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95 space-y-4"
+            className="w-full max-w-lg bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95 space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
               <div>
-                <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+                <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
                   Edit Pursuit: {editingEntry.title}
                 </h3>
-                <span className="text-[12px] text-[#6B645A]">
+                <span className="text-[12px] text-[#64748B]">
                   Category: {editingEntry.category} • Status: {editingEntry.status}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingEntry(null)}
-                className="p-1 text-[#6B645A] hover:text-[#1F1B16] rounded-[4px]"
+                className="p-1 text-[#64748B] hover:text-[#0F172A] rounded-[4px]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -554,7 +554,7 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
-                <label className="block text-[13px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[13px] font-medium text-[#0F172A] mb-1">
                   Notes & Details
                 </label>
                 <textarea
@@ -562,12 +562,12 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
                   placeholder="Notes, reflections, or preparation steps..."
-                  className="w-full p-2.5 bg-[#F6F2EA] border border-[#E4DED2] rounded-[4px] text-[13px] text-[#1F1B16] focus:outline-none focus:border-[#1F1B16] resize-none"
+                  className="w-full p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] text-[13px] text-[#0F172A] focus:outline-none focus:border-[#0F172A] resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[13px] font-medium text-[#0F172A] mb-1">
                   Evidence / Verification Proof (URL or note)
                 </label>
                 <input
@@ -575,11 +575,11 @@ export const BucketListView: React.FC<BucketListViewProps> = ({
                   value={editEvidence}
                   onChange={(e) => setEditEvidence(e.target.value)}
                   placeholder="Link to photos, certification, flight ticket, or personal journal entry"
-                  className="w-full p-2 bg-[#F6F2EA] border border-[#E4DED2] rounded-[4px] text-[13px] text-[#1F1B16] focus:outline-none focus:border-[#1F1B16]"
+                  className="w-full p-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] text-[13px] text-[#0F172A] focus:outline-none focus:border-[#0F172A]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingEntry(null)}

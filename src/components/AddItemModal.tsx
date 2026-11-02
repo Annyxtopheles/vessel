@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { InventoryItem, ItemCategory, ItemRarity, ItemCondition, ItemSeason, OwnershipStatus, PastReason } from '../types';
 import { X } from 'lucide-react';
 import { sfx } from '../utils/audio';
@@ -43,14 +43,14 @@ const PAST_REASON_OPTIONS = [
 ];
 
 const COLOR_PRESETS = [
-  { name: 'Obsidian Black', hex: '#1F1B16' },
+  { name: 'Obsidian Black', hex: '#0F172A' },
   { name: 'Charcoal Slate', hex: '#2D3139' },
-  { name: 'Deep Navy', hex: '#2D4A6B' },
-  { name: 'Terracotta', hex: '#9C3D2A' },
-  { name: 'Antique Bronze', hex: '#7A5C1E' },
-  { name: 'Forest Moss', hex: '#3F6B4F' },
-  { name: 'Warm Cream', hex: '#F6F2EA' },
-  { name: 'Bone Taupe', hex: '#E4DED2' },
+  { name: 'Deep Navy', hex: '#2563EB' },
+  { name: 'Terracotta', hex: '#E11D48' },
+  { name: 'Antique Bronze', hex: '#D97706' },
+  { name: 'Forest Moss', hex: '#059669' },
+  { name: 'Warm Cream', hex: '#F8FAFC' },
+  { name: 'Bone Taupe', hex: '#E2E8F0' },
 ];
 
 interface AddItemModalProps {
@@ -74,7 +74,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
   const [subCategory, setSubCategory] = useState('Outerwear');
   const [rarity, setRarity] = useState<ItemRarity>('rare');
   const [colorName, setColorName] = useState('Obsidian Black');
-  const [colorHex, setColorHex] = useState('#1F1B16');
+  const [colorHex, setColorHex] = useState('#0F172A');
   const [condition, setCondition] = useState<ItemCondition>('pristine');
   const [season, setSeason] = useState<ItemSeason>('all');
   const [goldValue, setGoldValue] = useState('100');
@@ -155,16 +155,16 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
       className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
     >
       <div
-        className="w-full max-w-lg bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden cursor-default max-h-[90vh] flex flex-col"
+        className="w-full max-w-lg bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] overflow-hidden cursor-default max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
           <div>
-            <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+            <h2 className="font-serif text-[20px] font-normal text-[#0F172A]">
               Add Possession
             </h2>
-            <p className="text-[12px] text-[#6B645A] mt-0.5">
+            <p className="text-[12px] text-[#64748B] mt-0.5">
               Register an item into your inventory
             </p>
           </div>
@@ -175,7 +175,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               sfx.playClick();
               onClose();
             }}
-            className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors cursor-pointer"
+            className="p-1 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -186,7 +186,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Status Selector */}
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                 Status
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -197,8 +197,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
                     onClick={() => setOwnershipStatus(st)}
                     className={`py-1.5 px-3 rounded-[6px] border text-[13px] font-medium transition-colors cursor-pointer ${
                       ownershipStatus === st
-                        ? 'bg-[#F6F2EA] border-[#1F1B16] text-[#1F1B16]'
-                        : 'border-[#E4DED2] bg-[#FBF9F4] text-[#6B645A] hover:text-[#1F1B16]'
+                        ? 'bg-[#F8FAFC] border-[#0F172A] text-[#0F172A]'
+                        : 'border-[#E2E8F0] bg-[#FFFFFF] text-[#64748B] hover:text-[#0F172A]'
                     }`}
                   >
                     {st === 'owned' ? 'Owned' : st === 'wishlist' ? 'Wishlist' : 'Parted With'}
@@ -209,9 +209,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Past Reason if past */}
             {ownershipStatus === 'past' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Reason</label>
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Reason</label>
                   <CustomSelect
                     value={pastReason}
                     options={PAST_REASON_OPTIONS}
@@ -219,7 +219,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Date Parted</label>
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Date Parted</label>
                   <input
                     type="date"
                     value={pastDate}
@@ -232,8 +232,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Wishlist Goal if wishlist */}
             {ownershipStatus === 'wishlist' && (
-              <div className="p-3 bg-[#F6F2EA] border border-[#E4DED2] rounded-[6px] space-y-1.5">
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A]">
+              <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px] space-y-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B]">
                   Milestone to Unlock
                 </label>
                 <input
@@ -248,7 +248,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Item Name */}
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                 Name
               </label>
               <input
@@ -263,11 +263,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Photo Upload Area */}
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                 Photo (Optional)
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] flex items-center justify-center font-serif text-lg text-[#6B645A] overflow-hidden flex-shrink-0">
+                <div className="w-12 h-12 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center font-serif text-lg text-[#64748B] overflow-hidden flex-shrink-0">
                   {imageUrl ? (
                     <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
@@ -291,7 +291,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             {/* Category & Subcategory */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Category</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Category</label>
                 <CustomSelect
                   value={category}
                   options={CATEGORY_OPTIONS}
@@ -300,7 +300,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Subcategory</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Subcategory</label>
                 <input
                   type="text"
                   value={subCategory}
@@ -314,7 +314,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             {/* Rarity & Condition */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Tier / Grade</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Tier / Grade</label>
                 <CustomSelect
                   value={rarity}
                   options={RARITY_OPTIONS}
@@ -323,7 +323,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Condition</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Condition</label>
                 <CustomSelect
                   value={condition}
                   options={CONDITION_OPTIONS}
@@ -335,7 +335,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             {/* Season, Value & Location */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Season</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Season</label>
                 <CustomSelect
                   value={season}
                   options={SEASON_OPTIONS}
@@ -344,7 +344,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   {ownershipStatus === 'wishlist' ? `Target (${currencySymbol})` : `Value (${currencySymbol})`}
                 </label>
                 <input
@@ -360,7 +360,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">Storage Location</label>
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">Storage Location</label>
                 <input
                   type="text"
                   value={location}
@@ -373,8 +373,8 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Color Presets */}
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1.5">
-                Color: <span className="text-[#1F1B16] font-normal">{colorName}</span>
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1.5">
+                Color: <span className="text-[#0F172A] font-normal">{colorName}</span>
               </label>
               <div className="flex flex-wrap items-center gap-2">
                 {COLOR_PRESETS.map((col) => (
@@ -386,7 +386,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
                       setColorHex(col.hex);
                     }}
                     className={`w-6 h-6 rounded-[3px] border transition-all cursor-pointer ${
-                      colorHex === col.hex ? 'ring-2 ring-[#1F1B16] ring-offset-1 scale-105' : 'border-black/10'
+                      colorHex === col.hex ? 'ring-2 ring-[#0F172A] ring-offset-1 scale-105' : 'border-black/10'
                     }`}
                     style={{ backgroundColor: col.hex }}
                     title={col.name}
@@ -397,7 +397,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 
             {/* Notes */}
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                 Notes
               </label>
               <textarea
@@ -410,7 +410,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             </div>
 
             {/* Form Actions */}
-            <div className="pt-4 border-t border-[#E4DED2] flex items-center justify-end gap-2.5">
+            <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={onClose}

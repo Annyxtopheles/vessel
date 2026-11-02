@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import type { InventoryItem, NumberGroupingOption } from '../types';
 import { formatCurrency } from '../utils/numberFormat';
 
@@ -35,7 +35,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
   ownedClothing.forEach((item) => {
     const colName = item.colorName || 'Other';
     if (!colorCounts[colName]) {
-      colorCounts[colName] = { count: 0, hex: item.colorHex || '#1F1B16' };
+      colorCounts[colName] = { count: 0, hex: item.colorHex || '#0F172A' };
     }
     colorCounts[colName].count += 1;
   });
@@ -56,39 +56,39 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Stat 1: Items owned */}
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6B645A]">Items owned</span>
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-4 flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#64748B]">Items owned</span>
           <div className="mt-2">
             <div className="editorial-stat-num">
               {ownedCount}
             </div>
-            <div className="text-[12px] text-[#6B645A] mt-1 tabular-nums truncate">
+            <div className="text-[12px] text-[#64748B] mt-1 tabular-nums truncate">
               {ownedCount} owned · {wishlistCount} wishlist · {pastCount} parted
             </div>
           </div>
         </div>
 
         {/* Stat 2: Total value */}
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6B645A]">Total value</span>
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-4 flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#64748B]">Total value</span>
           <div className="mt-2">
             <div className={`editorial-stat-num ${blurClass}`}>
               {formatCurrency(vaultValuation, currencySymbol, numberGrouping)}
             </div>
-            <div className="text-[12px] text-[#6B645A] mt-1 truncate">
+            <div className="text-[12px] text-[#64748B] mt-1 truncate">
               Owned items
             </div>
           </div>
         </div>
 
         {/* Stat 3: Wishlist cost */}
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4 flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6B645A]">Wishlist cost</span>
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-4 flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#64748B]">Wishlist cost</span>
           <div className="mt-2">
             <div className={`editorial-stat-num ${blurClass}`}>
               {formatCurrency(wishlistCost, currencySymbol, numberGrouping)}
             </div>
-            <div className="text-[12px] text-[#6B645A] mt-1 truncate tabular-nums">
+            <div className="text-[12px] text-[#64748B] mt-1 truncate tabular-nums">
               {wishlistCount} wanted items
             </div>
           </div>
@@ -97,18 +97,18 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
       </div>
 
       {/* Wardrobe Spectrum (small chart under the stats) */}
-      <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-4">
+      <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="font-serif text-[16px] font-normal text-[#1F1B16]">Wardrobe Spectrum</span>
-          <span className="text-[12px] text-[#6B645A] tabular-nums">{totalGarments} garments</span>
+          <span className="font-serif text-[16px] font-normal text-[#0F172A]">Wardrobe Spectrum</span>
+          <span className="text-[12px] text-[#64748B] tabular-nums">{totalGarments} garments</span>
         </div>
 
         {totalGarments === 0 ? (
-          <p className="text-[13px] text-[#6B645A] italic py-1">No owned clothing recorded.</p>
+          <p className="text-[13px] text-[#64748B] italic py-1">No owned clothing recorded.</p>
         ) : (
           <div className="space-y-2.5">
             {/* Multi-segment bar */}
-            <div className="h-2.5 w-full rounded-[4px] overflow-hidden flex bg-[#E4DED2]">
+            <div className="h-2.5 w-full rounded-[4px] overflow-hidden flex bg-[#E2E8F0]">
               {colorDistribution.map((c) => (
                 <div
                   key={c.name}
@@ -127,8 +127,8 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
                     className="w-2.5 h-2.5 rounded-[2px] border border-black/10 shrink-0"
                     style={{ backgroundColor: c.hex }}
                   />
-                  <span className="text-[#1F1B16] font-medium">{c.name}</span>
-                  <span className="text-[#6B645A] tabular-nums">({c.count})</span>
+                  <span className="text-[#0F172A] font-medium">{c.name}</span>
+                  <span className="text-[#64748B] tabular-nums">({c.count})</span>
                 </div>
               ))}
             </div>

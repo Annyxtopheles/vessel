@@ -137,37 +137,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const navItemClass = (isActive: boolean) =>
-    `w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-[14px] transition-colors cursor-pointer ${
+    `w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-[13.5px] transition-all cursor-pointer ${
       isActive
-        ? 'bg-[#F6F2EA] text-[#1F1B16] font-medium border border-[#E4DED2]'
-        : 'text-[#6B645A] hover:bg-[#F6F2EA]/60 hover:text-[#1F1B16] border border-transparent'
+        ? 'bg-[#0F172A] text-[#FFFFFF] font-medium shadow-xs'
+        : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
     }`;
 
   const treeItemClass = (isActive: boolean) =>
-    `w-full flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-[13px] transition-colors cursor-pointer ${
+    `w-full flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-[12.5px] transition-all cursor-pointer ${
       isActive
-        ? 'bg-[#F6F2EA] text-[#1F1B16] font-medium border border-[#E4DED2]'
-        : 'text-[#6B645A] hover:bg-[#F6F2EA]/60 hover:text-[#1F1B16] border border-transparent'
+        ? 'bg-[#0F172A] text-[#FFFFFF] font-medium'
+        : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
     }`;
 
   const initialLetter = (profile.name || 'V').trim().charAt(0).toUpperCase();
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-[#FBF9F4] border-r border-[#E4DED2] flex flex-col justify-between h-screen select-none z-30">
+    <aside className="w-64 flex-shrink-0 bg-[#FFFFFF] border-r border-[#E2E8F0] flex flex-col justify-between h-screen select-none z-30">
       {/* Top Header & Scrollable Nav */}
       <div className="flex flex-col min-h-0 flex-1 overflow-hidden">
         
         {/* User Workspace Profile Header */}
-        <div className="p-4 border-b border-[#E4DED2] flex-shrink-0">
+        <div className="p-4 border-b border-[#E2E8F0] flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] text-[#1F1B16] font-serif flex items-center justify-center text-sm font-medium flex-shrink-0">
+            <div className="w-9 h-9 rounded-[6px] bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A] font-serif flex items-center justify-center text-sm font-medium flex-shrink-0">
               {initialLetter}
             </div>
             <div className="min-w-0">
-              <div className="font-serif text-[15px] font-medium text-[#1F1B16] truncate tracking-tight">
+              <div className="font-serif text-[15px] font-medium text-[#0F172A] truncate tracking-tight">
                 {profile.name}
               </div>
-              <div className="text-[12px] text-[#6B645A] truncate">
+              <div className="text-[12px] text-[#64748B] truncate">
                 {profile.title}
               </div>
             </div>
@@ -187,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'overview')}
           >
             <div className="flex items-center gap-2.5">
-              <LayoutDashboard className={`w-4 h-4 ${activeTab === 'overview' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <LayoutDashboard className={`w-4 h-4 ${activeTab === 'overview' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Overview</span>
             </div>
           </button>
@@ -203,11 +203,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
             >
               <div className="flex items-center gap-2.5">
-                <Package className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+                <Package className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-[#64748B]'}`} />
                 <span>Inventory</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-medium tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+                <span className={`text-[11px] font-medium tabular-nums px-1.5 py-0.5 rounded-[4px] border ${
+                  activeTab === 'inventory'
+                    ? 'bg-white/20 text-white border-transparent'
+                    : 'text-[#64748B] bg-[#F1F5F9] border-[#E2E8F0]'
+                }`}>
                   {items.length}
                 </span>
                 <button
@@ -216,7 +220,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     e.stopPropagation();
                     setIsInventoryTreeOpen(!isInventoryTreeOpen);
                   }}
-                  className="p-0.5 hover:bg-[#EFEAE0] rounded-[4px] transition-colors text-[#6B645A]"
+                  className={`p-0.5 rounded-[4px] transition-colors ${
+                    activeTab === 'inventory' ? 'hover:bg-white/20 text-white' : 'hover:bg-[#F1F5F9] text-[#64748B]'
+                  }`}
                 >
                   {isInventoryTreeOpen ? (
                     <ChevronDown className="w-3.5 h-3.5" />
@@ -229,7 +235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Tree Branch: Statuses, Categories, Locations */}
             {isInventoryTreeOpen && (
-              <div className="pl-4 pr-1 py-1 space-y-0.5 border-l border-[#E4DED2] ml-4 text-[13px]">
+              <div className="pl-4 pr-1 py-1 space-y-0.5 border-l border-[#E2E8F0] ml-4 text-[13px]">
                 
                 {/* Node: All */}
                 <button
@@ -242,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={treeItemClass(isNodeActive({ type: 'all' }))}
                 >
                   <span>All</span>
-                  <span className="text-[11px] tabular-nums text-[#6B645A]">{items.length}</span>
+                  <span className="text-[11px] tabular-nums text-[#64748B]">{items.length}</span>
                 </button>
 
                 {/* Node: Owned */}
@@ -256,7 +262,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={treeItemClass(isNodeActive({ type: 'status', status: 'owned' }))}
                 >
                   <span>Owned</span>
-                  <span className="text-[11px] tabular-nums text-[#6B645A]">{ownedCount}</span>
+                  <span className="text-[11px] tabular-nums text-[#64748B]">{ownedCount}</span>
                 </button>
 
                 {/* Node: Wishlist */}
@@ -270,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={treeItemClass(isNodeActive({ type: 'status', status: 'wishlist' }))}
                 >
                   <span>Wishlist</span>
-                  <span className="text-[11px] tabular-nums text-[#6B645A]">{wishlistCount}</span>
+                  <span className="text-[11px] tabular-nums text-[#64748B]">{wishlistCount}</span>
                 </button>
 
                 {/* Node: Parted With */}
@@ -284,17 +290,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={treeItemClass(isNodeActive({ type: 'status', status: 'past' }))}
                 >
                   <span>Parted With</span>
-                  <span className="text-[11px] tabular-nums text-[#6B645A]">{pastCount}</span>
+                  <span className="text-[11px] tabular-nums text-[#64748B]">{pastCount}</span>
                 </button>
 
                 {/* Sub-Branch: Categories */}
                 <div className="pt-2">
                   <div
                     onClick={() => setIsCategoriesSubTreeOpen(!isCategoriesSubTreeOpen)}
-                    className="flex items-center justify-between px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-[#6B645A] hover:text-[#1F1B16] cursor-pointer"
+                    className="flex items-center justify-between px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-[#64748B] hover:text-[#0F172A] cursor-pointer"
                   >
                     <div className="flex items-center gap-1.5">
-                      <Folder className="w-3 h-3 text-[#6B645A]" />
+                      <Folder className="w-3 h-3 text-[#64748B]" />
                       <span>Categories</span>
                     </div>
                     {isCategoriesSubTreeOpen ? (
@@ -318,7 +324,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           className={treeItemClass(isNodeActive({ type: 'category', category: cat.id }))}
                         >
                           <span className="truncate pr-1">{cat.label}</span>
-                          <span className="text-[11px] tabular-nums text-[#6B645A] shrink-0">{cat.count}</span>
+                          <span className="text-[11px] tabular-nums text-[#64748B] shrink-0">{cat.count}</span>
                         </button>
                       ))}
                     </div>
@@ -330,10 +336,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="pt-2">
                     <div
                       onClick={() => setIsLocationsSubTreeOpen(!isLocationsSubTreeOpen)}
-                      className="flex items-center justify-between px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-[#6B645A] hover:text-[#1F1B16] cursor-pointer"
+                      className="flex items-center justify-between px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-[#64748B] hover:text-[#0F172A] cursor-pointer"
                     >
                       <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3 h-3 text-[#6B645A]" />
+                        <MapPin className="w-3 h-3 text-[#64748B]" />
                         <span>Locations</span>
                       </div>
                       {isLocationsSubTreeOpen ? (
@@ -357,7 +363,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             className={treeItemClass(isNodeActive({ type: 'location', location: loc.name }))}
                           >
                             <span className="truncate pr-1">{loc.name}</span>
-                            <span className="text-[11px] tabular-nums text-[#6B645A] shrink-0">{loc.count}</span>
+                            <span className="text-[11px] tabular-nums text-[#64748B] shrink-0">{loc.count}</span>
                           </button>
                         ))}
                       </div>
@@ -378,10 +384,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'routine')}
           >
             <div className="flex items-center gap-2.5">
-              <CalendarCheck2 className={`w-4 h-4 ${activeTab === 'routine' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <CalendarCheck2 className={`w-4 h-4 ${activeTab === 'routine' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Routine</span>
             </div>
-            <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+            <span className={`text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium border ${
+              activeTab === 'routine'
+                ? 'bg-white/20 text-white border-transparent'
+                : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
+            }`}>
               {completedNonNegotiables}/{totalNonNegotiables}
             </span>
           </button>
@@ -396,11 +406,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'tasks')}
           >
             <div className="flex items-center gap-2.5">
-              <CheckSquare className={`w-4 h-4 ${activeTab === 'tasks' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <CheckSquare className={`w-4 h-4 ${activeTab === 'tasks' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Tasks</span>
             </div>
             {openTasksCount > 0 && (
-              <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+              <span className={`text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium border ${
+                activeTab === 'tasks'
+                  ? 'bg-white/20 text-white border-transparent'
+                  : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
+              }`}>
                 {openTasksCount}
               </span>
             )}
@@ -416,7 +430,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'bucket-list')}
           >
             <div className="flex items-center gap-2.5">
-              <Sparkles className={`w-4 h-4 ${activeTab === 'bucket-list' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <Sparkles className={`w-4 h-4 ${activeTab === 'bucket-list' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Bucket List</span>
             </div>
           </button>
@@ -431,7 +445,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'money')}
           >
             <div className="flex items-center gap-2.5">
-              <DollarSign className={`w-4 h-4 ${activeTab === 'money' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <DollarSign className={`w-4 h-4 ${activeTab === 'money' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Money</span>
             </div>
           </button>
@@ -446,10 +460,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={navItemClass(activeTab === 'character')}
           >
             <div className="flex items-center gap-2.5">
-              <Target className={`w-4 h-4 ${activeTab === 'character' ? 'text-[#1F1B16]' : 'text-[#6B645A]'}`} />
+              <Target className={`w-4 h-4 ${activeTab === 'character' ? 'text-white' : 'text-[#64748B]'}`} />
               <span>Character</span>
             </div>
-            <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+            <span className={`text-[11px] px-1.5 py-0.5 rounded-[4px] tabular-nums font-medium border ${
+              activeTab === 'character'
+                ? 'bg-white/20 text-white border-transparent'
+                : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
+            }`}>
               Lvl {overall.level}
             </span>
           </button>
@@ -458,16 +476,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Footer: Always Visible */}
-      <div className="p-4 border-t border-[#E4DED2] bg-[#FBF9F4] flex flex-col gap-3 flex-shrink-0">
+      <div className="p-4 border-t border-[#E2E8F0] bg-[#FFFFFF] flex flex-col gap-3 flex-shrink-0">
         
         {/* Today: X of Y non-negotiables done */}
         <div className="space-y-1.5">
-          <div className="text-[12px] font-medium text-[#1F1B16] flex items-center justify-between">
+          <div className="text-[12px] font-medium text-[#0F172A] flex items-center justify-between">
             <span>Today: {completedNonNegotiables} of {totalNonNegotiables} non-negotiables done</span>
           </div>
-          <div className="w-full h-1 bg-[#E4DED2] rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#3F6B4F] transition-all"
+              className="h-full bg-[#059669] transition-all"
               style={{
                 width: `${totalNonNegotiables > 0 ? Math.min(100, Math.round((completedNonNegotiables / totalNonNegotiables) * 100)) : 0}%`,
               }}
@@ -478,19 +496,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Overall Level with thin XP bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[11px] tabular-nums">
-            <span className="font-medium text-[#1F1B16]">Level {overall.level}</span>
-            <span className="text-[#6B645A]">{overall.currentXp} / {overall.xpNeededForNext} XP</span>
+            <span className="font-medium text-[#0F172A]">Level {overall.level}</span>
+            <span className="text-[#64748B]">{overall.currentXp} / {overall.xpNeededForNext} XP</span>
           </div>
-          <div className="w-full h-1 bg-[#E4DED2] rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#1F1B16] transition-all"
+              className="h-full bg-[#0F172A] transition-all"
               style={{ width: `${Math.min(100, overall.progressPercent)}%` }}
             />
           </div>
         </div>
 
         {/* Bottom Actions Row: Audio Mute, Export, Import */}
-        <div className="pt-2 border-t border-[#E4DED2] flex items-center justify-between">
+        <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
@@ -499,8 +517,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
               className={`p-1.5 rounded-[6px] border text-xs transition-colors cursor-pointer ${
                 isMuted
-                  ? 'bg-[#EFEAE0] text-[#9C3D2A] border-[#E4DED2]'
-                  : 'bg-[#FBF9F4] text-[#6B645A] hover:text-[#1F1B16] border-[#E4DED2] hover:bg-[#F6F2EA]'
+                  ? 'bg-[#F1F5F9] text-[#E11D48] border-[#E2E8F0]'
+                  : 'bg-[#FFFFFF] text-[#64748B] hover:text-[#0F172A] border-[#E2E8F0] hover:bg-[#F8FAFC]'
               }`}
               title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             >
@@ -512,12 +530,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 sfx.playClick();
                 onExport();
               }}
-              className="relative p-1.5 rounded-[6px] bg-[#FBF9F4] text-[#6B645A] hover:text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] transition-colors cursor-pointer"
+              className="relative p-1.5 rounded-[6px] bg-[#FFFFFF] text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
               title={isBackupDue(lastBackupAt) ? "Backups & Archives (Backup recommended)" : "Backups & Archives (ZIP)"}
             >
               <Download className="w-3.5 h-3.5" />
               {isBackupDue(lastBackupAt) && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#9C3D2A] animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
               )}
             </button>
 
@@ -526,14 +544,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 sfx.playClick();
                 onImport();
               }}
-              className="p-1.5 rounded-[6px] bg-[#FBF9F4] text-[#6B645A] hover:text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] transition-colors cursor-pointer"
+              className="p-1.5 rounded-[6px] bg-[#FFFFFF] text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
               title="Import Items (JSON / CSV)"
             >
               <Upload className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <span className="text-[12px] font-serif text-[#6B645A] tracking-tight">
+          <span className="text-[12px] font-serif text-[#64748B] tracking-tight">
             Vessel
           </span>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { Reminder } from '../types';
 import { Pin, Trash2, GripVertical } from 'lucide-react';
 import { sfx } from '../utils/audio';
@@ -96,14 +96,14 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
   };
 
   return (
-    <section className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 space-y-4">
+    <section className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2.5">
-          <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+          <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
             Reminders & Principles
           </h3>
-          <span className="text-[11px] tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+          <span className="text-[11px] tabular-nums text-[#64748B] px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
             {sortedReminders.length}
           </span>
         </div>
@@ -122,14 +122,14 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
 
       {/* Add New Statement Form */}
       {isAdding && (
-        <form onSubmit={handleCreate} className="space-y-2 p-3 bg-[#F6F2EA] rounded-[6px] border border-[#E4DED2]">
+        <form onSubmit={handleCreate} className="space-y-2 p-3 bg-[#F8FAFC] rounded-[6px] border border-[#E2E8F0]">
           <textarea
             autoFocus
             rows={2}
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             placeholder="Write a core principle, non-negotiable rule, or daily reminder..."
-            className="w-full p-2.5 bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] font-serif text-[15px] leading-relaxed text-[#1F1B16] focus:outline-none focus:border-[#1F1B16] resize-none"
+            className="w-full p-2.5 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] font-serif text-[15px] leading-relaxed text-[#0F172A] focus:outline-none focus:border-[#0F172A] resize-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -158,7 +158,7 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
       {/* Typographic Block List */}
       <div className="space-y-2.5">
         {sortedReminders.length === 0 ? (
-          <div className="py-6 text-center text-[13px] text-[#6B645A] font-serif italic">
+          <div className="py-6 text-center text-[13px] text-[#64748B] font-serif italic">
             No reminders defined. Add a guiding principle above.
           </div>
         ) : (
@@ -174,13 +174,13 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
                 onDrop={(e) => handleDrop(e, idx)}
                 className={`group relative p-3.5 rounded-[6px] border transition-colors flex items-start gap-3 select-none ${
                   reminder.pinned
-                    ? 'bg-[#F6F2EA] border-[#E4DED2]'
-                    : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                    ? 'bg-[#F8FAFC] border-[#E2E8F0]'
+                    : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
                 } ${draggedIndex === idx ? 'opacity-40' : 'opacity-100'}`}
               >
                 {/* Drag Handle */}
                 <div
-                  className="pt-1 text-[#6B645A]/50 group-hover:text-[#6B645A] cursor-grab active:cursor-grabbing transition-colors"
+                  className="pt-1 text-[#64748B]/50 group-hover:text-[#64748B] cursor-grab active:cursor-grabbing transition-colors"
                   title="Drag to reorder"
                 >
                   <GripVertical className="w-3.5 h-3.5" />
@@ -205,14 +205,14 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
                             setEditingId(null);
                           }
                         }}
-                        className="w-full p-2 bg-[#FBF9F4] border border-[#1F1B16] rounded-[4px] font-serif text-[16px] leading-relaxed text-[#1F1B16] focus:outline-none resize-none"
+                        className="w-full p-2 bg-[#FFFFFF] border border-[#0F172A] rounded-[4px] font-serif text-[16px] leading-relaxed text-[#0F172A] focus:outline-none resize-none"
                       />
-                      <div className="flex items-center justify-between text-[11px] text-[#6B645A]">
+                      <div className="flex items-center justify-between text-[11px] text-[#64748B]">
                         <span>Press Enter to save, Esc to cancel</span>
                         <button
                           type="button"
                           onClick={() => handleSaveEdit(reminder)}
-                          className="px-2 py-0.5 rounded-[4px] bg-[#1F1B16] text-[#FBF9F4] text-[11px]"
+                          className="px-2 py-0.5 rounded-[4px] bg-[#0F172A] text-[#FFFFFF] text-[11px]"
                         >
                           Save
                         </button>
@@ -224,7 +224,7 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
                       className="cursor-text"
                       title="Click to edit inline"
                     >
-                      <blockquote className="font-serif text-[16px] md:text-[17px] leading-relaxed text-[#1F1B16] italic tracking-tight">
+                      <blockquote className="font-serif text-[16px] md:text-[17px] leading-relaxed text-[#0F172A] italic tracking-tight">
                         “{reminder.text}”
                       </blockquote>
                     </div>
@@ -238,12 +238,12 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
                     onClick={() => handleTogglePin(reminder)}
                     className={`p-1 rounded-[4px] transition-colors cursor-pointer ${
                       reminder.pinned
-                        ? 'text-[#1F1B16] bg-[#EFEAE0]'
-                        : 'text-[#6B645A]/40 group-hover:text-[#6B645A] hover:bg-[#EFEAE0]'
+                        ? 'text-[#0F172A] bg-[#F1F5F9]'
+                        : 'text-[#64748B]/40 group-hover:text-[#64748B] hover:bg-[#F1F5F9]'
                     }`}
                     title={reminder.pinned ? 'Unpin reminder' : 'Pin reminder to top'}
                   >
-                    <Pin className={`w-3.5 h-3.5 ${reminder.pinned ? 'fill-[#1F1B16]' : ''}`} />
+                    <Pin className={`w-3.5 h-3.5 ${reminder.pinned ? 'fill-[#0F172A]' : ''}`} />
                   </button>
 
                   <button
@@ -252,7 +252,7 @@ export const RemindersBlock: React.FC<RemindersBlockProps> = ({
                       sfx.playClick();
                       onDeleteReminder(reminder.id);
                     }}
-                    className="p-1 text-[#6B645A]/40 group-hover:text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
+                    className="p-1 text-[#64748B]/40 group-hover:text-[#64748B] hover:text-[#E11D48] transition-colors cursor-pointer"
                     title="Delete statement"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

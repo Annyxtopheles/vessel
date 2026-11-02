@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest, Reminder } from '../types';
 import { Check, Trash2, RotateCcw, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
 import { sfx } from '../utils/audio';
@@ -53,10 +53,10 @@ const SALAH_LIST: { key: keyof SalahStatus; name: string; timeOfDay: string }[] 
 ];
 
 const HABIT_ATTR_BADGES: Record<AttributeType, string> = {
-  STR: 'text-[#9C3D2A] bg-[#F6F2EA] border-[#9C3D2A]/30',
-  INT: 'text-[#2D4A6B] bg-[#F6F2EA] border-[#2D4A6B]/30',
-  WIS: 'text-[#7A5C1E] bg-[#F6F2EA] border-[#7A5C1E]/30',
-  CHA: 'text-[#3F6B4F] bg-[#F6F2EA] border-[#3F6B4F]/30',
+  STR: 'text-[#E11D48] bg-[#F8FAFC] border-[#E11D48]/30',
+  INT: 'text-[#2563EB] bg-[#F8FAFC] border-[#2563EB]/30',
+  WIS: 'text-[#D97706] bg-[#F8FAFC] border-[#D97706]/30',
+  CHA: 'text-[#059669] bg-[#F8FAFC] border-[#059669]/30',
 };
 
 export const DailyRituals: React.FC<DailyRitualsProps> = ({
@@ -356,11 +356,11 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
       {/* 0. Quests Due Soon Section (Editorial hairline section, no nested outer card) */}
       {questsDueSoon.length > 0 && (
-        <section className="pb-6 border-b border-[#E4DED2]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E4DED2]">
+        <section className="pb-6 border-b border-[#E2E8F0]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E8F0]">
             <div className="flex items-center gap-2">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Due soon</h3>
-              <span className="text-[11px] tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Due soon</h3>
+              <span className="text-[11px] tabular-nums text-[#64748B] px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
                 {questsDueSoon.length} pending
               </span>
             </div>
@@ -372,7 +372,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   sfx.playClick();
                   onNavigateToQuests();
                 }}
-                className="text-[13px] font-medium text-[#1F1B16] hover:underline flex items-center gap-1 self-start sm:self-center transition-colors cursor-pointer"
+                className="text-[13px] font-medium text-[#0F172A] hover:underline flex items-center gap-1 self-start sm:self-center transition-colors cursor-pointer"
               >
                 <span>Open Tasks</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -389,13 +389,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   onClick={() => {
                     if (onNavigateToQuests) onNavigateToQuests();
                   }}
-                  className="p-3 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] hover:border-[#1F1B16] transition-colors cursor-pointer flex flex-col justify-between"
+                  className="p-3 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] hover:border-[#0F172A] transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[14px] font-medium text-[#1F1B16] truncate">
+                    <span className="text-[14px] font-medium text-[#0F172A] truncate">
                       {quest.title}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] flex-shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0] flex-shrink-0">
                       {quest.pillar}
                     </span>
                   </div>
@@ -403,14 +403,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   <div className="flex items-center justify-between text-[12px] tabular-nums">
                     <span
                       className={`flex items-center gap-1 ${
-                        isOverdue ? 'text-[#9C3D2A] font-medium' : 'text-[#6B645A]'
+                        isOverdue ? 'text-[#E11D48] font-medium' : 'text-[#64748B]'
                       }`}
                     >
-                      {isOverdue && <AlertCircle className="w-3.5 h-3.5 text-[#9C3D2A]" />}
+                      {isOverdue && <AlertCircle className="w-3.5 h-3.5 text-[#E11D48]" />}
                       <span>{isOverdue ? `Overdue (${quest.dueDate})` : `Due: ${quest.dueDate}`}</span>
                     </span>
 
-                    <span className="text-[11px] text-[#6B645A]">
+                    <span className="text-[11px] text-[#64748B]">
                       +{getQuestXp(quest.difficulty)} XP
                     </span>
                   </div>
@@ -427,18 +427,18 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         {/* Strip Header with Streak */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+            <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
               Daily Checklist
             </h3>
-            <p className="text-[12px] text-[#6B645A]">
+            <p className="text-[12px] text-[#64748B]">
               Selected: {selectedDate === todayStr ? 'Today' : selectedDate}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] text-[12px]">
-              <span className="text-[#6B645A]">Streak:</span>
-              <span className="font-serif text-[16px] font-medium text-[#1F1B16] tabular-nums">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] text-[12px]">
+              <span className="text-[#64748B]">Streak:</span>
+              <span className="font-serif text-[16px] font-medium text-[#0F172A] tabular-nums">
                 {streak} {streak === 1 ? 'day' : 'days'}
               </span>
             </div>
@@ -446,7 +446,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         </div>
 
         {/* 7-Day Date Navigation Strip */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#E4DED2]">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#E2E8F0]">
           {dayStrip.map((day) => {
             const isSelected = day.dateStr === selectedDate;
             const record = dayRecords[day.dateStr];
@@ -463,21 +463,21 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 }}
                 className={`flex flex-col items-center px-4 py-2 rounded-[6px] border text-xs transition-colors min-w-[64px] cursor-pointer ${
                   isSelected
-                    ? 'bg-[#FBF9F4] border-[#1F1B16] text-[#1F1B16]'
-                    : 'bg-transparent border-[#E4DED2] text-[#6B645A] hover:bg-[#FBF9F4] hover:text-[#1F1B16]'
+                    ? 'bg-[#FFFFFF] border-[#0F172A] text-[#0F172A]'
+                    : 'bg-transparent border-[#E2E8F0] text-[#64748B] hover:bg-[#FFFFFF] hover:text-[#0F172A]'
                 }`}
               >
-                <span className="text-[11px] uppercase tracking-wider text-[#6B645A]">{day.dayName}</span>
-                <span className="font-serif text-[18px] font-normal my-0.5 text-[#1F1B16] tabular-nums">{day.dayNum}</span>
+                <span className="text-[11px] uppercase tracking-wider text-[#64748B]">{day.dayName}</span>
+                <span className="font-serif text-[18px] font-normal my-0.5 text-[#0F172A] tabular-nums">{day.dayNum}</span>
 
                 <div className="flex items-center gap-1 mt-1">
                   <span
                     className={`w-2 h-2 rounded-full transition-colors ${
                       isDayComplete
-                        ? 'bg-[#3F6B4F]'
+                        ? 'bg-[#059669]'
                         : prayerCount > 0 || habitCount > 0
-                        ? 'bg-[#7A5C1E]'
-                        : 'bg-[#E4DED2]'
+                        ? 'bg-[#D97706]'
+                        : 'bg-[#E2E8F0]'
                     }`}
                     title={
                       isDayComplete
@@ -495,16 +495,16 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2.5">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
                 Daily Prayers
               </h3>
-              <span className="text-[12px] tabular-nums text-[#6B645A] px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+              <span className="text-[12px] tabular-nums text-[#64748B] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
                 {completedSalahCount} of 5 completed
               </span>
             </div>
 
             {isAllSalahCompleted && (
-              <span className="text-[12px] font-medium text-[#3F6B4F]">
+              <span className="text-[12px] font-medium text-[#059669]">
                 Perfect 5/5 Day (+150 XP)
               </span>
             )}
@@ -520,12 +520,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   key={key}
                   className={`p-3.5 rounded-[6px] border flex flex-col items-center justify-between text-center transition-colors ${
                     isDone
-                      ? 'bg-[#FBF9F4] border-[#3F6B4F] text-[#1F1B16]'
-                      : 'bg-[#FBF9F4] border-[#E4DED2] text-[#1F1B16]'
+                      ? 'bg-[#FFFFFF] border-[#059669] text-[#0F172A]'
+                      : 'bg-[#FFFFFF] border-[#E2E8F0] text-[#0F172A]'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full text-[11px] mb-1">
-                    <span className="text-[#6B645A]">{timeOfDay}</span>
+                    <span className="text-[#64748B]">{timeOfDay}</span>
                     {onTogglePrayerNonNegotiable && (
                       <button
                         type="button"
@@ -536,8 +536,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                         }}
                         className={`text-[9px] px-1 py-0.5 rounded-[3px] border cursor-pointer font-medium transition-colors ${
                           isNonNeg
-                            ? 'bg-[#1F1B16] text-[#FBF9F4] border-[#1F1B16]'
-                            : 'bg-[#EFEAE0] text-[#6B645A] border-[#E4DED2]'
+                            ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
+                            : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
                         }`}
                         title="Toggle whether this prayer is non-negotiable"
                       >
@@ -545,15 +545,15 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                       </button>
                     )}
                   </div>
-                  <div className="font-serif text-[16px] font-normal text-[#1F1B16] mb-3">{name}</div>
+                  <div className="font-serif text-[16px] font-normal text-[#0F172A] mb-3">{name}</div>
 
                   <button
                     type="button"
                     onClick={() => handleToggleSalah(key)}
                     className={`w-7 h-7 rounded-[4px] flex items-center justify-center border transition-colors cursor-pointer ${
                       isDone
-                        ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
-                        : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent hover:border-[#1F1B16]'
+                        ? 'bg-[#0F172A] border-[#0F172A] text-[#FFFFFF]'
+                        : 'bg-[#FFFFFF] border-[#E2E8F0] text-transparent hover:border-[#0F172A]'
                     }`}
                   >
                     <Check className="w-4 h-4 stroke-[2.5]" />
@@ -567,9 +567,9 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       </section>
 
       {/* 2. Habits Checklist */}
-      <section className="space-y-4 pt-4 border-t border-[#E4DED2]">
+      <section className="space-y-4 pt-4 border-t border-[#E2E8F0]">
         <div className="flex items-center justify-between">
-          <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+          <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
             Habits
           </h3>
 
@@ -584,7 +584,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
         {/* Add Habit Form */}
         {isAddingHabit && (
-          <form onSubmit={handleCreateHabit} className="p-4 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <form onSubmit={handleCreateHabit} className="p-4 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             <input
               type="text"
               required
@@ -603,12 +603,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
               />
             </div>
 
-            <label className="flex items-center gap-1.5 text-[12px] text-[#1F1B16] cursor-pointer shrink-0 px-1">
+            <label className="flex items-center gap-1.5 text-[12px] text-[#0F172A] cursor-pointer shrink-0 px-1">
               <input
                 type="checkbox"
                 checked={newHabitNonNeg}
                 onChange={(e) => setNewHabitNonNeg(e.target.checked)}
-                className="w-3.5 h-3.5 rounded-[3px] accent-[#1F1B16]"
+                className="w-3.5 h-3.5 rounded-[3px] accent-[#0F172A]"
               />
               <span>Non-negotiable</span>
             </label>
@@ -634,7 +634,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         {/* Active Habits List */}
         <div className="space-y-2">
           {activeHabits.length === 0 ? (
-            <div className="py-6 text-center text-[13px] text-[#6B645A]">
+            <div className="py-6 text-center text-[13px] text-[#64748B]">
               No active disciplines. Add a new discipline above or restore from archive below.
             </div>
           ) : (
@@ -647,16 +647,16 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   onClick={() => handleToggleHabit(habit.id)}
                   className={`group px-4 py-3 rounded-[6px] border flex items-center justify-between cursor-pointer transition-colors ${
                     isCompleted
-                      ? 'bg-[#FBF9F4] border-[#E4DED2]'
-                      : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                      ? 'bg-[#FFFFFF] border-[#E2E8F0]'
+                      : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-colors ${
                         isCompleted
-                          ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
-                          : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent'
+                          ? 'bg-[#0F172A] border-[#0F172A] text-[#FFFFFF]'
+                          : 'bg-[#FFFFFF] border-[#E2E8F0] text-transparent'
                       }`}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -664,12 +664,12 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
                     <div>
                       <span className={`text-[14px] font-normal block transition-colors ${
-                        isCompleted ? 'line-through text-[#6B645A]' : 'text-[#1F1B16]'
+                        isCompleted ? 'line-through text-[#64748B]' : 'text-[#0F172A]'
                       }`}>
                         {habit.name}
                       </span>
                       {habit.description && (
-                        <span className="text-[12px] text-[#6B645A] line-clamp-1">
+                        <span className="text-[12px] text-[#64748B] line-clamp-1">
                           {habit.description}
                         </span>
                       )}
@@ -691,8 +691,8 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                       }}
                       className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium transition-colors cursor-pointer ${
                         habit.non_negotiable
-                          ? 'bg-[#1F1B16] text-[#FBF9F4] border-[#1F1B16]'
-                          : 'bg-[#EFEAE0] text-[#6B645A] border-[#E4DED2] hover:text-[#1F1B16]'
+                          ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
+                          : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0] hover:text-[#0F172A]'
                       }`}
                       title="Click to toggle non-negotiable status"
                     >
@@ -709,7 +709,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                         sfx.playClick();
                         onDeleteHabit(habit.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-[#6B645A] hover:text-[#9C3D2A] transition-opacity cursor-pointer"
+                      className="opacity-0 group-hover:opacity-100 p-1 text-[#64748B] hover:text-[#E11D48] transition-opacity cursor-pointer"
                       title="Archive discipline"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -723,14 +723,14 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
         {/* Archived Disciplines Drawer */}
         {archivedHabits.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-[#E4DED2]">
+          <div className="mt-4 pt-3 border-t border-[#E2E8F0]">
             <button
               type="button"
               onClick={() => {
                 sfx.playClick();
                 setShowArchived(!showArchived);
               }}
-              className="flex items-center justify-between w-full text-[12px] font-medium text-[#6B645A] hover:text-[#1F1B16] py-1 cursor-pointer transition-colors"
+              className="flex items-center justify-between w-full text-[12px] font-medium text-[#64748B] hover:text-[#0F172A] py-1 cursor-pointer transition-colors"
             >
               <span>Archived Disciplines ({archivedHabits.length})</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${showArchived ? 'rotate-180' : ''}`} />
@@ -741,13 +741,13 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 {archivedHabits.map((habit) => (
                   <div
                     key={habit.id}
-                    className="px-3.5 py-2.5 rounded-[6px] border border-dashed border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between text-[13px]"
+                    className="px-3.5 py-2.5 rounded-[6px] border border-dashed border-[#E2E8F0] bg-[#FFFFFF] flex items-center justify-between text-[13px]"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium ${HABIT_ATTR_BADGES[habit.attribute]}`}>
                         {habit.attribute}
                       </span>
-                      <span className="text-[#6B645A] line-through">{habit.name}</span>
+                      <span className="text-[#64748B] line-through">{habit.name}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -772,7 +772,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                             sfx.playClick();
                             onPermanentDeleteHabit(habit.id);
                           }}
-                          className="p-1 text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
+                          className="p-1 text-[#64748B] hover:text-[#E11D48] transition-colors cursor-pointer"
                           title="Permanently remove"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -788,17 +788,17 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       </section>
 
       {/* 3. Physical Training Volume & Deep Work */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-[#E4DED2]">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-[#E2E8F0]">
         
         {/* Pushups & Squats Card */}
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
               Movement (Strength)
             </h3>
 
             {currentRecord.workoutCompleted && (
-              <span className="text-[12px] font-medium text-[#3F6B4F]">
+              <span className="text-[12px] font-medium text-[#059669]">
                 Full Workout (+120 XP)
               </span>
             )}
@@ -806,10 +806,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
 
           <div className="space-y-4">
             {/* Pushups Stepper */}
-            <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
+            <div className="p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-[13px] font-medium text-[#1F1B16]">Pushups</span>
-                <span className="text-[12px] tabular-nums text-[#9C3D2A] font-medium">
+                <span className="text-[13px] font-medium text-[#0F172A]">Pushups</span>
+                <span className="text-[12px] tabular-nums text-[#E11D48] font-medium">
                   +{currentRecord.pushups * 2} XP
                 </span>
               </div>
@@ -825,9 +825,9 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                       const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
                       handleSetPushupsDirect(isNaN(val) ? 0 : val);
                     }}
-                    className="w-16 px-2 py-1 bg-[#FBF9F4] border border-[#E4DED2] rounded-[4px] text-[15px] font-medium tabular-nums text-[#1F1B16] text-center focus:outline-none focus:border-[#1F1B16]"
+                    className="w-16 px-2 py-1 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[4px] text-[15px] font-medium tabular-nums text-[#0F172A] text-center focus:outline-none focus:border-[#0F172A]"
                   />
-                  <span className="text-[12px] text-[#6B645A]">reps</span>
+                  <span className="text-[12px] text-[#64748B]">reps</span>
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -835,7 +835,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                     <button
                       key={d}
                       onClick={() => handleAdjustPushups(d)}
-                      className="px-2 py-1 bg-[#FBF9F4] hover:bg-[#EFEAE0] text-[#1F1B16] border border-[#E4DED2] rounded-[4px] text-[12px] tabular-nums font-medium transition-colors cursor-pointer"
+                      className="px-2 py-1 bg-[#FFFFFF] hover:bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] rounded-[4px] text-[12px] tabular-nums font-medium transition-colors cursor-pointer"
                     >
                       {d > 0 ? `+${d}` : d}
                     </button>
@@ -845,10 +845,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
             </div>
 
             {/* Squats Stepper */}
-            <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
+            <div className="p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-[13px] font-medium text-[#1F1B16]">Squats</span>
-                <span className="text-[12px] tabular-nums text-[#9C3D2A] font-medium">
+                <span className="text-[13px] font-medium text-[#0F172A]">Squats</span>
+                <span className="text-[12px] tabular-nums text-[#E11D48] font-medium">
                   +{currentRecord.squats * 2} XP
                 </span>
               </div>
@@ -864,9 +864,9 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                       const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
                       handleSetSquatsDirect(isNaN(val) ? 0 : val);
                     }}
-                    className="w-16 px-2 py-1 bg-[#FBF9F4] border border-[#E4DED2] rounded-[4px] text-[15px] font-medium tabular-nums text-[#1F1B16] text-center focus:outline-none focus:border-[#1F1B16]"
+                    className="w-16 px-2 py-1 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[4px] text-[15px] font-medium tabular-nums text-[#0F172A] text-center focus:outline-none focus:border-[#0F172A]"
                   />
-                  <span className="text-[12px] text-[#6B645A]">reps</span>
+                  <span className="text-[12px] text-[#64748B]">reps</span>
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -874,7 +874,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                     <button
                       key={d}
                       onClick={() => handleAdjustSquats(d)}
-                      className="px-2 py-1 bg-[#FBF9F4] hover:bg-[#EFEAE0] text-[#1F1B16] border border-[#E4DED2] rounded-[4px] text-[12px] tabular-nums font-medium transition-colors cursor-pointer"
+                      className="px-2 py-1 bg-[#FFFFFF] hover:bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] rounded-[4px] text-[12px] tabular-nums font-medium transition-colors cursor-pointer"
                     >
                       {d > 0 ? `+${d}` : d}
                     </button>
@@ -886,22 +886,22 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
         </div>
 
         {/* Deep Work Focus Card */}
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
               Deep Work (Intellect)
             </h3>
 
-            <span className="text-[12px] tabular-nums text-[#2D4A6B] font-medium">
+            <span className="text-[12px] tabular-nums text-[#2563EB] font-medium">
               +{Math.round((currentRecord.deepWorkMinutes / 60) * 60)} XP
             </span>
           </div>
 
           <div className="space-y-4">
-            <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
+            <div className="p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-[13px] text-[#6B645A]">Focus Duration</span>
-                <span className="font-serif text-[18px] font-normal tabular-nums text-[#1F1B16]">
+                <span className="text-[13px] text-[#64748B]">Focus Duration</span>
+                <span className="font-serif text-[18px] font-normal tabular-nums text-[#0F172A]">
                   {Math.floor(currentRecord.deepWorkMinutes / 60)}h {currentRecord.deepWorkMinutes % 60}m
                 </span>
               </div>
@@ -913,10 +913,10 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 step="15"
                 value={currentRecord.deepWorkMinutes}
                 onChange={(e) => handleDeepWorkChange(parseInt(e.target.value, 10))}
-                className="w-full accent-[#1F1B16] cursor-pointer"
+                className="w-full accent-[#0F172A] cursor-pointer"
               />
 
-              <div className="flex justify-between text-[11px] tabular-nums text-[#6B645A] mt-1.5">
+              <div className="flex justify-between text-[11px] tabular-nums text-[#64748B] mt-1.5">
                 <span>0h</span>
                 <span>2.5h</span>
                 <span>5h</span>
@@ -938,7 +938,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                     sfx.playClick();
                     handleDeepWorkChange(currentRecord.deepWorkMinutes + preset.mins);
                   }}
-                  className="flex-1 py-1.5 rounded-[6px] text-[13px] font-medium bg-[#FBF9F4] hover:bg-[#EFEAE0] text-[#1F1B16] border border-[#E4DED2] transition-colors cursor-pointer"
+                  className="flex-1 py-1.5 rounded-[6px] text-[13px] font-medium bg-[#FFFFFF] hover:bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   {preset.label}
                 </button>
@@ -948,7 +948,7 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   sfx.playClick();
                   handleDeepWorkChange(0);
                 }}
-                className="p-2 rounded-[6px] text-[#6B645A] hover:text-[#1F1B16] bg-[#FBF9F4] border border-[#E4DED2] hover:bg-[#EFEAE0] transition-colors cursor-pointer"
+                className="p-2 rounded-[6px] text-[#64748B] hover:text-[#0F172A] bg-[#FFFFFF] border border-[#E2E8F0] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
                 title="Reset duration"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

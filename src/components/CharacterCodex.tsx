@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type {
   CharacterProfile,
   SkillNode,
@@ -52,28 +52,28 @@ interface CharacterCodexProps {
 
 const ATTRIBUTE_ACCENTS: Record<AttributeType, { text: string; bg: string; bar: string; border: string }> = {
   STR: {
-    text: 'text-[#9C3D2A]',
-    bg: 'bg-[#F6F2EA]',
-    bar: 'bg-[#9C3D2A]',
-    border: 'border-[#9C3D2A]/30',
+    text: 'text-[#E11D48]',
+    bg: 'bg-[#F8FAFC]',
+    bar: 'bg-[#E11D48]',
+    border: 'border-[#E11D48]/30',
   },
   INT: {
-    text: 'text-[#2D4A6B]',
-    bg: 'bg-[#F6F2EA]',
-    bar: 'bg-[#2D4A6B]',
-    border: 'border-[#2D4A6B]/30',
+    text: 'text-[#2563EB]',
+    bg: 'bg-[#F8FAFC]',
+    bar: 'bg-[#2563EB]',
+    border: 'border-[#2563EB]/30',
   },
   WIS: {
-    text: 'text-[#7A5C1E]',
-    bg: 'bg-[#F6F2EA]',
-    bar: 'bg-[#7A5C1E]',
-    border: 'border-[#7A5C1E]/30',
+    text: 'text-[#D97706]',
+    bg: 'bg-[#F8FAFC]',
+    bar: 'bg-[#D97706]',
+    border: 'border-[#D97706]/30',
   },
   CHA: {
-    text: 'text-[#3F6B4F]',
-    bg: 'bg-[#F6F2EA]',
-    bar: 'bg-[#3F6B4F]',
-    border: 'border-[#3F6B4F]/30',
+    text: 'text-[#059669]',
+    bg: 'bg-[#F8FAFC]',
+    bar: 'bg-[#059669]',
+    border: 'border-[#059669]/30',
   },
 };
 
@@ -190,17 +190,17 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
   return (
     <div className="space-y-6">
       {/* Unified Header Row: Sub-tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DED2]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2.5">
-          <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+          <h2 className="font-serif text-[20px] font-normal text-[#0F172A]">
             Character
           </h2>
-          <span className="text-[12px] tabular-nums text-[#6B645A] px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+          <span className="text-[12px] tabular-nums text-[#64748B] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
             Level {overallProgress.level} · {totalXp.toLocaleString()} XP
           </span>
         </div>
 
-        <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2] self-start sm:self-auto shrink-0">
+        <div className="inline-flex p-0.5 bg-[#F1F5F9] rounded-[6px] border border-[#E2E8F0] self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -209,8 +209,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             }}
             className={`px-3 py-1 rounded-[4px] text-[13px] font-medium transition-colors cursor-pointer ${
               codexSubTab === 'pillars'
-                ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                : 'text-[#6B645A] hover:text-[#1F1B16]'
+                ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
             Pillars
@@ -224,8 +224,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
             }}
             className={`px-3 py-1 rounded-[4px] text-[13px] font-medium transition-colors cursor-pointer ${
               codexSubTab === 'stats'
-                ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                : 'text-[#6B645A] hover:text-[#1F1B16]'
+                ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
             Stat Sheet
@@ -258,10 +258,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           {/* Section: Four Life Pillars */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+              <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
                 Life Pillars
               </h3>
-              <span className="text-[12px] tabular-nums text-[#6B645A]">
+              <span className="text-[12px] tabular-nums text-[#64748B]">
                 {skills.filter((s) => s.unlocked).length} of {skills.length} Milestones Achieved
               </span>
             </div>
@@ -282,32 +282,32 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     }}
                     className={`p-4 rounded-[6px] border cursor-pointer transition-colors ${
                       isSelected
-                        ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                        : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                        ? 'bg-[#FFFFFF] border-[#0F172A]'
+                        : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-[11px] font-medium uppercase tracking-wider ${accent.text}`}>
                         {ATTRIBUTE_NAMES[key]}
                       </span>
-                      <span className="text-[11px] tabular-nums font-medium text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+                      <span className="text-[11px] tabular-nums font-medium text-[#64748B] px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
                         Lvl {data.progress.level}
                       </span>
                     </div>
 
-                    <h4 className="font-serif text-[16px] font-normal text-[#1F1B16] mb-0.5">{name}</h4>
-                    <div className="text-[12px] text-[#6B645A] mb-2">{subtitle}</div>
-                    <p className="text-[12px] text-[#6B645A] leading-relaxed line-clamp-2 mb-3">
+                    <h4 className="font-serif text-[16px] font-normal text-[#0F172A] mb-0.5">{name}</h4>
+                    <div className="text-[12px] text-[#64748B] mb-2">{subtitle}</div>
+                    <p className="text-[12px] text-[#64748B] leading-relaxed line-clamp-2 mb-3">
                       {desc}
                     </p>
 
                     {/* Progress bar derived from XP events */}
-                    <div className="space-y-1.5 pt-1.5 border-t border-[#E4DED2]">
-                      <div className="flex justify-between text-[11px] tabular-nums text-[#6B645A]">
+                    <div className="space-y-1.5 pt-1.5 border-t border-[#E2E8F0]">
+                      <div className="flex justify-between text-[11px] tabular-nums text-[#64748B]">
                         <span>EXP</span>
-                        <span className="font-medium text-[#1F1B16]">{data.progress.displayText}</span>
+                        <span className="font-medium text-[#0F172A]">{data.progress.displayText}</span>
                       </div>
-                      <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
+                      <div className="h-1 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
                         <div
                           className={`h-full ${accent.bar} transition-all duration-300`}
                           style={{ width: `${data.progress.progressPercent}%` }}
@@ -321,10 +321,10 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
           </section>
 
           {/* Section: Milestones & Progression */}
-          <section className="space-y-4 pt-6 border-t border-[#E4DED2]">
+          <section className="space-y-4 pt-6 border-t border-[#E2E8F0]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+                <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
                   Milestones
                 </h3>
               </div>
@@ -346,8 +346,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     }}
                     className={`px-2.5 py-1 rounded-[6px] border text-xs transition-colors whitespace-nowrap cursor-pointer ${
                       selectedAttr === id
-                        ? 'bg-[#FBF9F4] border-[#1F1B16] text-[#1F1B16] font-medium'
-                        : 'bg-[#FBF9F4] border-[#E4DED2] text-[#6B645A] hover:text-[#1F1B16]'
+                        ? 'bg-[#FFFFFF] border-[#0F172A] text-[#0F172A] font-medium'
+                        : 'bg-[#FFFFFF] border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A]'
                     }`}
                   >
                     {label}
@@ -368,7 +368,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 return (
                   <div
                     key={skill.id}
-                    className={`p-4 rounded-[6px] border flex flex-col justify-between transition-colors bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16] ${
+                    className={`p-4 rounded-[6px] border flex flex-col justify-between transition-colors bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A] ${
                       isAttained ? '' : 'opacity-90'
                     }`}
                   >
@@ -376,36 +376,36 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[11px] font-medium">
                           <span className={accent.text}>{ATTRIBUTE_NAMES[skill.attribute]}</span>
-                          <span className="text-[#6B645A] font-normal ml-1.5">· Tier {skill.tier}</span>
+                          <span className="text-[#64748B] font-normal ml-1.5">· Tier {skill.tier}</span>
                         </span>
 
                         {isAttained ? (
-                          <span className="text-[11px] font-medium text-[#3F6B4F]">
+                          <span className="text-[11px] font-medium text-[#059669]">
                             Attained
                           </span>
                         ) : (
-                          <span className="text-[11px] text-[#6B645A]">
+                          <span className="text-[11px] text-[#64748B]">
                             {derived.hasDataSource ? 'In Progress' : 'Locked'}
                           </span>
                         )}
                       </div>
 
-                      <h4 className="font-serif text-[16px] font-normal text-[#1F1B16] mb-1">
+                      <h4 className="font-serif text-[16px] font-normal text-[#0F172A] mb-1">
                         {skill.title}
                       </h4>
-                      <p className="text-[12px] text-[#6B645A] leading-relaxed mb-3">
+                      <p className="text-[12px] text-[#64748B] leading-relaxed mb-3">
                         {skill.description}
                       </p>
 
-                      <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2] mb-3 text-[12px]">
-                        <span className="text-[#6B645A] block text-[11px] mb-0.5">Bonus</span>
-                        <span className="font-medium text-[#1F1B16]">{skill.bonus}</span>
+                      <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0] mb-3 text-[12px]">
+                        <span className="text-[#64748B] block text-[11px] mb-0.5">Bonus</span>
+                        <span className="font-medium text-[#0F172A]">{skill.bonus}</span>
                       </div>
 
                       {/* Evidence note quote if unlocked with evidence */}
                       {skill.evidenceNote && (
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2] mb-3 text-[11px] text-[#1F1B16]">
-                          <span className="text-[#6B645A] block mb-0.5">Verified Evidence:</span>
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0] mb-3 text-[11px] text-[#0F172A]">
+                          <span className="text-[#64748B] block mb-0.5">Verified Evidence:</span>
                           <span className="italic">{skill.evidenceNote}</span>
                           {skill.evidenceUrl && (
                             <a
@@ -425,8 +425,8 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                     {derived.hasDataSource ? (
                       derived.conditions.length > 1 ? (
                         /* Multi-condition Milestone: render each condition in its own progress row */
-                        <div className="pt-3 border-t border-[#E4DED2] space-y-2.5">
-                          <div className="flex items-center justify-between text-[11px] uppercase tracking-wider font-medium text-[#6B645A]">
+                        <div className="pt-3 border-t border-[#E2E8F0] space-y-2.5">
+                          <div className="flex items-center justify-between text-[11px] uppercase tracking-wider font-medium text-[#64748B]">
                             <span>Conditions</span>
                             <span className="tabular-nums">
                               {derived.conditions.filter((c) => c.isMet).length}/{derived.conditions.length} Met
@@ -434,28 +434,28 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                           </div>
                           {derived.conditions.map((cond) => (
                             <div key={cond.id} className="space-y-1">
-                              <div className="flex justify-between items-center text-[12px] text-[#6B645A] tabular-nums">
+                              <div className="flex justify-between items-center text-[12px] text-[#64748B] tabular-nums">
                                 <span className="flex items-center gap-1.5 truncate mr-2">
                                   <span
                                     className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                      cond.isMet ? 'bg-[#3F6B4F]' : 'bg-[#E4DED2]'
+                                      cond.isMet ? 'bg-[#059669]' : 'bg-[#E2E8F0]'
                                     }`}
                                   />
-                                  <span className={cond.isMet ? 'text-[#1F1B16] font-medium' : 'text-[#6B645A]'}>
+                                  <span className={cond.isMet ? 'text-[#0F172A] font-medium' : 'text-[#64748B]'}>
                                     {cond.label}
                                   </span>
                                 </span>
                                 <span className="text-[11px] shrink-0">
                                   {cond.current.toLocaleString()} / {cond.target.toLocaleString()} {cond.unit}{' '}
-                                  <span className={cond.isMet ? 'text-[#3F6B4F] font-medium' : 'text-[#1F1B16]'}>
+                                  <span className={cond.isMet ? 'text-[#059669] font-medium' : 'text-[#0F172A]'}>
                                     ({cond.progressPercent}%)
                                   </span>
                                 </span>
                               </div>
-                              <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
+                              <div className="h-1 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
                                 <div
                                   className={`h-full transition-all duration-300 ${
-                                    cond.isMet ? 'bg-[#3F6B4F]' : accent.bar
+                                    cond.isMet ? 'bg-[#059669]' : accent.bar
                                   }`}
                                   style={{ width: `${cond.progressPercent}%` }}
                                 />
@@ -477,7 +477,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                                   Claim Milestone (+150 XP)
                                 </button>
                               ) : (
-                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
                                   In Progress ({derived.statusLabel})
                                 </div>
                               )}
@@ -486,22 +486,22 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                         </div>
                       ) : (
                         /* Single-condition Automated Milestone */
-                        <div className="pt-3 border-t border-[#E4DED2]">
+                        <div className="pt-3 border-t border-[#E2E8F0]">
                           {derived.conditions.map((cond) => (
                             <div key={cond.id} className="space-y-1 mb-3">
-                              <div className="flex justify-between items-center text-[12px] text-[#6B645A] tabular-nums">
-                                <span className="truncate mr-2 font-normal text-[#1F1B16]">{cond.label}</span>
+                              <div className="flex justify-between items-center text-[12px] text-[#64748B] tabular-nums">
+                                <span className="truncate mr-2 font-normal text-[#0F172A]">{cond.label}</span>
                                 <span>
                                   {cond.current.toLocaleString()} / {cond.target.toLocaleString()} {cond.unit}{' '}
-                                  <span className={cond.isMet ? 'text-[#3F6B4F] font-medium' : 'text-[#1F1B16]'}>
+                                  <span className={cond.isMet ? 'text-[#059669] font-medium' : 'text-[#0F172A]'}>
                                     ({cond.progressPercent}%)
                                   </span>
                                 </span>
                               </div>
-                              <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden">
+                              <div className="h-1 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
                                 <div
                                   className={`h-full transition-all duration-300 ${
-                                    cond.isMet ? 'bg-[#3F6B4F]' : accent.bar
+                                    cond.isMet ? 'bg-[#059669]' : accent.bar
                                   }`}
                                   style={{ width: `${cond.progressPercent}%` }}
                                 />
@@ -523,7 +523,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                                   Claim Milestone (+150 XP)
                                 </button>
                               ) : (
-                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                                <div className="w-full py-1.5 rounded-[4px] text-[12px] text-center bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
                                   In Progress ({derived.statusLabel})
                                 </div>
                               )}
@@ -533,16 +533,16 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                       )
                     ) : (
                       /* Manual Requirement Milestone: Only shows "Mark Requirement Complete" and requires evidence */
-                      <div className="pt-3 border-t border-[#E4DED2]">
-                        <div className="flex justify-between items-center text-[12px] text-[#6B645A] mb-1.5 tabular-nums">
+                      <div className="pt-3 border-t border-[#E2E8F0]">
+                        <div className="flex justify-between items-center text-[12px] text-[#64748B] mb-1.5 tabular-nums">
                           <span className="truncate mr-2">Goal: {skill.requirement}</span>
-                          <span className="text-[#1F1B16] font-medium">{isAttained ? 100 : 0}%</span>
+                          <span className="text-[#0F172A] font-medium">{isAttained ? 100 : 0}%</span>
                         </div>
 
-                        <div className="h-1 w-full bg-[#E4DED2] rounded-full overflow-hidden mb-3">
+                        <div className="h-1 w-full bg-[#E2E8F0] rounded-full overflow-hidden mb-3">
                           <div
                             className={`h-full transition-all duration-300 ${
-                              isAttained ? 'bg-[#3F6B4F]' : 'bg-[#E4DED2]'
+                              isAttained ? 'bg-[#059669]' : 'bg-[#E2E8F0]'
                             }`}
                             style={{ width: `${isAttained ? 100 : 0}%` }}
                           />
@@ -575,21 +575,21 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-lg bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
               <div>
-                <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+                <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
                   Complete Milestone: {evidenceModalSkill.title}
                 </h3>
-                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                <p className="text-[12px] text-[#64748B] mt-0.5">
                   Requirement: {evidenceModalSkill.requirement}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEvidenceModalSkill(null)}
-                className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16]"
+                className="p-1 rounded-[4px] text-[#64748B] hover:text-[#0F172A]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -597,7 +597,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
 
             <form onSubmit={handleConfirmEvidence} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1.5">
                   Evidence Note (Required)
                 </label>
                 <textarea
@@ -611,7 +611,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1.5">
                   Reference URL (Optional)
                 </label>
                 <input
@@ -623,7 +623,7 @@ export const CharacterCodex: React.FC<CharacterCodexProps> = ({
                 />
               </div>
 
-              <div className="pt-4 border-t border-[#E4DED2] flex justify-end gap-2.5">
+              <div className="pt-4 border-t border-[#E2E8F0] flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setEvidenceModalSkill(null)}

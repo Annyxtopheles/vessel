@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import type { InventoryItem, ItemRarity, PaletteColor, NumberGroupingOption } from '../types';
 import type { InventoryTreeNode } from './Sidebar';
 import { matchColorPalette } from '../utils/color';
@@ -30,11 +30,11 @@ interface InventoryGridProps {
 }
 
 const RARITY_DOT_COLORS: Record<ItemRarity, string> = {
-  common: '#6B645A',
-  rare: '#2D4A6B',
-  epic: '#7A5C1E',
-  masterwork: '#3F6B4F',
-  legendary: '#9C3D2A',
+  common: '#64748B',
+  rare: '#2563EB',
+  epic: '#D97706',
+  masterwork: '#059669',
+  legendary: '#E11D48',
 };
 
 const RARITY_LABELS: Record<ItemRarity, string> = {
@@ -237,9 +237,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Left: Active Tree Filter Label + Secondary Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] text-[13px] font-medium text-[#1F1B16]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] text-[13px] font-medium text-[#0F172A]">
             <span>{filterLabel}</span>
-            <span className="text-[11px] font-medium tabular-nums text-[#6B645A] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] ml-1">
+            <span className="text-[11px] font-medium tabular-nums text-[#64748B] px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0] ml-1">
               {filteredItems.length}
             </span>
           </div>
@@ -276,7 +276,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         {/* Right: Search & View Mode Switcher */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="relative w-44 sm:w-56">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B645A] pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none" />
             <input
               type="text"
               value={activeSearch}
@@ -287,7 +287,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
           </div>
 
           {/* Grid / Table View Mode Switcher (Icon-only buttons allowed) */}
-          <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2] shrink-0">
+          <div className="inline-flex p-0.5 bg-[#F1F5F9] rounded-[6px] border border-[#E2E8F0] shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -296,8 +296,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               }}
               className={`p-1.5 rounded-[4px] transition-colors cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                  : 'text-[#6B645A] hover:text-[#1F1B16]'
+                  ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
               title="Grid View"
             >
@@ -311,8 +311,8 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
               }}
               className={`p-1.5 rounded-[4px] transition-colors cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                  : 'text-[#6B645A] hover:text-[#1F1B16]'
+                  ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
               title="Dense Table View"
             >
@@ -324,9 +324,9 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
 
       {/* 2. Items Catalog Display (Grid or Table) */}
       {filteredItems.length === 0 ? (
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-12 text-center">
-          <p className="font-serif text-[18px] text-[#1F1B16]">No possessions found</p>
-          <p className="text-[13px] text-[#6B645A] mt-1">Try selecting another sidebar node or clearing search filters.</p>
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-12 text-center">
+          <p className="font-serif text-[18px] text-[#0F172A]">No possessions found</p>
+          <p className="text-[13px] text-[#64748B] mt-1">Try selecting another sidebar node or clearing search filters.</p>
           {onOpenImport && (
             <button
               type="button"
@@ -339,86 +339,86 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         </div>
       ) : viewMode === 'table' ? (
         /* DENSE TABLE VIEW WITH SORTABLE COLUMNS */
-        <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden">
+        <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[13px]">
               <thead>
-                <tr className="border-b border-[#E4DED2] bg-[#F6F2EA] text-[12px] font-medium text-[#6B645A]">
+                <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[12px] font-medium text-[#64748B]">
                   <th
                     onClick={() => handleHeaderSort('name')}
-                    className="py-2.5 px-4 cursor-pointer hover:text-[#1F1B16] select-none"
+                    className="py-2.5 px-4 cursor-pointer hover:text-[#0F172A] select-none"
                   >
                     <div className="flex items-center gap-1.5">
                       <span>Possession</span>
                       {sortCol === 'name' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0F172A]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0F172A]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
+                        <ArrowUpDown className="w-3 h-3 text-[#64748B]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('category')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-[#1F1B16] select-none"
+                    className="py-2.5 px-3 cursor-pointer hover:text-[#0F172A] select-none"
                   >
                     <div className="flex items-center gap-1.5">
                       <span>Category</span>
                       {sortCol === 'category' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0F172A]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0F172A]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
+                        <ArrowUpDown className="w-3 h-3 text-[#64748B]/60" />
                       )}
                     </div>
                   </th>
                   <th className="py-2.5 px-3">Location</th>
                   <th
                     onClick={() => handleHeaderSort('value')}
-                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#0F172A] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Value</span>
                       {sortCol === 'value' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0F172A]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0F172A]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
+                        <ArrowUpDown className="w-3 h-3 text-[#64748B]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('wears')}
-                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#0F172A] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Wears</span>
                       {sortCol === 'wears' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0F172A]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0F172A]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
+                        <ArrowUpDown className="w-3 h-3 text-[#64748B]/60" />
                       )}
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort('costPerWear')}
-                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#1F1B16] select-none"
+                    className="py-2.5 px-3 text-right cursor-pointer hover:text-[#0F172A] select-none"
                   >
                     <div className="flex items-center justify-end gap-1.5">
                       <span>Cost / Wear</span>
                       {sortCol === 'costPerWear' ? (
-                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#1F1B16]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#1F1B16]" />
+                        sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0F172A]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0F172A]" />
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 text-[#6B645A]/60" />
+                        <ArrowUpDown className="w-3 h-3 text-[#64748B]/60" />
                       )}
                     </div>
                   </th>
                   <th className="py-2.5 px-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4DED2]">
+              <tbody className="divide-y divide-[#E2E8F0]">
                 {sortedItems.map((item) => {
                   const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
                   const wears = wearCounts[item.id] || 0;
                   const costPerWear = wears > 0 ? (item.goldValue / wears).toFixed(2) : '—';
-                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#6B645A';
+                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#64748B';
                   const paletteMatch = matchColorPalette(item.colorHex, palette);
                   const initialChar = (item.name[0] || 'V').toUpperCase();
 
@@ -426,11 +426,11 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     <tr
                       key={item.id}
                       onClick={() => onInspectItem(item)}
-                      className="hover:bg-[#F6F2EA]/60 transition-colors cursor-pointer group"
+                      className="hover:bg-[#F8FAFC]/60 transition-colors cursor-pointer group"
                     >
                       <td className="py-2.5 px-4">
                         <div className="flex items-center gap-3 min-w-[200px]">
-                          <div className="w-8 h-8 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-[13px] text-[#6B645A]">
+                          <div className="w-8 h-8 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0] overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-[13px] text-[#64748B]">
                             {item.imageUrl ? (
                               <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                             ) : (
@@ -443,38 +443,38 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                                 className="w-2 h-2 rounded-full flex-shrink-0"
                                 style={{ backgroundColor: dotColor }}
                               />
-                              <span className="font-medium text-[#1F1B16] group-hover:text-black transition-colors truncate">
+                              <span className="font-medium text-[#0F172A] group-hover:text-black transition-colors truncate">
                                 {item.name}
                               </span>
                             </div>
-                            <span className="text-[11px] text-[#6B645A] truncate block">
+                            <span className="text-[11px] text-[#64748B] truncate block">
                               {item.colorName}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-2.5 px-3 text-[#6B645A] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-[#64748B] whitespace-nowrap">
                         {item.subCategory || item.category}
                       </td>
 
-                      <td className="py-2.5 px-3 text-[#6B645A] whitespace-nowrap text-[12px]">
+                      <td className="py-2.5 px-3 text-[#64748B] whitespace-nowrap text-[12px]">
                         {item.location || 'Vault'}
                       </td>
 
-                      <td className={`py-2.5 px-3 text-right font-medium tabular-nums text-[#1F1B16] whitespace-nowrap ${blurClass}`}>
+                      <td className={`py-2.5 px-3 text-right font-medium tabular-nums text-[#0F172A] whitespace-nowrap ${blurClass}`}>
                         {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                       </td>
 
-                      <td className="py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-right tabular-nums text-[#64748B] whitespace-nowrap">
                         {wears}
                       </td>
 
-                      <td className={`py-2.5 px-3 text-right tabular-nums text-[#6B645A] whitespace-nowrap ${wears > 0 ? blurClass : ''}`}>
+                      <td className={`py-2.5 px-3 text-right tabular-nums text-[#64748B] whitespace-nowrap ${wears > 0 ? blurClass : ''}`}>
                         {wears > 0 && costPerWear ? (
                           `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}`
                         ) : (
-                          <span className="text-[#6B645A]/60">Unworn</span>
+                          <span className="text-[#64748B]/60">Unworn</span>
                         )}
                       </td>
 
@@ -489,12 +489,12 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                           )}
 
                           {paletteMatch?.verdict === 'suits' && (
-                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F6F2EA] text-[#3F6B4F] border border-[#3F6B4F]/30">
+                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F8FAFC] text-[#059669] border border-[#059669]/30">
                               Suits you
                             </span>
                           )}
                           {paletteMatch?.verdict === 'avoid' && (
-                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30">
+                            <span className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-[#F8FAFC] text-[#E11D48] border border-[#E11D48]/30">
                               Avoid
                             </span>
                           )}
@@ -514,11 +514,11 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
             <div key={bucket.key} className="space-y-3">
               {bucket.title && (
                 <div className="flex items-center gap-2 pt-2">
-                  <h4 className="font-serif text-[15px] font-medium text-[#1F1B16] tracking-tight">
+                  <h4 className="font-serif text-[15px] font-medium text-[#0F172A] tracking-tight">
                     {bucket.title}
                   </h4>
-                  <span className="text-[12px] tabular-nums text-[#6B645A]">({bucket.items.length})</span>
-                  <div className="h-px bg-[#E4DED2] flex-1 ml-2" />
+                  <span className="text-[12px] tabular-nums text-[#64748B]">({bucket.items.length})</span>
+                  <div className="h-px bg-[#E2E8F0] flex-1 ml-2" />
                 </div>
               )}
 
@@ -527,7 +527,7 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                   const status = item.ownershipStatus || (item.isLocked ? 'wishlist' : 'owned');
                   const wears = wearCounts[item.id] || 0;
                   const costPerWear = wears > 0 ? (item.goldValue / wears).toFixed(2) : null;
-                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#6B645A';
+                  const dotColor = RARITY_DOT_COLORS[item.rarity] || '#64748B';
                   const rarityLabel = RARITY_LABELS[item.rarity] || 'Common';
                   const initialChar = (item.name[0] || 'V').toUpperCase();
                   const match = matchColorPalette(item.colorHex, palette);
@@ -536,12 +536,12 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                     <div
                       key={item.id}
                       onClick={() => onInspectItem(item)}
-                      className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] flex flex-col justify-between overflow-hidden cursor-pointer group hover:border-[#1F1B16] transition-colors"
+                      className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] flex flex-col justify-between overflow-hidden cursor-pointer group hover:border-[#0F172A] transition-colors"
                     >
                       {/* Top Part: Image & Content */}
                       <div>
                         {/* Image Container: Standard 16:9 Widescreen Crop */}
-                        <div className="aspect-video w-full bg-[#EFEAE0] relative overflow-hidden flex items-center justify-center border-b border-[#E4DED2]">
+                        <div className="aspect-video w-full bg-[#F1F5F9] relative overflow-hidden flex items-center justify-center border-b border-[#E2E8F0]">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -549,14 +549,14 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                             />
                           ) : (
-                            <div className="w-full h-full bg-[#EFEAE0] text-[#6B645A] font-serif flex items-center justify-center text-2xl font-normal select-none">
+                            <div className="w-full h-full bg-[#F1F5F9] text-[#64748B] font-serif flex items-center justify-center text-2xl font-normal select-none">
                               {initialChar}
                             </div>
                           )}
 
                           {/* Quick Condition Pill in top left */}
                           {item.condition && (
-                            <div className="absolute top-2.5 left-2.5 bg-[#FBF9F4]/95 text-[#6B645A] rounded-[4px] border border-[#E4DED2] flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 capitalize">
+                            <div className="absolute top-2.5 left-2.5 bg-[#FFFFFF]/95 text-[#64748B] rounded-[4px] border border-[#E2E8F0] flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 capitalize">
                               <span>{item.condition.replace('_', ' ')}</span>
                             </div>
                           )}
@@ -571,19 +571,19 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                               style={{ backgroundColor: dotColor }}
                               title={`Rarity: ${rarityLabel}`}
                             />
-                            <h3 className="font-serif text-[16px] font-normal text-[#1F1B16] group-hover:text-black transition-colors truncate">
+                            <h3 className="font-serif text-[16px] font-normal text-[#0F172A] group-hover:text-black transition-colors truncate">
                               {item.name}
                             </h3>
                           </div>
 
                           {/* Category + Price in Secondary Text */}
-                          <p className="text-[13px] text-[#6B645A] mt-1 truncate">
+                          <p className="text-[13px] text-[#64748B] mt-1 truncate">
                             {item.subCategory || item.category} · <span className={`tabular-nums ${blurClass}`}>{formatCurrency(item.goldValue, currencySymbol, numberGrouping)}</span>
                           </p>
 
                           {/* Wear Count & Cost Per Wear Metric Line */}
                           {status === 'owned' && (
-                            <div className="text-[12px] text-[#6B645A] mt-1.5 flex items-center gap-2 tabular-nums">
+                            <div className="text-[12px] text-[#64748B] mt-1.5 flex items-center gap-2 tabular-nums">
                               <span>{wears} wears</span>
                               <span>·</span>
                               <span className={costPerWear ? blurClass : ''}>
@@ -603,12 +603,12 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                             )}
 
                             {match?.verdict === 'suits' && (
-                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F6F2EA] text-[#3F6B4F] border border-[#3F6B4F]/30">
+                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F8FAFC] text-[#059669] border border-[#059669]/30">
                                 Suits you
                               </span>
                             )}
                             {match?.verdict === 'avoid' && (
-                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30">
+                              <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#F8FAFC] text-[#E11D48] border border-[#E11D48]/30">
                                 Avoid
                               </span>
                             )}
@@ -617,18 +617,18 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
                       </div>
 
                       {/* Bottom Card Footer: Color dot + name on left, Location on right */}
-                      <div className="px-4 pb-3 pt-2 border-t border-[#E4DED2] flex items-center justify-between text-[12px] text-[#6B645A]">
+                      <div className="px-4 pb-3 pt-2 border-t border-[#E2E8F0] flex items-center justify-between text-[12px] text-[#64748B]">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span
                             className="w-2.5 h-2.5 rounded-[2px] border border-black/10 flex-shrink-0"
-                            style={{ backgroundColor: item.colorHex || '#6B645A' }}
+                            style={{ backgroundColor: item.colorHex || '#64748B' }}
                           />
                           <span className="truncate">
                             {item.colorName || 'Default'}
                           </span>
                         </div>
 
-                        <div className="truncate text-[#6B645A]">
+                        <div className="truncate text-[#64748B]">
                           <span className="truncate">{item.location || 'Vault'}</span>
                         </div>
                       </div>

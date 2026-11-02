@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import type {
   InventoryItem,
   ItemCondition,
@@ -76,10 +76,10 @@ interface ItemInspectModalProps {
 }
 
 const CONDITION_MAP: Record<ItemCondition, { label: string; pct: number; color: string }> = {
-  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#3F6B4F]' },
-  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#2D4A6B]' },
-  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#7A5C1E]' },
-  needs_repair: { label: 'Needs Repair', pct: 20, color: 'bg-[#9C3D2A]' },
+  pristine: { label: 'Pristine (Like New)', pct: 100, color: 'bg-[#059669]' },
+  seasoned: { label: 'Seasoned (Well-Kept)', pct: 75, color: 'bg-[#2563EB]' },
+  worn: { label: 'Worn (Heavy Use)', pct: 45, color: 'bg-[#D97706]' },
+  needs_repair: { label: 'Needs Repair', pct: 20, color: 'bg-[#E11D48]' },
 };
 
 export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
@@ -232,16 +232,16 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
       >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] overflow-hidden cursor-default my-8"
+        className="w-full max-w-xl bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] overflow-hidden cursor-default my-8"
       >
         {/* Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4DED2]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
           <div className="flex items-center gap-2">
             <span
               className="w-2.5 h-2.5 rounded-[2px]"
-              style={{ backgroundColor: item.colorHex || '#6B645A' }}
+              style={{ backgroundColor: item.colorHex || '#64748B' }}
             />
-            <span className="text-[12px] font-medium uppercase tracking-wider text-[#6B645A]">
+            <span className="text-[12px] font-medium uppercase tracking-wider text-[#64748B]">
               {item.category} · {item.subCategory || 'General'}
             </span>
           </div>
@@ -260,7 +260,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   onDuplicateItem(dup);
                   onClose();
                 }}
-                className="p-1.5 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
+                className="p-1.5 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
                 title="Duplicate possession"
               >
                 <Copy className="w-4 h-4" />
@@ -272,8 +272,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               onClick={() => setIsEditing(!isEditing)}
               className={`p-1.5 rounded-[4px] transition-colors ${
                 isEditing
-                  ? 'bg-[#EFEAE0] text-[#1F1B16]'
-                  : 'text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0]'
+                  ? 'bg-[#F1F5F9] text-[#0F172A]'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
               }`}
               title="Edit details"
             >
@@ -283,7 +283,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors"
+              className="p-1.5 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -293,7 +293,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 max-h-[75vh] overflow-y-auto space-y-5">
           {/* Main Visual Banner (16:9 Widescreen) */}
-          <div className="aspect-video max-h-72 w-full rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#6B645A] group">
+          <div className="aspect-video max-h-72 w-full rounded-[6px] bg-[#F1F5F9] border border-[#E2E8F0] relative overflow-hidden flex items-center justify-center font-serif text-3xl text-[#64748B] group">
             {(isEditing ? editImageUrl : item.imageUrl) ? (
               <>
                 <img
@@ -316,7 +316,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       setIsPhotoExpanded(true);
                       setZoomLevel(1);
                     }}
-                    className="absolute bottom-3 right-3 bg-[#FBF9F4]/90 backdrop-blur-xs text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-2.5 py-1 rounded-[4px] text-xs font-medium flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                    className="absolute bottom-3 right-3 bg-[#FFFFFF]/90 backdrop-blur-xs text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] px-2.5 py-1 rounded-[4px] text-xs font-medium flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                     title="Expand Photo for Detailed Inspection"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
@@ -329,7 +329,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             )}
 
             {isEditing && (
-              <label className="absolute bottom-3 right-3 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] hover:bg-[#F6F2EA] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors shadow-xs">
+              <label className="absolute bottom-3 right-3 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors shadow-xs">
                 <span>{isUploadingPhoto ? 'Processing...' : 'Upload Photo'}</span>
                 <input
                   type="file"
@@ -347,7 +347,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Name
                   </label>
                   <input
@@ -360,7 +360,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Category
                     </label>
                     <CustomSelect
@@ -370,7 +370,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Sub-Category / Type
                     </label>
                     <input
@@ -384,7 +384,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Brand / Maker
                     </label>
                     <input
@@ -396,7 +396,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Size / Dimensions
                     </label>
                     <input
@@ -411,7 +411,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Season
                     </label>
                     <CustomSelect
@@ -421,7 +421,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Date Acquired
                     </label>
                     <input
@@ -435,7 +435,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Value ({currencySymbol})
                     </label>
                     <input
@@ -446,7 +446,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Target Price ({currencySymbol})
                     </label>
                     <input
@@ -460,7 +460,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Storage Location
                     </label>
                     <input
@@ -472,7 +472,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                       Condition
                     </label>
                     <CustomSelect
@@ -484,7 +484,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Notes
                   </label>
                   <textarea
@@ -517,35 +517,35 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 {/* Title & Category Bar */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <h2 className="font-serif text-[24px] font-normal text-[#1F1B16]">
+                    <h2 className="font-serif text-[24px] font-normal text-[#0F172A]">
                       {item.name}
                     </h2>
-                    <div className="text-[13px] text-[#6B645A] mt-0.5 flex items-center gap-2">
+                    <div className="text-[13px] text-[#64748B] mt-0.5 flex items-center gap-2">
                       <span>{item.subCategory}</span>
                       <span>·</span>
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#6B645A]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#64748B]" />
                         <span>{item.location || 'Vault'}</span>
                       </span>
                     </div>
                   </div>
 
                   <div className={`text-right ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
-                    <span className="font-serif text-[22px] font-normal tabular-nums text-[#1F1B16] block">
+                    <span className="font-serif text-[22px] font-normal tabular-nums text-[#0F172A] block">
                       {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                     </span>
                     {derivedPricePaid !== undefined && (
-                      <span className="text-[11px] tabular-nums text-[#6B645A] block mt-0.5">
+                      <span className="text-[11px] tabular-nums text-[#64748B] block mt-0.5">
                         Paid: {formatCurrency(derivedPricePaid, currencySymbol, numberGrouping)}
                         {linkedTx && (
-                          <span className="ml-1 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E4DED2] text-[#1F1B16]">
+                          <span className="ml-1 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E2E8F0] text-[#0F172A]">
                             Tx
                           </span>
                         )}
                       </span>
                     )}
                     {currentStatus === 'wishlist' && item.targetPrice && (
-                      <span className="text-[11px] tabular-nums text-[#6B645A]">
+                      <span className="text-[11px] tabular-nums text-[#64748B]">
                         Target: {formatCurrency(item.targetPrice, currencySymbol, numberGrouping)}
                       </span>
                     )}
@@ -554,13 +554,13 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Wear Log & Efficiency Box */}
                 {currentStatus === 'owned' && (
-                  <div className="mb-4 p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between gap-4">
+                  <div className="mb-4 p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div>
-                        <div className="text-xs font-medium text-[#1F1B16] mb-0.5">
+                        <div className="text-xs font-medium text-[#0F172A] mb-0.5">
                           Wear Log
                         </div>
-                        <div className="text-[12px] tabular-nums text-[#6B645A]">
+                        <div className="text-[12px] tabular-nums text-[#64748B]">
                           {wearCount} {wearCount === 1 ? 'Wear' : 'Wears'} logged
                         </div>
                       </div>
@@ -579,8 +579,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     </div>
 
                     <div className={`text-right ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
-                      <div className="text-[11px] text-[#6B645A]">Cost / Wear</div>
-                      <div className="font-serif text-[16px] tabular-nums font-medium text-[#1F1B16]">
+                      <div className="text-[11px] text-[#64748B]">Cost / Wear</div>
+                      <div className="font-serif text-[16px] tabular-nums font-medium text-[#0F172A]">
                         {costPerWear ? `${formatCurrency(parseFloat(costPerWear), currencySymbol, numberGrouping)}` : 'Unworn'}
                       </div>
                     </div>
@@ -588,19 +588,19 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 )}
 
                 {/* Notes / Lore */}
-                <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] mb-4">
-                  <p className="text-[13px] text-[#6B645A] leading-relaxed italic">
+                <div className="p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] mb-4">
+                  <p className="text-[13px] text-[#64748B] leading-relaxed italic">
                     "{item.lore}"
                   </p>
                 </div>
 
                 {/* Condition Bar */}
-                <div className="mb-4 p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4]">
+                <div className="mb-4 p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF]">
                   <div className="flex items-center justify-between text-[12px] mb-2">
-                    <span className="font-medium text-[#1F1B16]">Physical Condition</span>
-                    <span className="text-[#6B645A]">{conditionInfo.label}</span>
+                    <span className="font-medium text-[#0F172A]">Physical Condition</span>
+                    <span className="text-[#64748B]">{conditionInfo.label}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${conditionInfo.color} transition-all`}
                       style={{ width: `${conditionInfo.pct}%` }}
@@ -610,39 +610,39 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                 {/* Past Relic Notice if Parted */}
                 {currentStatus === 'past' && (
-                  <div className="mb-4 p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] text-[13px]">
-                    <div className="font-medium text-[#1F1B16] mb-1">
+                  <div className="mb-4 p-3 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] text-[13px]">
+                    <div className="font-medium text-[#0F172A] mb-1">
                       Possession Archive
                     </div>
-                    <p className="text-[#6B645A]">
-                      Parted with via <strong className="capitalize text-[#1F1B16]">{item.pastReason || 'retiring'}</strong>
+                    <p className="text-[#64748B]">
+                      Parted with via <strong className="capitalize text-[#0F172A]">{item.pastReason || 'retiring'}</strong>
                       {item.pastDate ? ` on ${item.pastDate}` : ''}.
                     </p>
                   </div>
                 )}
 
                 {/* Expandable Specifications & Detailed Provenance */}
-                <div className="mb-4 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] overflow-hidden">
+                <div className="mb-4 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] overflow-hidden">
                   <button
                     type="button"
                     onClick={() => {
                       sfx.playClick();
                       setIsSpecsExpanded(!isSpecsExpanded);
                     }}
-                    className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#F6F2EA]/60 transition-colors cursor-pointer"
+                    className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#F8FAFC]/60 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <Tag className="w-3.5 h-3.5 text-[#6B645A]" />
-                      <span className="text-[13px] font-medium text-[#1F1B16]">
+                      <Tag className="w-3.5 h-3.5 text-[#64748B]" />
+                      <span className="text-[13px] font-medium text-[#0F172A]">
                         Object Specifications & Details
                       </span>
                       {item.brand && (
-                        <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2]">
+                        <span className="text-[11px] px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
                           {item.brand}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[12px] text-[#6B645A]">
+                    <div className="flex items-center gap-1.5 text-[12px] text-[#64748B]">
                       <span>{isSpecsExpanded ? 'Hide' : 'Expand'}</span>
                       {isSpecsExpanded ? (
                         <ChevronUp className="w-4 h-4" />
@@ -653,68 +653,68 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </button>
 
                   {isSpecsExpanded && (
-                    <div className="p-4 pt-2 border-t border-[#E4DED2] space-y-3 text-[13px]">
+                    <div className="p-4 pt-2 border-t border-[#E2E8F0] space-y-3 text-[13px]">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                         {/* Brand / Maker */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Brand / Maker
                           </span>
-                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                          <span className="font-medium text-[#0F172A] block mt-0.5 truncate">
                             {item.brand || 'Unspecified'}
                           </span>
                         </div>
 
                         {/* Size / Fit */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Size / Dimensions
                           </span>
-                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                          <span className="font-medium text-[#0F172A] block mt-0.5 truncate">
                             {item.size || 'Standard'}
                           </span>
                         </div>
 
                         {/* Seasonality */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Season
                           </span>
-                          <span className="font-medium text-[#1F1B16] block mt-0.5 capitalize truncate">
+                          <span className="font-medium text-[#0F172A] block mt-0.5 capitalize truncate">
                             {item.season || 'All Seasons'}
                           </span>
                         </div>
 
                         {/* Date Acquired */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Acquired
                           </span>
-                          <span className="font-medium text-[#1F1B16] block mt-0.5 tabular-nums truncate">
+                          <span className="font-medium text-[#0F172A] block mt-0.5 tabular-nums truncate">
                             {item.dateAcquired || item.acquired_date || item.created_at?.slice(0, 10) || 'Recorded'}
                           </span>
                         </div>
 
                         {/* Color & Palette Verdict */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Color & Palette
                           </span>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span
                               className="w-2.5 h-2.5 rounded-[2px] border border-black/10 shrink-0"
-                              style={{ backgroundColor: item.colorHex || '#6B645A' }}
+                              style={{ backgroundColor: item.colorHex || '#64748B' }}
                             />
-                            <span className="font-medium text-[#1F1B16] truncate">
+                            <span className="font-medium text-[#0F172A] truncate">
                               {item.colorName || 'Default'}
                             </span>
                             {paletteMatch?.verdict === 'suits' && (
-                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#3F6B4F]/10 text-[#3F6B4F] shrink-0">
+                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#059669]/10 text-[#059669] shrink-0">
                                 Suits
                               </span>
                             )}
                             {paletteMatch?.verdict === 'avoid' && (
-                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#9C3D2A]/10 text-[#9C3D2A] shrink-0">
+                              <span className="px-1 py-0.2 rounded text-[10px] font-medium bg-[#E11D48]/10 text-[#E11D48] shrink-0">
                                 Avoid
                               </span>
                             )}
@@ -722,11 +722,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                         </div>
 
                         {/* Storage Location */}
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2]">
-                          <span className="text-[11px] text-[#6B645A] uppercase tracking-wider block">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <span className="text-[11px] text-[#64748B] uppercase tracking-wider block">
                             Location
                           </span>
-                          <span className="font-medium text-[#1F1B16] block mt-0.5 truncate">
+                          <span className="font-medium text-[#0F172A] block mt-0.5 truncate">
                             {item.location || 'Vault'}
                           </span>
                         </div>
@@ -734,16 +734,16 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
 
                       {/* Linked Ledger Record if present */}
                       {linkedTx && (
-                        <div className="p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between text-[12px]">
+                        <div className="p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-[12px]">
                           <div>
-                            <span className="text-[#6B645A] block">Linked Purchase Ledger Entry:</span>
-                            <span className="font-medium text-[#1F1B16]">{linkedTx.note || 'Acquisition transaction'}</span>
+                            <span className="text-[#64748B] block">Linked Purchase Ledger Entry:</span>
+                            <span className="font-medium text-[#0F172A]">{linkedTx.note || 'Acquisition transaction'}</span>
                           </div>
                           <div className="text-right">
-                            <span className="font-serif font-medium text-[#1F1B16] tabular-nums block">
+                            <span className="font-serif font-medium text-[#0F172A] tabular-nums block">
                               {formatCurrency(linkedTx.amount, currencySymbol, numberGrouping)}
                             </span>
-                            <span className="text-[11px] text-[#6B645A] tabular-nums">{linkedTx.date}</span>
+                            <span className="text-[11px] text-[#64748B] tabular-nums">{linkedTx.date}</span>
                           </div>
                         </div>
                       )}
@@ -752,8 +752,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 </div>
 
                 {/* Ownership Lifecycle Transition Control */}
-                <div className="p-3.5 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2]">
-                  <span className="text-[12px] font-medium text-[#1F1B16] block mb-2">
+                <div className="p-3.5 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <span className="text-[12px] font-medium text-[#0F172A] block mb-2">
                     Status:
                   </span>
 
@@ -796,8 +796,8 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   </div>
 
                   {isChoosingPastReason && (
-                    <div className="mt-3 pt-3 border-t border-[#E4DED2] flex items-center gap-2">
-                      <span className="text-xs text-[#6B645A] shrink-0">Reason:</span>
+                    <div className="mt-3 pt-3 border-t border-[#E2E8F0] flex items-center gap-2">
+                      <span className="text-xs text-[#64748B] shrink-0">Reason:</span>
                       <div className="w-44">
                         <CustomSelect
                           value={selectedPastReason}
@@ -830,22 +830,22 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         </div>
 
         {/* Footer Metrics & Actions */}
-        <div className="px-6 py-3.5 bg-[#FBF9F4] border-t border-[#E4DED2] flex items-center justify-between gap-3">
-          <div className={`flex items-center gap-3 text-[13px] text-[#6B645A] ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
+        <div className="px-6 py-3.5 bg-[#FFFFFF] border-t border-[#E2E8F0] flex items-center justify-between gap-3">
+          <div className={`flex items-center gap-3 text-[13px] text-[#64748B] ${privacyMode ? 'filter blur-[6px] hover:filter-none transition-all select-none' : ''}`}>
             <div className="flex items-center gap-1.5">
               <span>Value:</span>
-              <span className="text-[#1F1B16] font-medium tabular-nums">
+              <span className="text-[#0F172A] font-medium tabular-nums">
                 {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
               </span>
             </div>
             {derivedPricePaid !== undefined && (
-              <div className="flex items-center gap-1.5 border-l border-[#E4DED2] pl-3">
+              <div className="flex items-center gap-1.5 border-l border-[#E2E8F0] pl-3">
                 <span>Price Paid:</span>
-                <span className="text-[#1F1B16] font-medium tabular-nums">
+                <span className="text-[#0F172A] font-medium tabular-nums">
                   {formatCurrency(derivedPricePaid, currencySymbol, numberGrouping)}
                 </span>
                 {linkedTx && (
-                  <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E4DED2] text-[#1F1B16]">
+                  <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-[#E2E8F0] text-[#0F172A]">
                     Linked Tx
                   </span>
                 )}
@@ -863,7 +863,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               }
             }}
             title="Delete item permanently"
-            className="p-1.5 rounded-[4px] border border-[#E4DED2] text-[#9C3D2A] hover:bg-[#F6F2EA] transition-colors cursor-pointer"
+            className="p-1.5 rounded-[4px] border border-[#E2E8F0] text-[#E11D48] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -883,11 +883,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         {/* Floating Header */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-5xl flex items-center justify-between text-[#FBF9F4] py-2 px-4 rounded-[6px] bg-[#1F1B16]/80 border border-white/10 shrink-0"
+          className="w-full max-w-5xl flex items-center justify-between text-[#FFFFFF] py-2 px-4 rounded-[6px] bg-[#0F172A]/80 border border-white/10 shrink-0"
         >
           <div className="flex items-center gap-2.5">
             <span className="font-serif text-[16px] text-white font-medium">{item.name}</span>
-            <span className="text-[12px] text-[#E4DED2]/80">· High-Resolution Photo Inspection</span>
+            <span className="text-[12px] text-[#E2E8F0]/80">· High-Resolution Photo Inspection</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -924,7 +924,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                 setIsPhotoExpanded(false);
                 setZoomLevel(1);
               }}
-              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-[#9C3D2A] text-white transition-colors cursor-pointer ml-3"
+              className="p-1.5 rounded-[4px] bg-white/10 hover:bg-[#E11D48] text-white transition-colors cursor-pointer ml-3"
               title="Close Inspector (Esc)"
             >
               <X className="w-4 h-4" />
@@ -948,7 +948,7 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
         {/* Footer Caption */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="text-center text-[12px] text-[#E4DED2]/70 py-1"
+          className="text-center text-[12px] text-[#E2E8F0]/70 py-1"
         >
           Inspect stitching, fabric weave, labels, tags, and physical wear · Scroll or click buttons to zoom
         </div>

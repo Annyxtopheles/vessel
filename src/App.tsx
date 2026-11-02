@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type {
   InventoryItem,
   CharacterProfile,
@@ -936,7 +936,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#F6F2EA] text-[#1F1B16] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#F8FAFC] text-[#0F172A] overflow-hidden">
       {/* Sidebar Navigation */}
       <Sidebar
         profile={profile}
@@ -1230,32 +1230,32 @@ export const App: React.FC = () => {
       {wishlistPromptItem && (
         <div
           onClick={() => setWishlistPromptItem(null)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
           >
-            <div className="pb-3 border-b border-[#E4DED2]">
-              <h3 className="font-serif text-[20px] font-semibold text-[#1F1B16] leading-snug">Milestone Completed</h3>
-              <p className="text-[13px] text-[#6B645A] mt-0.5">Linked item unlocked</p>
+            <div className="pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-serif text-[20px] font-semibold text-[#0F172A] leading-snug">Milestone Completed</h3>
+              <p className="text-[13px] text-[#64748B] mt-0.5">Linked item unlocked</p>
             </div>
 
             <div className="py-4 space-y-3">
-              <p className="text-[14px] text-[#6B645A] leading-relaxed">
+              <p className="text-[14px] text-[#64748B] leading-relaxed">
                 You successfully achieved the objective linked to your wishlist item{' '}
-                <strong className="text-[#1F1B16] font-medium">{wishlistPromptItem.name}</strong>.
+                <strong className="text-[#0F172A] font-medium">{wishlistPromptItem.name}</strong>.
               </p>
-              <div className="p-3 rounded-[6px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between">
+              <div className="p-3 rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
                 <div>
-                  <span className="text-[14px] font-medium text-[#1F1B16] block">
+                  <span className="text-[14px] font-medium text-[#0F172A] block">
                     {wishlistPromptItem.name}
                   </span>
-                  <span className="text-[12px] text-[#6B645A]">
+                  <span className="text-[12px] text-[#64748B]">
                     {wishlistPromptItem.subCategory}
                   </span>
                 </div>
-                <span className="font-serif text-[16px] font-medium text-[#1F1B16] tabular-nums">
+                <span className="font-serif text-[16px] font-medium text-[#0F172A] tabular-nums">
                   {formatCurrency(
                     wishlistPromptItem.targetPrice || wishlistPromptItem.goldValue,
                     settings.currencySymbol || '৳',
@@ -1263,12 +1263,12 @@ export const App: React.FC = () => {
                   )}
                 </span>
               </div>
-              <p className="text-[13px] text-[#1F1B16]">
+              <p className="text-[13px] text-[#0F172A]">
                 Would you like to mark this item as currently owned?
               </p>
             </div>
 
-            <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setWishlistPromptItem(null)}
@@ -1296,28 +1296,28 @@ export const App: React.FC = () => {
       {purchaseExpensePromptItem && (
         <div
           onClick={() => setPurchaseExpensePromptItem(null)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default animate-in fade-in zoom-in-95"
           >
-            <div className="pb-3 border-b border-[#E4DED2]">
-              <h3 className="font-serif text-[20px] font-semibold text-[#1F1B16] leading-snug">
+            <div className="pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-serif text-[20px] font-semibold text-[#0F172A] leading-snug">
                 Record Acquisition Expense
               </h3>
-              <p className="text-[13px] text-[#6B645A] mt-0.5">
+              <p className="text-[13px] text-[#64748B] mt-0.5">
                 Link purchase transaction to {purchaseExpensePromptItem.name}
               </p>
             </div>
 
             <div className="py-4 space-y-3.5">
-              <p className="text-[14px] text-[#6B645A] leading-relaxed">
-                You marked <strong className="text-[#1F1B16]">{purchaseExpensePromptItem.name}</strong> as owned. Would you like to log this expense in your ledger?
+              <p className="text-[14px] text-[#64748B] leading-relaxed">
+                You marked <strong className="text-[#0F172A]">{purchaseExpensePromptItem.name}</strong> as owned. Would you like to log this expense in your ledger?
               </p>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Amount ({settings.currencySymbol || '৳'})
                 </label>
                 <input
@@ -1331,7 +1331,7 @@ export const App: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Account
                   </label>
                   <CustomSelect
@@ -1344,7 +1344,7 @@ export const App: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Category
                   </label>
                   <CustomSelect
@@ -1356,7 +1356,7 @@ export const App: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Date
                 </label>
                 <input
@@ -1368,7 +1368,7 @@ export const App: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Note
                 </label>
                 <input
@@ -1381,7 +1381,7 @@ export const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setPurchaseExpensePromptItem(null)}

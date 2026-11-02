@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type {
   Account,
   FinanceCategory,
@@ -339,7 +339,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Sub-tab Bar & Header */}
-      <div className="pb-2 border-b border-[#E4DED2] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="pb-2 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto text-[14px]">
           {(
@@ -360,8 +360,8 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               }}
               className={`px-3 py-1.5 rounded-[4px] font-medium transition-colors cursor-pointer shrink-0 ${
                 activeTab === tab.id
-                  ? 'bg-[#1F1B16] text-[#FBF9F4]'
-                  : 'text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#FBF9F4]'
+                  ? 'bg-[#0F172A] text-[#FFFFFF]'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#FFFFFF]'
               }`}
             >
               {tab.label}
@@ -371,8 +371,8 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
         {/* Global Net Worth Badge */}
         <div className="flex items-center gap-2 text-[12px] tabular-nums self-end sm:self-center">
-          <span className="text-[#6B645A]">Net Worth:</span>
-          <span className={`font-serif text-[16px] font-medium text-[#1F1B16] ${blurClass}`}>
+          <span className="text-[#64748B]">Net Worth:</span>
+          <span className={`font-serif text-[16px] font-medium text-[#0F172A] ${blurClass}`}>
             {formatCurrency(netWorth, currencySymbol, numberGrouping)}
           </span>
         </div>
@@ -386,50 +386,50 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
           {/* Top Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Net Worth */}
-            <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
-              <span className="text-[13px] font-medium text-[#6B645A]">Current Net Worth</span>
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5 flex flex-col justify-between">
+              <span className="text-[13px] font-medium text-[#64748B]">Current Net Worth</span>
               <div className="my-2">
-                <div className={`font-serif text-[32px] font-normal text-[#1F1B16] tabular-nums leading-none ${blurClass}`}>
+                <div className={`font-serif text-[32px] font-normal text-[#0F172A] tabular-nums leading-none ${blurClass}`}>
                   {formatCurrency(netWorth, currencySymbol, numberGrouping)}
                 </div>
                 <div className={`flex items-center gap-1.5 mt-2 text-[12px] tabular-nums ${blurClass}`}>
                   <span
                     className={
-                      netWorthDelta >= 0 ? 'text-[#3F6B4F] font-medium' : 'text-[#9C3D2A] font-medium'
+                      netWorthDelta >= 0 ? 'text-[#059669] font-medium' : 'text-[#E11D48] font-medium'
                     }
                   >
                     {netWorthDelta >= 0 ? '+' : ''}
                     {formatCurrency(netWorthDelta, currencySymbol, numberGrouping)} ({netWorthDeltaPercent}%)
                   </span>
-                  <span className="text-[#6B645A]">vs last month</span>
+                  <span className="text-[#64748B]">vs last month</span>
                 </div>
               </div>
-              <div className={`pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between ${blurClass}`}>
+              <div className={`pt-2 border-t border-[#E2E8F0] text-[12px] text-[#64748B] flex items-center justify-between ${blurClass}`}>
                 <span>Assets: {formatCurrency(assets, currencySymbol, numberGrouping)}</span>
                 <span>Liabilities: {formatCurrency(liabilities, currencySymbol, numberGrouping)}</span>
               </div>
             </div>
 
             {/* This Month's Income & Inflow */}
-            <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
-              <span className="text-[13px] font-medium text-[#6B645A]">October Cash Flow</span>
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5 flex flex-col justify-between">
+              <span className="text-[13px] font-medium text-[#64748B]">October Cash Flow</span>
               <div className={`my-2 space-y-1 ${blurClass}`}>
                 <div className="flex items-center justify-between text-[13px] tabular-nums">
-                  <span className="text-[#6B645A]">Income Received</span>
-                  <span className="font-serif text-[18px] text-[#3F6B4F]">
+                  <span className="text-[#64748B]">Income Received</span>
+                  <span className="font-serif text-[18px] text-[#059669]">
                     +{formatCurrency(cashFlow.income, currencySymbol, numberGrouping)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[13px] tabular-nums">
-                  <span className="text-[#6B645A]">Expenses Incurred</span>
-                  <span className="font-serif text-[18px] text-[#1F1B16]">
+                  <span className="text-[#64748B]">Expenses Incurred</span>
+                  <span className="font-serif text-[18px] text-[#0F172A]">
                     -{formatCurrency(cashFlow.expenses, currencySymbol, numberGrouping)}
                   </span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#1F1B16] flex items-center justify-between font-medium">
+              <div className="pt-2 border-t border-[#E2E8F0] text-[12px] text-[#0F172A] flex items-center justify-between font-medium">
                 <span>Net Savings</span>
-                <span className={`tabular-nums ${cashFlow.net >= 0 ? 'text-[#3F6B4F]' : 'text-[#9C3D2A]'} ${blurClass}`}>
+                <span className={`tabular-nums ${cashFlow.net >= 0 ? 'text-[#059669]' : 'text-[#E11D48]'} ${blurClass}`}>
                   {cashFlow.net >= 0 ? '+' : ''}
                   {formatCurrency(cashFlow.net, currencySymbol, numberGrouping)}
                 </span>
@@ -437,25 +437,25 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
             </div>
 
             {/* Total Balance & Allocations */}
-            <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 flex flex-col justify-between">
-              <span className="text-[13px] font-medium text-[#6B645A]">Active Allocations</span>
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5 flex flex-col justify-between">
+              <span className="text-[13px] font-medium text-[#64748B]">Active Allocations</span>
               <div className="my-2 space-y-2">
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[#6B645A]">Active Accounts</span>
-                  <span className="font-serif text-[18px] text-[#1F1B16] tabular-nums">
+                  <span className="text-[#64748B]">Active Accounts</span>
+                  <span className="font-serif text-[18px] text-[#0F172A] tabular-nums">
                     {accounts.filter((a) => !a.archived).length} accounts
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[#6B645A]">Active Goals</span>
-                  <span className="font-serif text-[18px] text-[#1F1B16] tabular-nums">
+                  <span className="text-[#64748B]">Active Goals</span>
+                  <span className="font-serif text-[18px] text-[#0F172A] tabular-nums">
                     {savingsGoals.length} milestones
                   </span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-[#E4DED2] text-[12px] text-[#6B645A] flex items-center justify-between">
+              <div className="pt-2 border-t border-[#E2E8F0] text-[12px] text-[#64748B] flex items-center justify-between">
                 <span>Outstanding Debts (I Owe)</span>
-                <span className={`font-serif text-[#3F6B4F] font-medium tabular-nums ${blurClass}`}>
+                <span className={`font-serif text-[#059669] font-medium tabular-nums ${blurClass}`}>
                   {formatCurrency(
                     debts
                       .filter((d) => d.direction !== 'owed_to_me')
@@ -465,9 +465,9 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   )} (Dues Paid)
                 </span>
               </div>
-              <div className="pt-1.5 text-[12px] text-[#6B645A] flex items-center justify-between">
+              <div className="pt-1.5 text-[12px] text-[#64748B] flex items-center justify-between">
                 <span>Receivables (Owed to Me)</span>
-                <span className={`font-serif text-[#2D4A6B] font-medium tabular-nums ${blurClass}`}>
+                <span className={`font-serif text-[#2563EB] font-medium tabular-nums ${blurClass}`}>
                   {formatCurrency(
                     debts
                       .filter((d) => d.direction === 'owed_to_me')
@@ -481,17 +481,17 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
           </div>
 
           {/* Net Worth Line Chart */}
-          <div className="bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+          <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
               <div>
-                <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">
+                <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">
                   Net Worth Trajectory
                 </h3>
-                <p className="text-[12px] text-[#6B645A] mt-0.5">
+                <p className="text-[12px] text-[#64748B] mt-0.5">
                   Monthly snapshot progression derived on the 1st of each calendar month.
                 </p>
               </div>
-              <span className="text-[11px] tabular-nums text-[#6B645A] px-2 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2]">
+              <span className="text-[11px] tabular-nums text-[#64748B] px-2 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0]">
                 {snapshots.length} monthly snapshots
               </span>
             </div>
@@ -512,19 +512,19 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                       className="flex-1 flex flex-col items-center justify-end h-full group relative"
                     >
                       {/* Hover Tooltip */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-10 bg-[#1F1B16] text-[#FBF9F4] text-[11px] px-2 py-1 rounded-[4px] whitespace-nowrap pointer-events-none tabular-nums shadow-sm">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-10 bg-[#0F172A] text-[#FFFFFF] text-[11px] px-2 py-1 rounded-[4px] whitespace-nowrap pointer-events-none tabular-nums shadow-sm">
                         <div>{s.date}: {formatCurrency(sNetWorth, currencySymbol, numberGrouping)}</div>
-                        <div className="text-[10px] text-[#E4DED2]">Assets: {formatCurrency(s.assets, currencySymbol, numberGrouping)}</div>
+                        <div className="text-[10px] text-[#E2E8F0]">Assets: {formatCurrency(s.assets, currencySymbol, numberGrouping)}</div>
                       </div>
 
                       {/* Bar / Pillar Element */}
                       <div
                         style={{ height: `${heightPercent}%` }}
-                        className="w-full max-w-[48px] bg-[#EFEAE0] border border-[#E4DED2] group-hover:bg-[#1F1B16] group-hover:border-[#1F1B16] transition-colors rounded-[3px]"
+                        className="w-full max-w-[48px] bg-[#F1F5F9] border border-[#E2E8F0] group-hover:bg-[#0F172A] group-hover:border-[#0F172A] transition-colors rounded-[3px]"
                       />
 
                       {/* X-axis label */}
-                      <span className="text-[11px] text-[#6B645A] mt-2 tabular-nums">
+                      <span className="text-[11px] text-[#64748B] mt-2 tabular-nums">
                         {s.date.slice(5, 7)}/{s.date.slice(2, 4)}
                       </span>
                     </div>
@@ -542,7 +542,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       {activeTab === 'accounts' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+            <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
               Financial Accounts & Vaults
             </h3>
             <button
@@ -556,11 +556,11 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
           {/* 1. Asset Accounts */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-1 border-b border-[#E4DED2]">
-              <span className="text-[12px] uppercase tracking-wider font-medium text-[#6B645A]">
+            <div className="flex items-center justify-between pb-1 border-b border-[#E2E8F0]">
+              <span className="text-[12px] uppercase tracking-wider font-medium text-[#64748B]">
                 Assets ({assetAccounts.length})
               </span>
-              <span className="text-[12px] font-serif tabular-nums text-[#1F1B16]">
+              <span className="text-[12px] font-serif tabular-nums text-[#0F172A]">
                 Total: {formatCurrency(assets, currencySymbol, numberGrouping)}
               </span>
             </div>
@@ -574,16 +574,16 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 return (
                   <div
                     key={acc.id}
-                    className="p-4 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex flex-col justify-between hover:border-[#1F1B16] transition-colors"
+                    className="p-4 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex flex-col justify-between hover:border-[#0F172A] transition-colors"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] text-[#6B645A] border border-[#E4DED2] flex items-center gap-1">
+                        <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0] flex items-center gap-1">
                           <Icon className="w-3 h-3" />
                           <span>{ACCOUNT_TYPE_LABELS[acc.type]}</span>
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] tabular-nums text-[#6B645A]">
+                          <span className="text-[11px] tabular-nums text-[#64748B]">
                             {txCount} transactions
                           </span>
                           <button
@@ -595,23 +595,23 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                               }
                             }}
                             title="Delete account"
-                            className="p-1 rounded text-[#6B645A] hover:text-[#9C3D2A] cursor-pointer"
+                            className="p-1 rounded text-[#64748B] hover:text-[#E11D48] cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
 
-                      <h4 className="font-serif text-[17px] font-medium text-[#1F1B16]">
+                      <h4 className="font-serif text-[17px] font-medium text-[#0F172A]">
                         {acc.name}
                       </h4>
                     </div>
 
-                    <div className={`mt-4 pt-3 border-t border-[#E4DED2] flex items-baseline justify-between ${blurClass}`}>
-                      <span className="text-[11px] text-[#6B645A]">
+                    <div className={`mt-4 pt-3 border-t border-[#E2E8F0] flex items-baseline justify-between ${blurClass}`}>
+                      <span className="text-[11px] text-[#64748B]">
                         Opening: {formatCurrency(acc.opening_balance, currencySymbol, numberGrouping)}
                       </span>
-                      <div className="font-serif text-[20px] font-medium text-[#1F1B16] tabular-nums">
+                      <div className="font-serif text-[20px] font-medium text-[#0F172A] tabular-nums">
                         {formatCurrency(bal, currencySymbol, numberGrouping)}
                       </div>
                     </div>
@@ -623,12 +623,12 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
           {/* 2. Liability Accounts */}
           {liabilityAccounts.length > 0 && (
-            <div className="space-y-3 pt-4 border-t border-[#E4DED2]">
-              <div className="flex items-center justify-between pb-1 border-b border-[#E4DED2]">
-                <span className="text-[12px] uppercase tracking-wider font-medium text-[#9C3D2A]">
+            <div className="space-y-3 pt-4 border-t border-[#E2E8F0]">
+              <div className="flex items-center justify-between pb-1 border-b border-[#E2E8F0]">
+                <span className="text-[12px] uppercase tracking-wider font-medium text-[#E11D48]">
                   Liabilities & Credit ({liabilityAccounts.length})
                 </span>
-                <span className="text-[12px] font-serif tabular-nums text-[#9C3D2A]">
+                <span className="text-[12px] font-serif tabular-nums text-[#E11D48]">
                   Balance Owed
                 </span>
               </div>
@@ -641,11 +641,11 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   return (
                     <div
                       key={acc.id}
-                      className="p-4 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex flex-col justify-between"
+                      className="p-4 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-[4px] bg-[#F6F2EA] text-[#9C3D2A] border border-[#9C3D2A]/30 flex items-center gap-1">
+                          <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-[4px] bg-[#F8FAFC] text-[#E11D48] border border-[#E11D48]/30 flex items-center gap-1">
                             <Icon className="w-3 h-3" />
                             <span>{ACCOUNT_TYPE_LABELS[acc.type]}</span>
                           </span>
@@ -658,19 +658,19 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                               }
                             }}
                             title="Delete account"
-                            className="p-1 rounded text-[#6B645A] hover:text-[#9C3D2A] cursor-pointer"
+                            className="p-1 rounded text-[#64748B] hover:text-[#E11D48] cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <h4 className="font-serif text-[17px] font-medium text-[#1F1B16]">
+                        <h4 className="font-serif text-[17px] font-medium text-[#0F172A]">
                           {acc.name}
                         </h4>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-[#E4DED2] flex items-baseline justify-between">
-                        <span className="text-[11px] text-[#6B645A]">Outstanding Liability</span>
-                        <div className={`font-serif text-[20px] font-medium text-[#9C3D2A] tabular-nums ${blurClass}`}>
+                      <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-baseline justify-between">
+                        <span className="text-[11px] text-[#64748B]">Outstanding Liability</span>
+                        <div className={`font-serif text-[20px] font-medium text-[#E11D48] tabular-nums ${blurClass}`}>
                           {formatCurrency(bal, currencySymbol, numberGrouping)}
                         </div>
                       </div>
@@ -691,10 +691,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
           {/* Fast Add Form */}
           <form
             onSubmit={handleFastAddTransaction}
-            className="p-4 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] space-y-3"
+            className="p-4 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="font-serif text-[16px] text-[#1F1B16]">Fast Record</span>
+              <span className="font-serif text-[16px] text-[#0F172A]">Fast Record</span>
               <div className="flex items-center gap-1.5">
                 {(['expense', 'income', 'transfer'] as TransactionType[]).map((t) => (
                   <button
@@ -703,8 +703,8 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                     onClick={() => setFastType(t)}
                     className={`px-2.5 py-0.5 rounded-[4px] text-[12px] capitalize transition-colors cursor-pointer ${
                       fastType === t
-                        ? 'bg-[#1F1B16] text-[#FBF9F4]'
-                        : 'bg-[#F6F2EA] text-[#6B645A] border border-[#E4DED2]'
+                        ? 'bg-[#0F172A] text-[#FFFFFF]'
+                        : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
                     }`}
                   >
                     {t}
@@ -818,7 +818,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 />
               </div>
 
-              <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[4px] border border-[#E4DED2]">
+              <div className="inline-flex p-0.5 bg-[#F1F5F9] rounded-[4px] border border-[#E2E8F0]">
                 {(['ALL', 'expense', 'income', 'transfer'] as const).map((t) => (
                   <button
                     key={t}
@@ -826,8 +826,8 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                     onClick={() => setTxTypeFilter(t)}
                     className={`px-2 py-0.5 rounded-[3px] text-[11px] capitalize cursor-pointer ${
                       txTypeFilter === t
-                        ? 'bg-[#FBF9F4] text-[#1F1B16] font-medium'
-                        : 'text-[#6B645A]'
+                        ? 'bg-[#FFFFFF] text-[#0F172A] font-medium'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     {t}
@@ -842,17 +842,17 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 placeholder="Search transactions..."
                 value={txSearch}
                 onChange={(e) => setTxSearch(e.target.value)}
-                className="w-full px-3 py-1 bg-[#FBF9F4] border border-[#E4DED2] rounded-[4px] text-[13px] text-[#1F1B16] focus:outline-none focus:border-[#1F1B16]"
+                className="w-full px-3 py-1 bg-[#FFFFFF] border border-[#E2E8F0] rounded-[4px] text-[13px] text-[#0F172A] focus:outline-none focus:border-[#0F172A]"
               />
             </div>
           </div>
 
           {/* Dense Transactions Table */}
-          <div className="border border-[#E4DED2] rounded-[6px] overflow-hidden bg-[#FBF9F4]">
+          <div className="border border-[#E2E8F0] rounded-[6px] overflow-hidden bg-[#FFFFFF]">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-[13px]">
                 <thead>
-                  <tr className="border-b border-[#E4DED2] bg-[#F6F2EA] text-[#6B645A] font-medium text-[11px] uppercase tracking-wider">
+                  <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B] font-medium text-[11px] uppercase tracking-wider">
                     <th className="py-2.5 px-3">Date</th>
                     <th className="py-2.5 px-3">Type</th>
                     <th className="py-2.5 px-3">Account</th>
@@ -862,10 +862,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4DED2]">
+                <tbody className="divide-y divide-[#E2E8F0]">
                   {filteredTx.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-[#6B645A]">
+                      <td colSpan={7} className="py-8 text-center text-[#64748B]">
                         No transactions recorded matching this filter.
                       </td>
                     </tr>
@@ -876,34 +876,34 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                       const linkedItem = items.find((i) => i.id === tx.item_id);
 
                       return (
-                        <tr key={tx.id} className="hover:bg-[#F6F2EA]/60 transition-colors">
-                          <td className="py-2 px-3 font-mono text-[12px] text-[#6B645A] tabular-nums whitespace-nowrap">
+                        <tr key={tx.id} className="hover:bg-[#F8FAFC]/60 transition-colors">
+                          <td className="py-2 px-3 font-mono text-[12px] text-[#64748B] tabular-nums whitespace-nowrap">
                             {tx.date}
                           </td>
                           <td className="py-2 px-3">
                             <span
                               className={`text-[10px] uppercase font-medium px-1.5 py-0.5 rounded-[3px] border ${
                                 tx.type === 'income'
-                                  ? 'bg-[#3F6B4F]/10 text-[#3F6B4F] border-[#3F6B4F]/30'
+                                  ? 'bg-[#059669]/10 text-[#059669] border-[#059669]/30'
                                   : tx.type === 'transfer'
-                                  ? 'bg-[#2D4A6B]/10 text-[#2D4A6B] border-[#2D4A6B]/30'
-                                  : 'bg-[#EFEAE0] text-[#1F1B16] border-[#E4DED2]'
+                                  ? 'bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/30'
+                                  : 'bg-[#F1F5F9] text-[#0F172A] border-[#E2E8F0]'
                               }`}
                             >
                               {tx.type}
                             </span>
                           </td>
-                          <td className="py-2 px-3 text-[#1F1B16] font-medium whitespace-nowrap">
+                          <td className="py-2 px-3 text-[#0F172A] font-medium whitespace-nowrap">
                             {acc?.name || 'Account'}
                           </td>
-                          <td className="py-2 px-3 text-[#6B645A] whitespace-nowrap">
+                          <td className="py-2 px-3 text-[#64748B] whitespace-nowrap">
                             {cat?.name || '—'}
                           </td>
-                          <td className="py-2 px-3 text-[#1F1B16]">
+                          <td className="py-2 px-3 text-[#0F172A]">
                             <div className="flex items-center gap-2">
                               {linkedItem && (
                                 <div
-                                  className="w-4 h-4 rounded-[3px] border border-[#E4DED2] bg-[#EFEAE0] flex items-center justify-center overflow-hidden shrink-0"
+                                  className="w-4 h-4 rounded-[3px] border border-[#E2E8F0] bg-[#F1F5F9] flex items-center justify-center overflow-hidden shrink-0"
                                   title={`Linked to: ${linkedItem.name}`}
                                 >
                                   {linkedItem.imageUrl ? (
@@ -913,7 +913,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <span className="font-serif text-[9px] font-medium text-[#1F1B16]">
+                                    <span className="font-serif text-[9px] font-medium text-[#0F172A]">
                                       {(linkedItem.name || '?')[0].toUpperCase()}
                                     </span>
                                   )}
@@ -924,7 +924,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                           </td>
                           <td
                             className={`py-2 px-3 text-right font-serif tabular-nums font-medium whitespace-nowrap ${
-                              tx.type === 'income' ? 'text-[#3F6B4F]' : 'text-[#1F1B16]'
+                              tx.type === 'income' ? 'text-[#059669]' : 'text-[#0F172A]'
                             } ${blurClass}`}
                           >
                             {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
@@ -937,7 +937,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                                 sfx.playClick();
                                 onDeleteTransaction(tx.id);
                               }}
-                              className="p-1 text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
+                              className="p-1 text-[#64748B] hover:text-[#E11D48] transition-colors cursor-pointer"
                               title="Delete transaction"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -961,10 +961,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
                 Target Endowments & Savings Goals
               </h3>
-              <p className="text-[12px] text-[#6B645A] mt-0.5">
+              <p className="text-[12px] text-[#64748B] mt-0.5">
                 Progress derived directly from dedicated account balances and earmarked transactions.
               </p>
             </div>
@@ -986,29 +986,29 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               return (
                 <div
                   key={goal.id}
-                  className="p-5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex flex-col justify-between space-y-4 hover:border-[#1F1B16] transition-colors"
+                  className="p-5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex flex-col justify-between space-y-4 hover:border-[#0F172A] transition-colors"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="font-serif text-[18px] font-medium text-[#1F1B16]">
+                      <h4 className="font-serif text-[18px] font-medium text-[#0F172A]">
                         {goal.name}
                       </h4>
-                      <span className="font-serif text-[16px] font-medium text-[#1F1B16] tabular-nums">
+                      <span className="font-serif text-[16px] font-medium text-[#0F172A] tabular-nums">
                         {percent}%
                       </span>
                     </div>
 
                     {goal.target_date && (
-                      <p className="text-[12px] text-[#6B645A] mt-0.5">
+                      <p className="text-[12px] text-[#64748B] mt-0.5">
                         Target Date: {goal.target_date}
                       </p>
                     )}
 
                     {/* Linked Wishlist Item Banner */}
                     {linkedWishlistItem && (
-                      <div className="mt-3 p-2.5 rounded-[4px] bg-[#F6F2EA] border border-[#E4DED2] flex items-center justify-between text-[12px]">
+                      <div className="mt-3 p-2.5 rounded-[4px] bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-[12px]">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-5 h-5 rounded-[3px] border border-[#E4DED2] bg-[#EFEAE0] flex items-center justify-center shrink-0">
+                          <div className="w-5 h-5 rounded-[3px] border border-[#E2E8F0] bg-[#F1F5F9] flex items-center justify-center shrink-0">
                             {linkedWishlistItem.imageUrl ? (
                               <img
                                 src={linkedWishlistItem.imageUrl}
@@ -1016,7 +1016,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <span className="font-serif text-[10px] text-[#1F1B16]">
+                              <span className="font-serif text-[10px] text-[#0F172A]">
                                 {(linkedWishlistItem.name || '?')[0].toUpperCase()}
                               </span>
                             )}
@@ -1024,13 +1024,13 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onNavigateToInventory?.()}
-                            className="truncate text-[#1F1B16] font-medium hover:underline cursor-pointer text-left"
+                            className="truncate text-[#0F172A] font-medium hover:underline cursor-pointer text-left"
                             title="View in Inventory"
                           >
                             {linkedWishlistItem.name}
                           </button>
                         </div>
-                        <span className="text-[11px] tabular-nums text-[#6B645A] font-medium shrink-0">
+                        <span className="text-[11px] tabular-nums text-[#64748B] font-medium shrink-0">
                           Price:{' '}
                           {formatCurrency(
                             linkedWishlistItem.targetPrice || linkedWishlistItem.goldValue,
@@ -1044,23 +1044,23 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
                   {/* Progress Bar & Amounts */}
                   <div className="space-y-2">
-                    <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#1F1B16] transition-all"
+                        className="h-full bg-[#0F172A] transition-all"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
                     <div className={`flex items-baseline justify-between text-[13px] tabular-nums ${blurClass}`}>
-                      <span className="font-serif text-[16px] text-[#1F1B16] font-medium">
+                      <span className="font-serif text-[16px] text-[#0F172A] font-medium">
                         {formatCurrency(current, currencySymbol, numberGrouping)}
                       </span>
-                      <span className="text-[12px] text-[#6B645A]">
+                      <span className="text-[12px] text-[#64748B]">
                         Target: {formatCurrency(target, currencySymbol, numberGrouping)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#E4DED2] flex items-center justify-between text-[11px] text-[#6B645A]">
+                  <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] text-[#64748B]">
                     <span>
                       {acc ? `Linked Account: ${acc.name}` : 'Calculated via tagged transactions'}
                     </span>
@@ -1070,7 +1070,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                         sfx.playClick();
                         onDeleteSavingsGoal(goal.id);
                       }}
-                      className="text-[#6B645A] hover:text-[#9C3D2A] cursor-pointer"
+                      className="text-[#64748B] hover:text-[#E11D48] cursor-pointer"
                     >
                       Delete
                     </button>
@@ -1089,10 +1089,10 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
                 Outstanding Obligations & Debts
               </h3>
-              <p className="text-[12px] text-[#6B645A] mt-0.5">
+              <p className="text-[12px] text-[#64748B] mt-0.5">
                 Balances reduce automatically whenever a payment transaction linked to the debt is recorded.
               </p>
             </div>
@@ -1114,35 +1114,35 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               return (
                 <div
                   key={debt.id}
-                  className="p-5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex flex-col justify-between space-y-4 hover:border-[#1F1B16] transition-colors"
+                  className="p-5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex flex-col justify-between space-y-4 hover:border-[#0F172A] transition-colors"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-serif text-[18px] font-medium text-[#1F1B16]">
+                          <h4 className="font-serif text-[18px] font-medium text-[#0F172A]">
                             {debt.name}
                           </h4>
                           {isReceivable && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#2D4A6B]/10 text-[#2D4A6B] border border-[#2D4A6B]/20">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20">
                               Receivable (Owed to Me)
                             </span>
                           )}
                           {isSettled && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#3F6B4F]/10 text-[#3F6B4F] border border-[#3F6B4F]/20">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#059669]/10 text-[#059669] border border-[#059669]/20">
                               Settled / Paid in Full
                             </span>
                           )}
                         </div>
-                        <span className="text-[12px] text-[#6B645A] block mt-0.5">
+                        <span className="text-[12px] text-[#64748B] block mt-0.5">
                           {isReceivable ? `Debtor: ${debt.lender}` : `Lender / Dues: ${debt.lender}`}{' '}
                           {debt.interest_rate ? `• ${debt.interest_rate}% APR` : ''}
                         </span>
                         {debt.notes && (
-                          <p className="text-[11px] text-[#6B645A] italic mt-1">{debt.notes}</p>
+                          <p className="text-[11px] text-[#64748B] italic mt-1">{debt.notes}</p>
                         )}
                       </div>
-                      <span className="font-serif text-[16px] font-medium text-[#3F6B4F] tabular-nums">
+                      <span className="font-serif text-[16px] font-medium text-[#059669] tabular-nums">
                         {isSettled ? '100% Cleared' : `${percent}% Paid`}
                       </span>
                     </div>
@@ -1150,42 +1150,42 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
                   {/* Progress Bar & Balances */}
                   <div className="space-y-2">
-                    <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#3F6B4F] transition-all"
+                        className="h-full bg-[#059669] transition-all"
                         style={{ width: `${isSettled ? 100 : percent}%` }}
                       />
                     </div>
                     <div className={`flex items-baseline justify-between text-[13px] tabular-nums ${blurClass}`}>
                       <div>
-                        <span className="text-[11px] text-[#6B645A] block">
+                        <span className="text-[11px] text-[#64748B] block">
                           {isReceivable ? 'Due to You' : 'Remaining Owed'}
                         </span>
                         <span
                           className={`font-serif text-[20px] font-medium ${
                             isSettled
-                              ? 'text-[#3F6B4F]'
+                              ? 'text-[#059669]'
                               : isReceivable
-                              ? 'text-[#2D4A6B]'
-                              : 'text-[#9C3D2A]'
+                              ? 'text-[#2563EB]'
+                              : 'text-[#E11D48]'
                           }`}
                         >
                           {formatCurrency(remaining, currencySymbol, numberGrouping)}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-[11px] text-[#6B645A] block">
+                        <span className="text-[11px] text-[#64748B] block">
                           {isReceivable ? 'Recovered' : 'Paid'}: {formatCurrency(paid, currencySymbol, numberGrouping)}
                         </span>
-                        <span className="text-[13px] text-[#1F1B16]">
+                        <span className="text-[13px] text-[#0F172A]">
                           of {formatCurrency(debt.principal, currencySymbol, numberGrouping)}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-between">
-                    <div className="text-[12px] text-[#6B645A]">
+                  <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+                    <div className="text-[12px] text-[#64748B]">
                       {debt.minimum_payment && (
                         <span>
                           Min Installment: {formatCurrency(debt.minimum_payment, currencySymbol, numberGrouping)}
@@ -1213,7 +1213,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                           sfx.playClick();
                           onDeleteDebt(debt.id);
                         }}
-                        className="p-1 text-[#6B645A] hover:text-[#9C3D2A]"
+                        className="p-1 text-[#64748B] hover:text-[#E11D48]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -1232,18 +1232,18 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       {isAddAccountOpen && (
         <div
           onClick={() => setIsAddAccountOpen(false)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default space-y-4"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-              <h3 className="font-serif text-[18px] text-[#1F1B16]">Add Financial Account</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-serif text-[18px] text-[#0F172A]">Add Financial Account</h3>
               <button
                 type="button"
                 onClick={() => setIsAddAccountOpen(false)}
-                className="p-1 text-[#6B645A] hover:text-[#1F1B16]"
+                className="p-1 text-[#64748B] hover:text-[#0F172A]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1251,7 +1251,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
             <form onSubmit={handleCreateAccount} className="space-y-3">
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Account Name
                 </label>
                 <input
@@ -1265,7 +1265,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">Type</label>
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">Type</label>
                 <CustomSelect
                   value={newAccType}
                   options={(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((t) => ({
@@ -1278,7 +1278,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Opening Balance
                 </label>
                 <input
@@ -1291,7 +1291,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddAccountOpen(false)}
@@ -1314,18 +1314,18 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       {isAddGoalOpen && (
         <div
           onClick={() => setIsAddGoalOpen(false)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default space-y-4"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-              <h3 className="font-serif text-[18px] text-[#1F1B16]">Add Savings Goal</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-serif text-[18px] text-[#0F172A]">Add Savings Goal</h3>
               <button
                 type="button"
                 onClick={() => setIsAddGoalOpen(false)}
-                className="p-1 text-[#6B645A] hover:text-[#1F1B16]"
+                className="p-1 text-[#64748B] hover:text-[#0F172A]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1333,7 +1333,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
             <form onSubmit={handleCreateGoal} className="space-y-3">
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">Goal Name</label>
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">Goal Name</label>
                 <input
                   type="text"
                   required
@@ -1345,7 +1345,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Target Amount
                 </label>
                 <input
@@ -1360,7 +1360,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Target Date (Optional)
                 </label>
                 <input
@@ -1372,7 +1372,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Dedicated Account (Optional)
                 </label>
                 <CustomSelect
@@ -1387,7 +1387,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Link to Wishlist Item (Optional)
                 </label>
                 <CustomSelect
@@ -1413,7 +1413,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddGoalOpen(false)}
@@ -1436,18 +1436,18 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       {isAddDebtOpen && (
         <div
           onClick={() => setIsAddDebtOpen(false)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default space-y-4"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-              <h3 className="font-serif text-[18px] text-[#1F1B16]">Add Debt Obligation</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-serif text-[18px] text-[#0F172A]">Add Debt Obligation</h3>
               <button
                 type="button"
                 onClick={() => setIsAddDebtOpen(false)}
-                className="p-1 text-[#6B645A] hover:text-[#1F1B16]"
+                className="p-1 text-[#64748B] hover:text-[#0F172A]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1455,7 +1455,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
             <form onSubmit={handleCreateDebt} className="space-y-3">
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Obligation Name
                 </label>
                 <input
@@ -1469,7 +1469,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Lender / Entity
                 </label>
                 <input
@@ -1484,7 +1484,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                  <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                     Principal Amount
                   </label>
                   <input
@@ -1498,7 +1498,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                  <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                     Interest Rate % (Opt)
                   </label>
                   <input
@@ -1514,7 +1514,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                  <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                     Min Payment (Opt)
                   </label>
                   <input
@@ -1527,7 +1527,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                  <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                     Due Day of Month (Opt)
                   </label>
                   <input
@@ -1542,7 +1542,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddDebtOpen(false)}
@@ -1565,25 +1565,25 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
       {activePayDebt && (
         <div
           onClick={() => setActivePayDebt(null)}
-          className="fixed inset-0 z-50 bg-[#1F1B16]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-[#0F172A]/30 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default space-y-4"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
               <div>
-                <h3 className="font-serif text-[18px] text-[#1F1B16]">
+                <h3 className="font-serif text-[18px] text-[#0F172A]">
                   Record Debt Payment
                 </h3>
-                <span className="text-[12px] text-[#6B645A]">
+                <span className="text-[12px] text-[#64748B]">
                   {activePayDebt.name} • {activePayDebt.lender}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setActivePayDebt(null)}
-                className="p-1 text-[#6B645A] hover:text-[#1F1B16]"
+                className="p-1 text-[#64748B] hover:text-[#0F172A]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1591,7 +1591,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
 
             <form onSubmit={handleLogDebtPayment} className="space-y-3">
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Payment Amount
                 </label>
                 <input
@@ -1606,7 +1606,7 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#1F1B16] mb-1">
+                <label className="block text-[12px] font-medium text-[#0F172A] mb-1">
                   Pay From Account
                 </label>
                 <CustomSelect
@@ -1617,11 +1617,11 @@ export const MoneyView: React.FC<MoneyViewProps> = ({
                 />
               </div>
 
-              <p className="text-[11px] text-[#6B645A] leading-relaxed">
+              <p className="text-[11px] text-[#64748B] leading-relaxed">
                 This writes a verified expense transaction linked directly to this debt obligation and automatically reduces its outstanding principal.
               </p>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setActivePayDebt(null)}

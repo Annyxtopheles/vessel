@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+﻿import React, { useState, useRef, useMemo } from 'react';
 import type {
   BodyMeasurement,
   CharacterAppearance,
@@ -129,7 +129,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Form states - Palette Color
-  const [colorHex, setColorHex] = useState('#1F1B16');
+  const [colorHex, setColorHex] = useState('#0F172A');
   const [colorLabel, setColorLabel] = useState('');
   const [colorVerdict, setColorVerdict] = useState<PaletteVerdict>('suits');
   const [colorNote, setColorNote] = useState('');
@@ -287,7 +287,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   // Sparkline generator
   const renderSparkline = (dataPoints: number[]) => {
     if (dataPoints.length < 2) {
-      return <div className="w-10 h-3 bg-[#E4DED2] rounded-[2px]" />;
+      return <div className="w-10 h-3 bg-[#E2E8F0] rounded-[2px]" />;
     }
     const min = Math.min(...dataPoints);
     const max = Math.max(...dataPoints);
@@ -310,13 +310,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
       <svg className="w-11 h-4 overflow-visible" viewBox={`0 0 ${width} ${height}`}>
         <polyline
           fill="none"
-          stroke="#1F1B16"
+          stroke="#0F172A"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           points={points}
         />
-        <circle cx={width - 2} cy={lastY} r="2" fill="#1F1B16" />
+        <circle cx={width - 2} cy={lastY} r="2" fill="#0F172A" />
       </svg>
     );
   };
@@ -326,12 +326,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     if (latest === null || prev === null) return null;
     const diff = latest - prev;
     if (Math.abs(diff) < 0.01) {
-      return <span className="text-[11px] text-[#6B645A]">No change</span>;
+      return <span className="text-[11px] text-[#64748B]">No change</span>;
     }
     const sign = diff > 0 ? '+' : '';
     return (
-      <span className="text-[11px] tabular-nums text-[#6B645A] font-medium flex items-center gap-1">
-        {diff > 0 ? <TrendingUp className="w-3 h-3 text-[#6B645A]" /> : <TrendingDown className="w-3 h-3 text-[#6B645A]" />}
+      <span className="text-[11px] tabular-nums text-[#64748B] font-medium flex items-center gap-1">
+        {diff > 0 ? <TrendingUp className="w-3 h-3 text-[#64748B]" /> : <TrendingDown className="w-3 h-3 text-[#64748B]" />}
         <span>
           {sign}
           {diff.toFixed(1)} {unit}
@@ -348,15 +348,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     const diff = current - first;
     const unit = chartPointsWithMA[0].unit;
 
-    let colorClass = 'text-[#6B645A]';
+    let colorClass = 'text-[#64748B]';
     if (activeChartType === 'weight' && settings.targetWeightKg !== undefined) {
       const target = settings.targetWeightKg;
       const initialDist = Math.abs(first - target);
       const currentDist = Math.abs(current - target);
       if (currentDist < initialDist) {
-        colorClass = 'text-[#3F6B4F]';
+        colorClass = 'text-[#059669]';
       } else if (currentDist > initialDist) {
-        colorClass = 'text-[#9C3D2A]';
+        colorClass = 'text-[#E11D48]';
       }
     }
 
@@ -497,8 +497,8 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
       {/* 1. MEASUREMENTS & DYNAMIC CHART */}
       <section className="space-y-6">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DED2]">
-          <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Measurements</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
+          <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Measurements</h3>
 
           <button
             type="button"
@@ -522,12 +522,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             }}
             className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
               activeChartType === 'weight'
-                ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                ? 'bg-[#FFFFFF] border-[#0F172A]'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider">Weight</span>
+              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Weight</span>
               {renderSparkline(weightEntries.map((e) => e.value))}
             </div>
             <div className="mt-2">
@@ -545,12 +545,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   latestWeight ? formatMeasurementValue(latestWeight.value, latestWeight.unit).unit : ''
                 )}
                 {settings.targetWeightKg && (
-                  <span className="text-[11px] text-[#6B645A] tabular-nums">
+                  <span className="text-[11px] text-[#64748B] tabular-nums">
                     Target: {settings.targetWeightKg}kg
                   </span>
                 )}
               </div>
-              <div className="text-[10px] text-[#6B645A]/80 mt-1 tabular-nums">
+              <div className="text-[10px] text-[#64748B]/80 mt-1 tabular-nums">
                 Current: {latestWeight ? latestWeight.value : 96}kg · Target: {settings.targetWeightKg ?? 85}kg · Peak: 106kg
               </div>
             </div>
@@ -564,12 +564,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             }}
             className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
               activeChartType === 'height'
-                ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                ? 'bg-[#FFFFFF] border-[#0F172A]'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider">Height</span>
+              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Height</span>
               {renderSparkline(heightEntries.map((e) => e.value))}
             </div>
             <div className="mt-2">
@@ -598,12 +598,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             }}
             className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
               activeChartType === 'waist'
-                ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                ? 'bg-[#FFFFFF] border-[#0F172A]'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider">Waist</span>
+              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Waist</span>
               {renderSparkline(waistEntries.map((e) => e.value))}
             </div>
             <div className="mt-2">
@@ -632,12 +632,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             }}
             className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
               activeChartType === 'chest'
-                ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                ? 'bg-[#FFFFFF] border-[#0F172A]'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider">Chest</span>
+              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Chest</span>
               {renderSparkline(chestEntries.map((e) => e.value))}
             </div>
             <div className="mt-2">
@@ -666,12 +666,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             }}
             className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between col-span-2 md:col-span-1 ${
               activeChartType === 'ratio'
-                ? 'bg-[#FBF9F4] border-[#1F1B16]'
-                : 'bg-[#FBF9F4] border-[#E4DED2] hover:border-[#1F1B16]'
+                ? 'bg-[#FFFFFF] border-[#0F172A]'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider">Waist / Chest</span>
+              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Waist / Chest</span>
               {renderSparkline(ratioEntries.map((e) => e.value))}
             </div>
             <div className="mt-2">
@@ -684,11 +684,11 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
               <div className="mt-1">
                 {latestRatio && prevRatio ? (
-                  <span className="text-[11px] tabular-nums text-[#6B645A] font-medium flex items-center gap-1">
+                  <span className="text-[11px] tabular-nums text-[#64748B] font-medium flex items-center gap-1">
                     {latestRatio.value > prevRatio.value ? (
-                      <TrendingUp className="w-3 h-3 text-[#6B645A]" />
+                      <TrendingUp className="w-3 h-3 text-[#64748B]" />
                     ) : latestRatio.value < prevRatio.value ? (
-                      <TrendingDown className="w-3 h-3 text-[#6B645A]" />
+                      <TrendingDown className="w-3 h-3 text-[#64748B]" />
                     ) : null}
                     <span>
                       {latestRatio.value >= prevRatio.value ? '+' : ''}
@@ -696,7 +696,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                     </span>
                   </span>
                 ) : (
-                  <span className="text-[11px] text-[#6B645A]">Computed</span>
+                  <span className="text-[11px] text-[#64748B]">Computed</span>
                 )}
               </div>
             </div>
@@ -706,20 +706,20 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         {/* Dynamic Chart Container */}
         <div className="space-y-4 pt-2">
           {/* Chart Header Bar: Title, Legend, Delta & Range Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E4DED2]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E2E8F0]">
             <div className="flex items-center gap-3">
-              <span className="font-serif text-[16px] text-[#1F1B16]">
+              <span className="font-serif text-[16px] text-[#0F172A]">
                 {activeMetricTitle}
               </span>
 
               {/* Legend */}
-              <div className="flex items-center gap-3 text-[11px] text-[#6B645A]">
+              <div className="flex items-center gap-3 text-[11px] text-[#64748B]">
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#1F1B16]" />
+                  <span className="w-2 h-2 rounded-full bg-[#0F172A]" />
                   <span>Raw</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-0.5 border-t border-dashed border-[#2D4A6B]" />
+                  <span className="w-3 h-0.5 border-t border-dashed border-[#2563EB]" />
                   <span>7d Moving Avg</span>
                 </span>
               </div>
@@ -733,7 +733,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             </div>
 
             {/* Range Toggle: 30d / 90d / 1y / All */}
-            <div className="inline-flex p-0.5 bg-[#EFEAE0] rounded-[6px] border border-[#E4DED2] self-start sm:self-auto">
+            <div className="inline-flex p-0.5 bg-[#F1F5F9] rounded-[6px] border border-[#E2E8F0] self-start sm:self-auto">
               {(['30d', '90d', '1y', 'all'] as ChartRange[]).map((r) => (
                 <button
                   key={r}
@@ -744,8 +744,8 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   }}
                   className={`px-2.5 py-0.5 rounded-[4px] text-[11px] font-medium transition-colors cursor-pointer ${
                     chartRange === r
-                      ? 'bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2]'
-                      : 'text-[#6B645A] hover:text-[#1F1B16]'
+                      ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                      : 'text-[#64748B] hover:text-[#0F172A]'
                   }`}
                 >
                   {r.toUpperCase()}
@@ -756,7 +756,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
           {/* SVG Canvas & Tooltip */}
           {chartPointsWithMA.length === 0 ? (
-            <div className="h-44 flex items-center justify-center text-xs text-[#6B645A]">
+            <div className="h-44 flex items-center justify-center text-xs text-[#64748B]">
               No entries logged for {activeMetricTitle.toLowerCase()}. Click "Add Measurement" to record.
             </div>
           ) : (
@@ -821,7 +821,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                               y1={gl.y}
                               x2={rightPad}
                               y2={gl.y}
-                              stroke="#E4DED2"
+                              stroke="#E2E8F0"
                               strokeWidth="1"
                               strokeDasharray="2 2"
                             />
@@ -830,7 +830,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                               y={gl.y + 3.5}
                               textAnchor="end"
                               fontSize="10"
-                              fill="#6B645A"
+                              fill="#64748B"
                               fontFamily="sans-serif"
                             >
                               {gl.val.toFixed(1)}
@@ -841,7 +841,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                         <path
                           d={maPathStr}
                           fill="none"
-                          stroke="#2D4A6B"
+                          stroke="#2563EB"
                           strokeWidth="1.5"
                           strokeDasharray="3 3"
                           strokeLinecap="round"
@@ -850,7 +850,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                         <path
                           d={rawPathStr}
                           fill="none"
-                          stroke="#1F1B16"
+                          stroke="#0F172A"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -862,8 +862,8 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                               cx={p.x}
                               cy={p.yRaw}
                               r="3.5"
-                              fill="#FBF9F4"
-                              stroke="#1F1B16"
+                              fill="#FFFFFF"
+                              stroke="#0F172A"
                               strokeWidth="1.5"
                             />
                             <circle
@@ -903,25 +903,25 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                       left: `${hoveredPoint.x}px`,
                       top: `${Math.max(10, hoveredPoint.y - 70)}px`,
                     }}
-                    className="absolute -translate-x-1/2 pointer-events-none z-30 bg-[#FBF9F4] text-[#1F1B16] border border-[#E4DED2] p-2.5 rounded-[6px] text-xs space-y-1 min-w-[140px]"
+                    className="absolute -translate-x-1/2 pointer-events-none z-30 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] p-2.5 rounded-[6px] text-xs space-y-1 min-w-[140px]"
                   >
-                    <div className="font-medium text-[#1F1B16] border-b border-[#E4DED2] pb-1 tabular-nums">
+                    <div className="font-medium text-[#0F172A] border-b border-[#E2E8F0] pb-1 tabular-nums">
                       {hoveredPoint.date}
                     </div>
                     <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
-                      <span className="text-[#6B645A]">Raw:</span>
+                      <span className="text-[#64748B]">Raw:</span>
                       <span className="font-medium">
                         {hoveredPoint.rawVal.toFixed(1)} {hoveredPoint.unit}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
-                      <span className="text-[#2D4A6B]">7d Avg:</span>
+                      <span className="text-[#2563EB]">7d Avg:</span>
                       <span className="font-medium">
                         {hoveredPoint.movingAvg.toFixed(1)} {hoveredPoint.unit}
                       </span>
                     </div>
                     {hoveredPoint.note && (
-                      <div className="text-[10px] text-[#6B645A] italic pt-0.5 border-t border-[#E4DED2]">
+                      <div className="text-[10px] text-[#64748B] italic pt-0.5 border-t border-[#E2E8F0]">
                         "{hoveredPoint.note}"
                       </div>
                     )}
@@ -929,7 +929,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 )}
               </div>
 
-              <div className="flex items-center justify-between text-[11px] tabular-nums text-[#6B645A] mt-2 px-12">
+              <div className="flex items-center justify-between text-[11px] tabular-nums text-[#64748B] mt-2 px-12">
                 <span>{chartPointsWithMA[0].date}</span>
                 {chartPointsWithMA.length > 2 && (
                   <span>{chartPointsWithMA[Math.floor(chartPointsWithMA.length / 2)].date}</span>
@@ -940,31 +940,31 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
           )}
 
           {/* Recent Entries List */}
-          <div className="mt-4 pt-4 border-t border-[#E4DED2] space-y-2">
+          <div className="mt-4 pt-4 border-t border-[#E2E8F0] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-medium text-[#1F1B16] uppercase tracking-wider">
+              <span className="text-[12px] font-medium text-[#0F172A] uppercase tracking-wider">
                 Recent Entries ({activeDataset.length})
               </span>
-              <span className="text-[11px] text-[#6B645A]">Latest records</span>
+              <span className="text-[11px] text-[#64748B]">Latest records</span>
             </div>
 
             <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
               {activeDataset.slice(-6).reverse().map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex items-center justify-between text-[13px] py-1.5 px-3 rounded-[4px] bg-[#FBF9F4] border border-[#E4DED2] hover:border-[#1F1B16] transition-colors"
+                  className="flex items-center justify-between text-[13px] py-1.5 px-3 rounded-[4px] bg-[#FFFFFF] border border-[#E2E8F0] hover:border-[#0F172A] transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="font-medium tabular-nums text-[#1F1B16]">
+                    <span className="font-medium tabular-nums text-[#0F172A]">
                       {entry.value} {entry.unit}
                     </span>
                     {entry.note && (
-                      <span className="text-[#6B645A] text-[11px] truncate max-w-[200px] sm:max-w-xs">
+                      <span className="text-[#64748B] text-[11px] truncate max-w-[200px] sm:max-w-xs">
                         ({entry.note})
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2.5 text-[#6B645A] text-[11px] tabular-nums">
+                  <div className="flex items-center gap-2.5 text-[#64748B] text-[11px] tabular-nums">
                     <span>{entry.date}</span>
                     {activeChartType !== 'ratio' && (
                       <button
@@ -973,7 +973,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                           sfx.playClick();
                           onDeleteMeasurement(entry.id);
                         }}
-                        className="hover:text-[#9C3D2A] transition-colors p-0.5 cursor-pointer"
+                        className="hover:text-[#E11D48] transition-colors p-0.5 cursor-pointer"
                         title="Delete entry"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -988,18 +988,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
       </section>
 
       {/* 2. APPEARANCE & 3. COLOR PALETTE */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-6 border-t border-[#E4DED2]">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-6 border-t border-[#E2E8F0]">
         {/* Appearance Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Appearance</h3>
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Appearance</h3>
             <button
               type="button"
               onClick={() => {
                 sfx.playClick();
                 setIsEditAppearanceOpen(true);
               }}
-              className="p-1 rounded-[4px] text-[#6B645A] hover:text-[#1F1B16] hover:bg-[#EFEAE0] transition-colors cursor-pointer"
+              className="p-1 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
               title="Edit Appearance"
             >
               <Edit2 className="w-3.5 h-3.5" />
@@ -1009,7 +1009,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
           <div className="space-y-4">
             {/* Avatar Photo Preview */}
             <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-[6px] bg-[#EFEAE0] border border-[#E4DED2] text-[#1F1B16] font-serif flex items-center justify-center text-xl font-normal overflow-hidden flex-shrink-0">
+              <div className="w-14 h-14 rounded-[6px] bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A] font-serif flex items-center justify-center text-xl font-normal overflow-hidden flex-shrink-0">
                 {appearance.photoUrl ? (
                   <img
                     src={appearance.photoUrl}
@@ -1021,18 +1021,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 )}
               </div>
               <div>
-                <div className="text-[13px] font-medium text-[#1F1B16]">Portrait Profile</div>
-                <div className="text-[11px] text-[#6B645A]">Visual reference</div>
+                <div className="text-[13px] font-medium text-[#0F172A]">Portrait Profile</div>
+                <div className="text-[11px] text-[#64748B]">Visual reference</div>
               </div>
             </div>
 
             {/* Skin tone swatch */}
-            <div className="p-3 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2] flex items-center justify-between">
+            <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-medium text-[#6B645A] uppercase tracking-wider block">
+                <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider block">
                   Skin Tone
                 </span>
-                <span className="text-[13px] font-normal text-[#1F1B16]">
+                <span className="text-[13px] font-normal text-[#0F172A]">
                   {appearance.skinToneNote || 'Olive Undertone'}
                 </span>
               </div>
@@ -1044,18 +1044,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
             {/* Hair & Eyes */}
             <div className="grid grid-cols-2 gap-3 text-[13px]">
-              <div className="p-3 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2]">
-                <span className="text-[10px] font-medium text-[#6B645A] uppercase tracking-wider block mb-0.5">
+              <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0]">
+                <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider block mb-0.5">
                   Hair
                 </span>
-                <span className="font-normal text-[#1F1B16] block truncate">{appearance.hair}</span>
+                <span className="font-normal text-[#0F172A] block truncate">{appearance.hair}</span>
               </div>
 
-              <div className="p-3 rounded-[6px] bg-[#FBF9F4] border border-[#E4DED2]">
-                <span className="text-[10px] font-medium text-[#6B645A] uppercase tracking-wider block mb-0.5">
+              <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0]">
+                <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider block mb-0.5">
                   Eye Color
                 </span>
-                <span className="font-normal text-[#1F1B16] block truncate">{appearance.eyeColor}</span>
+                <span className="font-normal text-[#0F172A] block truncate">{appearance.eyeColor}</span>
               </div>
             </div>
           </div>
@@ -1063,22 +1063,22 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
         {/* Color Palette (lg:col-span-2) */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Color Palette</h3>
-            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Color Palette</h3>
+            <span className="text-[11px] text-[#64748B] uppercase tracking-wider font-medium">
               Wardrobe Alignment
             </span>
           </div>
 
           {/* Verdict Groups Navigation Summary at Top of Section */}
           <div className="flex flex-wrap items-center gap-2 pb-1">
-            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#3F6B4F] bg-[#F6F2EA] border border-[#3F6B4F]/30">
+            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#059669] bg-[#F8FAFC] border border-[#059669]/30">
               Suits You ({activePalette.filter((p) => p.verdict === 'suits').length})
             </span>
-            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#6B645A] bg-[#F6F2EA] border border-[#E4DED2]">
+            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#64748B] bg-[#F8FAFC] border border-[#E2E8F0]">
               Neutral ({activePalette.filter((p) => p.verdict === 'neutral').length})
             </span>
-            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#9C3D2A] bg-[#F6F2EA] border border-[#9C3D2A]/30">
+            <span className="px-2 py-0.5 rounded-[4px] text-xs font-medium text-[#E11D48] bg-[#F8FAFC] border border-[#E11D48]/30">
               Avoid ({activePalette.filter((p) => p.verdict === 'avoid').length})
             </span>
           </div>
@@ -1090,18 +1090,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               if (swatches.length === 0) return null;
 
               const verdictBadge = {
-                suits: { label: 'Suits You', color: 'text-[#3F6B4F] border-[#3F6B4F]/30' },
-                neutral: { label: 'Neutral', color: 'text-[#6B645A] border-[#E4DED2]' },
-                avoid: { label: 'Avoid', color: 'text-[#9C3D2A] border-[#9C3D2A]/30' },
+                suits: { label: 'Suits You', color: 'text-[#059669] border-[#059669]/30' },
+                neutral: { label: 'Neutral', color: 'text-[#64748B] border-[#E2E8F0]' },
+                avoid: { label: 'Avoid', color: 'text-[#E11D48] border-[#E11D48]/30' },
               }[verdict];
 
               return (
                 <div key={verdict} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border bg-[#FBF9F4] ${verdictBadge.color}`}>
+                    <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border bg-[#FFFFFF] ${verdictBadge.color}`}>
                       {verdictBadge.label}
                     </span>
-                    <span className="text-[11px] tabular-nums text-[#6B645A]">({swatches.length})</span>
+                    <span className="text-[11px] tabular-nums text-[#64748B]">({swatches.length})</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
@@ -1111,7 +1111,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="p-2.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex flex-col justify-between gap-1.5 group hover:border-[#1F1B16] transition-colors"
+                          className="p-2.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex flex-col justify-between gap-1.5 group hover:border-[#0F172A] transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
@@ -1121,10 +1121,10 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                                 title={item.colorHex}
                               />
                               <div className="min-w-0">
-                                <span className="text-[13px] font-medium text-[#1F1B16] block truncate">
+                                <span className="text-[13px] font-medium text-[#0F172A] block truncate">
                                   {item.label}
                                 </span>
-                                <span className="text-[11px] text-[#6B645A] font-mono block">
+                                <span className="text-[11px] text-[#64748B] font-mono block">
                                   {item.colorHex}
                                 </span>
                               </div>
@@ -1132,7 +1132,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                           </div>
 
                           {warning && (
-                            <div className="text-[10px] text-[#9C3D2A] bg-[#F6F2EA] border border-[#9C3D2A]/30 px-1.5 py-0.5 rounded-[3px] flex items-center gap-1 font-medium truncate">
+                            <div className="text-[10px] text-[#E11D48] bg-[#F8FAFC] border border-[#E11D48]/30 px-1.5 py-0.5 rounded-[3px] flex items-center gap-1 font-medium truncate">
                               <AlertTriangle className="w-2.5 h-2.5 shrink-0" />
                               <span className="truncate">{warning}</span>
                             </div>
@@ -1149,12 +1149,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
       </section>
 
       {/* 4. PERSONALITY & 5. TRAITS (Immutable Character Codex) */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start pt-6 border-t border-[#E4DED2]">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start pt-6 border-t border-[#E2E8F0]">
         {/* Personality Profiling */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Personality</h3>
-            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Personality</h3>
+            <span className="text-[11px] text-[#64748B] uppercase tracking-wider font-medium">
               Psychological Typology
             </span>
           </div>
@@ -1163,19 +1163,19 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
             {activePersonality.map((p) => (
               <div
                 key={p.id}
-                className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex items-start justify-between gap-3 text-xs"
+                className="p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex items-start justify-between gap-3 text-xs"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium px-1.5 py-0.5 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] text-[#1F1B16]">
+                    <span className="font-medium px-1.5 py-0.5 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A]">
                       {p.system}
                     </span>
-                    <span className="font-serif text-[15px] font-normal text-[#1F1B16]">{p.result}</span>
-                    <span className="text-[11px] tabular-nums text-[#6B645A]">{p.dateTaken}</span>
+                    <span className="font-serif text-[15px] font-normal text-[#0F172A]">{p.result}</span>
+                    <span className="text-[11px] tabular-nums text-[#64748B]">{p.dateTaken}</span>
                   </div>
-                  {p.notes && <p className="text-[#6B645A] text-[12px] mt-1">{p.notes}</p>}
+                  {p.notes && <p className="text-[#64748B] text-[12px] mt-1">{p.notes}</p>}
                   {p.source && (
-                    <span className="text-[11px] text-[#6B645A] block mt-1 truncate">
+                    <span className="text-[11px] text-[#64748B] block mt-1 truncate">
                       Source: {p.source}
                     </span>
                   )}
@@ -1187,9 +1187,9 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
         {/* Character Traits */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
-            <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Character Traits</h3>
-            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Character Traits</h3>
+            <span className="text-[11px] text-[#64748B] uppercase tracking-wider font-medium">
               Core Axioms
             </span>
           </div>
@@ -1200,22 +1200,22 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               return (
                 <div
                   key={t.id}
-                  className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between gap-3 text-xs"
+                  className="p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[13px] font-medium text-[#1F1B16]">{t.name}</span>
+                      <span className="text-[13px] font-medium text-[#0F172A]">{t.name}</span>
                       <span
                         className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-medium border ${
                           isStrength
-                            ? 'bg-[#F6F2EA] text-[#3F6B4F] border-[#3F6B4F]/30'
-                            : 'bg-[#F6F2EA] text-[#9C3D2A] border-[#9C3D2A]/30'
+                            ? 'bg-[#F8FAFC] text-[#059669] border-[#059669]/30'
+                            : 'bg-[#F8FAFC] text-[#E11D48] border-[#E11D48]/30'
                         }`}
                       >
                         {isStrength ? 'Strength' : 'Working On'}
                       </span>
                     </div>
-                    {t.note && <p className="text-[12px] text-[#6B645A] mt-0.5">{t.note}</p>}
+                    {t.note && <p className="text-[12px] text-[#64748B] mt-0.5">{t.note}</p>}
                   </div>
 
                   <div className="flex items-center gap-3">
@@ -1226,9 +1226,9 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                           className={`w-2 h-2 rounded-full transition-all ${
                             lvl <= t.level
                               ? isStrength
-                                ? 'bg-[#3F6B4F]'
-                                : 'bg-[#9C3D2A]'
-                              : 'bg-[#E4DED2]'
+                                ? 'bg-[#059669]'
+                                : 'bg-[#E11D48]'
+                              : 'bg-[#E2E8F0]'
                           }`}
                         />
                       ))}
@@ -1251,18 +1251,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Add Measurement</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Measurement</h3>
               <button type="button" onClick={() => setIsAddMeasurementOpen(false)}>
-                <X className="w-4 h-4 text-[#6B645A]" />
+                <X className="w-4 h-4 text-[#64748B]" />
               </button>
             </div>
 
             <form onSubmit={handleSaveMeasurement} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Metric Type
                 </label>
                 <CustomSelect
@@ -1279,7 +1279,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
               {mType === 'custom' && (
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Custom Metric Name
                   </label>
                   <input
@@ -1295,7 +1295,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Value
                   </label>
                   <input
@@ -1310,7 +1310,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Unit
                   </label>
                   <input
@@ -1324,7 +1324,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Date
                 </label>
                 <input
@@ -1337,7 +1337,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Note (Optional)
                 </label>
                 <input
@@ -1349,7 +1349,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddMeasurementOpen(false)}
@@ -1377,18 +1377,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Edit Appearance</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Edit Appearance</h3>
               <button type="button" onClick={() => setIsEditAppearanceOpen(false)}>
-                <X className="w-4 h-4 text-[#6B645A]" />
+                <X className="w-4 h-4 text-[#64748B]" />
               </button>
             </div>
 
             <form onSubmit={handleSaveAppearance} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Portrait Photo URL
                 </label>
                 <div className="flex gap-2">
@@ -1417,7 +1417,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Skin Tone Color
                 </label>
                 <div className="flex items-center gap-3">
@@ -1425,7 +1425,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                     type="color"
                     value={appSkinHex}
                     onChange={(e) => setAppSkinHex(e.target.value)}
-                    className="w-8 h-8 rounded-[4px] border border-[#E4DED2] cursor-pointer"
+                    className="w-8 h-8 rounded-[4px] border border-[#E2E8F0] cursor-pointer"
                   />
                   <input
                     type="text"
@@ -1438,7 +1438,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Hair Style & Color
                 </label>
                 <input
@@ -1452,7 +1452,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Eye Color
                 </label>
                 <input
@@ -1465,7 +1465,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsEditAppearanceOpen(false)}
@@ -1493,18 +1493,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Add Color Swatch</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Color Swatch</h3>
               <button type="button" onClick={() => setIsAddColorOpen(false)}>
-                <X className="w-4 h-4 text-[#6B645A]" />
+                <X className="w-4 h-4 text-[#64748B]" />
               </button>
             </div>
 
             <form onSubmit={handleSaveColor} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Color Picker
                 </label>
                 <div className="flex items-center gap-3">
@@ -1512,7 +1512,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                     type="color"
                     value={colorHex}
                     onChange={(e) => setColorHex(e.target.value)}
-                    className="w-9 h-9 rounded-[4px] border border-[#E4DED2] cursor-pointer"
+                    className="w-9 h-9 rounded-[4px] border border-[#E2E8F0] cursor-pointer"
                   />
                   <input
                     type="text"
@@ -1528,7 +1528,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Color Name
                 </label>
                 <input
@@ -1542,7 +1542,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Verdict
                 </label>
                 <CustomSelect
@@ -1553,7 +1553,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Styling Notes (Optional)
                 </label>
                 <input
@@ -1565,7 +1565,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddColorOpen(false)}
@@ -1593,19 +1593,19 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Add Personality Entry</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Personality Entry</h3>
               <button type="button" onClick={() => setIsAddPersonalityOpen(false)}>
-                <X className="w-4 h-4 text-[#6B645A]" />
+                <X className="w-4 h-4 text-[#64748B]" />
               </button>
             </div>
 
             <form onSubmit={handleSavePersonality} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     System
                   </label>
                   <input
@@ -1619,7 +1619,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Result
                   </label>
                   <input
@@ -1635,7 +1635,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Date Taken
                   </label>
                   <input
@@ -1648,7 +1648,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Source
                   </label>
                   <input
@@ -1662,7 +1662,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Notes
                 </label>
                 <textarea
@@ -1674,7 +1674,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddPersonalityOpen(false)}
@@ -1702,18 +1702,18 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FBF9F4] border border-[#E4DED2] rounded-[6px] p-6 cursor-default"
+            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#1F1B16]">Add Character Trait</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
+              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Character Trait</h3>
               <button type="button" onClick={() => setIsAddTraitOpen(false)}>
-                <X className="w-4 h-4 text-[#6B645A]" />
+                <X className="w-4 h-4 text-[#64748B]" />
               </button>
             </div>
 
             <form onSubmit={handleSaveTrait} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Trait Name
                 </label>
                 <input
@@ -1728,7 +1728,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Classification
                   </label>
                   <CustomSelect
@@ -1739,7 +1739,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                     Mastery Level (1 - 5)
                   </label>
                   <CustomSelect
@@ -1751,7 +1751,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B645A] mb-1">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
                   Behavioral Note
                 </label>
                 <textarea
@@ -1763,7 +1763,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#E4DED2] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddTraitOpen(false)}

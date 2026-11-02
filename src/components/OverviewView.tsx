@@ -66,10 +66,10 @@ interface OverviewViewProps {
 }
 
 const PILLAR_BADGES = {
-  STR: 'text-[#9C3D2A] bg-[#F6F2EA] border-[#9C3D2A]/30',
-  INT: 'text-[#2D4A6B] bg-[#F6F2EA] border-[#2D4A6B]/30',
-  WIS: 'text-[#7A5C1E] bg-[#F6F2EA] border-[#7A5C1E]/30',
-  CHA: 'text-[#3F6B4F] bg-[#F6F2EA] border-[#3F6B4F]/30',
+  STR: 'text-[#E11D48] bg-[#F8FAFC] border-[#E11D48]/30',
+  INT: 'text-[#2563EB] bg-[#F8FAFC] border-[#2563EB]/30',
+  WIS: 'text-[#D97706] bg-[#F8FAFC] border-[#D97706]/30',
+  CHA: 'text-[#059669] bg-[#F8FAFC] border-[#059669]/30',
 };
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
@@ -271,12 +271,12 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Editorial Header */}
-      <div className="border-b border-[#E4DED2] pb-5">
-        <h1 className="font-serif text-[32px] font-normal text-[#1F1B16] leading-tight tracking-tight">
+      {/* Header */}
+      <div className="border-b border-[#E2E8F0] pb-5">
+        <h1 className="text-[26px] font-semibold text-[#0F172A] leading-tight tracking-tight">
           {formattedDate}
         </h1>
-        <p className="text-[15px] text-[#6B645A] mt-1 tabular-nums">
+        <p className="text-[14px] text-[#64748B] mt-1 tabular-nums font-medium">
           {completedCount} of {totalCount} done today
         </p>
       </div>
@@ -289,22 +289,22 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         <div className="lg:col-span-8 space-y-10">
           {/* 1. NON-NEGOTIABLES */}
           <section className="space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E4DED2] pb-2">
-              <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Non-negotiables</h2>
+            <div className="flex items-baseline justify-between border-b border-[#E2E8F0] pb-2">
+              <h2 className="text-[17px] font-semibold text-[#0F172A]">Non-negotiables</h2>
               <button
                 type="button"
                 onClick={() => onNavigate('routine')}
-                className="text-[13px] text-[#6B645A] hover:text-[#1F1B16] underline-offset-4 hover:underline cursor-pointer"
+                className="text-[13px] text-[#64748B] hover:text-[#0F172A] underline-offset-4 hover:underline cursor-pointer"
               >
                 View all
               </button>
             </div>
 
-            {/* Pinned Reminders Typographic Block */}
+            {/* Pinned Reminders Block */}
             {pinnedReminders.length > 0 && (
-              <div className="border-l-2 border-[#1F1B16] pl-4 py-1.5 space-y-2 bg-[#FBF9F4] rounded-r-[6px] border-y border-r border-[#E4DED2]">
+              <div className="border-l-2 border-[#0F172A] pl-4 py-1.5 space-y-2 bg-[#FFFFFF] rounded-r-[6px] border-y border-r border-[#E2E8F0]">
                 {pinnedReminders.map((rem) => (
-                  <p key={rem.id} className="font-serif text-[16px] text-[#1F1B16] italic leading-relaxed">
+                  <p key={rem.id} className="text-[14px] text-[#0F172A] font-medium leading-relaxed">
                     "{rem.text}"
                   </p>
                 ))}
@@ -314,16 +314,16 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             {/* Progress & Current Streak bar */}
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-[13px] tabular-nums">
-                <span className="text-[#6B645A]">
+                <span className="text-[#64748B]">
                   {completedCount} of {totalCount} completed
                 </span>
-                <span className="font-medium text-[#1F1B16]">
+                <span className="font-medium text-[#0F172A]">
                   {streak} {streak === 1 ? 'day' : 'days'} streak
                 </span>
               </div>
-              <div className="w-full h-1 bg-[#E4DED2] rounded-full overflow-hidden">
+              <div className="w-full h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#1F1B16] transition-all duration-300"
+                  className="h-full bg-[#0F172A] transition-all duration-300"
                   style={{ width: `${nonNegotiableProgressPct}%` }}
                 />
               </div>
@@ -331,7 +331,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
             {/* Today's Checklist with Inline Check-off */}
             {nonNegotiables.length === 0 ? (
-              <div className="py-8 text-center border border-dashed border-[#E4DED2] rounded-[6px] p-6 text-[14px] text-[#6B645A] space-y-3">
+              <div className="py-8 text-center border border-dashed border-[#E2E8F0] rounded-[6px] p-6 text-[14px] text-[#64748B] space-y-3">
                 <p>No non-negotiables designated yet.</p>
                 <button
                   type="button"
@@ -350,21 +350,21 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                     <div
                       key={item.id}
                       onClick={() => handleToggleNonNegotiable(item)}
-                      className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] flex items-center justify-between gap-3 cursor-pointer hover:border-[#1F1B16] transition-colors"
+                      className="p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] flex items-center justify-between gap-3 cursor-pointer hover:border-[#0F172A] transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className={`w-5 h-5 rounded-[4px] border flex items-center justify-center transition-colors shrink-0 ${
                             isDone
-                              ? 'bg-[#1F1B16] border-[#1F1B16] text-[#FBF9F4]'
-                              : 'bg-[#FBF9F4] border-[#E4DED2] text-transparent'
+                              ? 'bg-[#0F172A] border-[#0F172A] text-[#FFFFFF]'
+                              : 'bg-[#FFFFFF] border-[#E2E8F0] text-transparent'
                           }`}
                         >
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                         </div>
                         <span
                           className={`text-[14px] truncate transition-colors ${
-                            isDone ? 'line-through text-[#6B645A]' : 'text-[#1F1B16] font-medium'
+                            isDone ? 'line-through text-[#64748B]' : 'text-[#0F172A] font-medium'
                           }`}
                         >
                           {item.name}
@@ -387,19 +387,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
           {/* 2. TASKS */}
           <section className="space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E4DED2] pb-2">
-              <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Tasks</h2>
+            <div className="flex items-baseline justify-between border-b border-[#E2E8F0] pb-2">
+              <h2 className="text-[17px] font-semibold text-[#0F172A]">Tasks</h2>
               <button
                 type="button"
                 onClick={() => onNavigate('tasks')}
-                className="text-[13px] text-[#6B645A] hover:text-[#1F1B16] underline-offset-4 hover:underline cursor-pointer"
+                className="text-[13px] text-[#64748B] hover:text-[#0F172A] underline-offset-4 hover:underline cursor-pointer"
               >
                 View all
               </button>
             </div>
 
             {displayTasks.length === 0 ? (
-              <div className="py-8 text-center border border-dashed border-[#E4DED2] rounded-[6px] p-6 text-[14px] text-[#6B645A] space-y-3">
+              <div className="py-8 text-center border border-dashed border-[#E2E8F0] rounded-[6px] p-6 text-[14px] text-[#64748B] space-y-3">
                 <p>No tasks currently in progress or due soon.</p>
                 <button
                   type="button"
@@ -421,29 +421,29 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         sfx.playClick();
                         onNavigate('tasks');
                       }}
-                      className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] hover:border-[#1F1B16] transition-colors cursor-pointer flex items-center justify-between gap-4"
+                      className="p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] hover:border-[#0F172A] transition-colors cursor-pointer flex items-center justify-between gap-4"
                     >
                       <div className="min-w-0 flex-1">
-                        <span className="text-[14px] font-medium text-[#1F1B16] truncate block">
+                        <span className="text-[14px] font-medium text-[#0F172A] truncate block">
                           {task.title}
                         </span>
                         <div className="text-[12px] tabular-nums mt-0.5">
                           {isOverdue ? (
-                            <span className="text-[#9C3D2A] font-medium">
+                            <span className="text-[#E11D48] font-medium">
                               Overdue · Due {task.dueDate}
                             </span>
                           ) : task.dueDate ? (
-                            <span className="text-[#6B645A]">Due {task.dueDate}</span>
+                            <span className="text-[#64748B]">Due {task.dueDate}</span>
                           ) : task.status === 'doing' ? (
-                            <span className="text-[#2D4A6B]">In progress</span>
+                            <span className="text-[#2563EB]">In progress</span>
                           ) : (
-                            <span className="text-[#6B645A]">To do</span>
+                            <span className="text-[#64748B]">To do</span>
                           )}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2.5 shrink-0">
-                        <span className="text-[12px] font-serif tabular-nums text-[#6B645A]">
+                        <span className="text-[12px] font-medium tabular-nums text-[#64748B]">
                           +{getQuestXp(task.difficulty)} XP
                         </span>
                         <span
@@ -463,12 +463,12 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
           {/* 3. BUCKET LIST */}
           <section className="space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E4DED2] pb-2">
-              <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Bucket List</h2>
+            <div className="flex items-baseline justify-between border-b border-[#E2E8F0] pb-2">
+              <h2 className="text-[17px] font-semibold text-[#0F172A]">Bucket List</h2>
               <button
                 type="button"
                 onClick={() => onNavigate('bucket-list')}
-                className="text-[13px] text-[#6B645A] hover:text-[#1F1B16] underline-offset-4 hover:underline cursor-pointer"
+                className="text-[13px] text-[#64748B] hover:text-[#0F172A] underline-offset-4 hover:underline cursor-pointer"
               >
                 View all
               </button>
@@ -490,7 +490,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
             {/* Three Entries ("Next Up") */}
             {nextUpBucket.length === 0 ? (
-              <div className="py-6 text-center border border-dashed border-[#E4DED2] rounded-[6px] p-6 text-[13px] text-[#6B645A]">
+              <div className="py-6 text-center border border-dashed border-[#E2E8F0] rounded-[6px] p-6 text-[13px] text-[#64748B]">
                 No active pursuits in your bucket list. Enter one above to get started.
               </div>
             ) : (
@@ -502,13 +502,13 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                       sfx.playClick();
                       onNavigate('bucket-list');
                     }}
-                    className="p-3.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] hover:border-[#1F1B16] transition-colors cursor-pointer flex items-center justify-between gap-3"
+                    className="p-3.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] hover:border-[#0F172A] transition-colors cursor-pointer flex items-center justify-between gap-3"
                   >
                     <div className="min-w-0">
-                      <span className="text-[14px] font-medium text-[#1F1B16] truncate block">
+                      <span className="text-[14px] font-medium text-[#0F172A] truncate block">
                         {entry.title}
                       </span>
-                      <span className="text-[12px] text-[#6B645A]">
+                      <span className="text-[12px] text-[#64748B]">
                         {entry.category || 'General'}
                       </span>
                     </div>
@@ -523,7 +523,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                           {entry.pillar}
                         </span>
                       )}
-                      <span className="text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#EFEAE0] text-[#6B645A]">
+                      <span className="text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#64748B]">
                         {entry.status}
                       </span>
                     </div>
@@ -540,19 +540,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         <div className="lg:col-span-4 space-y-10">
           {/* 4. MONEY */}
           <section className="space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E4DED2] pb-2">
-              <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Money</h2>
+            <div className="flex items-baseline justify-between border-b border-[#E2E8F0] pb-2">
+              <h2 className="text-[17px] font-semibold text-[#0F172A]">Money</h2>
               <button
                 type="button"
                 onClick={() => onNavigate('money')}
-                className="text-[13px] text-[#6B645A] hover:text-[#1F1B16] underline-offset-4 hover:underline cursor-pointer"
+                className="text-[13px] text-[#64748B] hover:text-[#0F172A] underline-offset-4 hover:underline cursor-pointer"
               >
                 View all
               </button>
             </div>
 
             {accounts.length === 0 ? (
-              <div className="py-8 text-center border border-dashed border-[#E4DED2] rounded-[6px] p-6 text-[14px] text-[#6B645A] space-y-3">
+              <div className="py-8 text-center border border-dashed border-[#E2E8F0] rounded-[6px] p-6 text-[14px] text-[#64748B] space-y-3">
                 <p>No financial accounts set up yet.</p>
                 <button
                   type="button"
@@ -566,13 +566,13 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="space-y-4">
                 {/* Net Worth & Change This Month */}
                 <div>
-                  <span className="text-[11px] uppercase tracking-wider text-[#6B645A] font-medium block">
+                  <span className="text-[11px] uppercase tracking-wider text-[#64748B] font-medium block">
                     Net Worth
                   </span>
-                  <div className={`font-serif text-[32px] text-[#1F1B16] tabular-nums font-normal leading-tight mt-0.5 ${blurClass}`}>
+                  <div className={`text-[28px] font-bold text-[#0F172A] tabular-nums leading-tight mt-0.5 ${blurClass}`}>
                     {formatCurrency(netWorth, currencySymbol, numberGrouping)}
                   </div>
-                  <div className={`text-[13px] tabular-nums text-[#6B645A] mt-1 ${blurClass}`}>
+                  <div className={`text-[13px] tabular-nums text-[#64748B] mt-1 font-medium ${blurClass}`}>
                     {monthlyCashFlow >= 0 ? '+' : ''}
                     {formatCurrency(monthlyCashFlow, currencySymbol, numberGrouping)} this month
                   </div>
@@ -580,8 +580,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
                 {/* Savings Goals Progress Bars */}
                 {activeGoals.length > 0 && (
-                  <div className="pt-3 border-t border-[#E4DED2] space-y-3">
-                    <span className="text-[11px] uppercase tracking-wider text-[#6B645A] font-medium block">
+                  <div className="pt-3 border-t border-[#E2E8F0] space-y-3">
+                    <span className="text-[11px] uppercase tracking-wider text-[#64748B] font-medium block">
                       Savings Goals
                     </span>
                     <div className="space-y-2.5">
@@ -596,16 +596,16 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         return (
                           <div key={goal.id} className="space-y-1">
                             <div className="flex items-baseline justify-between text-[13px]">
-                              <span className="font-medium text-[#1F1B16] truncate max-w-[170px]">
+                              <span className="font-medium text-[#0F172A] truncate max-w-[170px]">
                                 {goal.name}
                               </span>
-                              <span className={`tabular-nums text-[#6B645A] text-[12px] shrink-0 ${blurClass}`}>
+                              <span className={`tabular-nums text-[#64748B] text-[12px] shrink-0 ${blurClass}`}>
                                 {formatCurrency(current, currencySymbol, numberGrouping)} / {formatCurrency(target, currencySymbol, numberGrouping)} ({percent}%)
                               </span>
                             </div>
-                            <div className="w-full h-1.5 bg-[#E4DED2] rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-[#1F1B16] transition-all"
+                                className="h-full bg-[#0F172A] transition-all"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
@@ -617,9 +617,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 )}
 
                 {/* Total Debt */}
-                <div className="pt-3 border-t border-[#E4DED2] flex items-baseline justify-between">
-                  <span className="text-[13px] text-[#6B645A]">Total Debt</span>
-                  <span className={`font-serif text-[18px] text-[#9C3D2A] tabular-nums font-medium ${blurClass}`}>
+                <div className="pt-3 border-t border-[#E2E8F0] flex items-baseline justify-between">
+                  <span className="text-[13px] text-[#64748B]">Total Debt</span>
+                  <span className={`text-[17px] font-semibold text-[#E11D48] tabular-nums ${blurClass}`}>
                     {formatCurrency(totalDebt, currencySymbol, numberGrouping)}
                   </span>
                 </div>
@@ -629,19 +629,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
           {/* 5. POSSESSIONS */}
           <section className="space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E4DED2] pb-2">
-              <h2 className="font-serif text-[20px] font-normal text-[#1F1B16]">Possessions</h2>
+            <div className="flex items-baseline justify-between border-b border-[#E2E8F0] pb-2">
+              <h2 className="text-[17px] font-semibold text-[#0F172A]">Possessions</h2>
               <button
                 type="button"
                 onClick={() => onNavigate('inventory')}
-                className="text-[13px] text-[#6B645A] hover:text-[#1F1B16] underline-offset-4 hover:underline cursor-pointer"
+                className="text-[13px] text-[#64748B] hover:text-[#0F172A] underline-offset-4 hover:underline cursor-pointer"
               >
                 View all
               </button>
             </div>
 
             {items.length === 0 ? (
-              <div className="py-8 text-center border border-dashed border-[#E4DED2] rounded-[6px] p-6 text-[14px] text-[#6B645A] space-y-3">
+              <div className="py-8 text-center border border-dashed border-[#E2E8F0] rounded-[6px] p-6 text-[14px] text-[#64748B] space-y-3">
                 <p>No possessions recorded yet.</p>
                 <button
                   type="button"
@@ -654,28 +654,28 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             ) : (
               <div className="space-y-4">
                 {/* Stats Row */}
-                <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#E4DED2]">
+                <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#E2E8F0]">
                   <div>
-                    <span className="text-[11px] uppercase tracking-wider text-[#6B645A] block">
+                    <span className="text-[11px] uppercase tracking-wider text-[#64748B] block">
                       Owned
                     </span>
-                    <span className="font-serif text-[20px] text-[#1F1B16] tabular-nums block font-normal mt-0.5">
+                    <span className="text-[20px] font-semibold text-[#0F172A] tabular-nums block mt-0.5">
                       {ownedCount}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[11px] uppercase tracking-wider text-[#6B645A] block">
+                    <span className="text-[11px] uppercase tracking-wider text-[#64748B] block">
                       Total value
                     </span>
-                    <span className={`font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5 ${blurClass}`}>
+                    <span className={`text-[17px] font-semibold text-[#0F172A] tabular-nums block truncate mt-0.5 ${blurClass}`}>
                       {formatCurrency(totalValue, currencySymbol, numberGrouping)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[11px] uppercase tracking-wider text-[#6B645A] block">
+                    <span className="text-[11px] uppercase tracking-wider text-[#64748B] block">
                       Wishlist
                     </span>
-                    <span className={`font-serif text-[18px] text-[#1F1B16] tabular-nums block font-normal truncate mt-0.5 ${blurClass}`}>
+                    <span className={`text-[17px] font-semibold text-[#0F172A] tabular-nums block truncate mt-0.5 ${blurClass}`}>
                       {formatCurrency(wishlistCost, currencySymbol, numberGrouping)}
                     </span>
                   </div>
@@ -683,7 +683,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
                 {/* 3 Most Recently Added Items */}
                 <div className="space-y-2">
-                  <span className="text-[11px] uppercase tracking-wider text-[#6B645A] font-medium block">
+                  <span className="text-[11px] uppercase tracking-wider text-[#64748B] font-medium block">
                     Recently Added
                   </span>
                   {recentItems.map((item) => (
@@ -694,10 +694,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         if (onInspectItem) onInspectItem(item);
                         else onNavigate('inventory');
                       }}
-                      className="p-2.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] hover:border-[#1F1B16] transition-colors cursor-pointer flex items-center gap-3"
+                      className="p-2.5 rounded-[6px] border border-[#E2E8F0] bg-[#FFFFFF] hover:border-[#0F172A] transition-colors cursor-pointer flex items-center gap-3"
                     >
                       {/* Photo Thumbnail with standard 16:9 ratio */}
-                      <div className="w-16 h-9 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] overflow-hidden flex items-center justify-center shrink-0">
+                      <div className="w-16 h-9 rounded-[4px] bg-[#F1F5F9] border border-[#E2E8F0] overflow-hidden flex items-center justify-center shrink-0">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
@@ -705,20 +705,20 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="font-serif text-[13px] text-[#6B645A]">
+                          <span className="text-[13px] font-medium text-[#64748B]">
                             {(item.name[0] || 'V').toUpperCase()}
                           </span>
                         )}
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <span className="text-[13px] font-medium text-[#1F1B16] truncate block">
+                        <span className="text-[13px] font-medium text-[#0F172A] truncate block">
                           {item.name}
                         </span>
-                        <span className="text-[11px] text-[#6B645A] block truncate">
+                        <span className="text-[11px] text-[#64748B] block truncate">
                           {item.subCategory} · {item.location || 'Vault'}
                         </span>
-                        <span className={`text-[12px] font-serif tabular-nums text-[#1F1B16] block mt-0.5 ${blurClass}`}>
+                        <span className={`text-[12px] font-medium tabular-nums text-[#0F172A] block mt-0.5 ${blurClass}`}>
                           {formatCurrency(item.goldValue, currencySymbol, numberGrouping)}
                         </span>
                       </div>

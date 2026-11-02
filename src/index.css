@@ -6,27 +6,27 @@
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
 
     /* Warm Neutrals (High Contrast) */
-    --bg-page: #F6F2EA;
-    --bg-surface: #FBF9F4;
-    --border-hairline: #E4DED2;
+    --bg-page: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --border-hairline: #E2E8F0;
 
-    --text-primary: #1F1B16;
-    --text-muted: #6B645A;
+    --text-primary: #0F172A;
+    --text-muted: #64748B;
 
-    /* Primary Action: Solid Ink */
-    --btn-primary-bg: #1F1B16;
-    --btn-primary-text: #FBF9F4;
-    --btn-primary-hover: #342F29;
+    /* Primary Action: Modern Solid Slate Ink */
+    --btn-primary-bg: #0F172A;
+    --btn-primary-text: #FFFFFF;
+    --btn-primary-hover: #1E293B;
 
-    /* Muted Pillar Colors */
-    --pillar-str: #9C3D2A;
-    --pillar-int: #2D4A6B;
-    --pillar-wis: #7A5C1E;
-    --pillar-cha: #3F6B4F;
+    /* Forward-Leaning Modern Pillar Accents */
+    --pillar-str: #E11D48;
+    --pillar-int: #2563EB;
+    --pillar-wis: #D97706;
+    --pillar-cha: #059669;
 
-    /* Semantics (used sparingly) */
-    --semantic-danger: #9C3D2A;
-    --semantic-success: #3F6B4F;
+    /* Semantics */
+    --semantic-danger: #E11D48;
+    --semantic-success: #059669;
   }
 
   html {
@@ -63,11 +63,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #E4DED2;
+    background: #E2E8F0;
     border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #D5CEBF;
+    background: #CBD5E1;
   }
 }
 
@@ -110,12 +110,12 @@
   font-feature-settings: 'tnum';
 }
 
-/* Base Editorial Cards & Items */
+/* Base Modern Cards & Items */
 .ship-card, .editorial-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-hairline);
-  border-radius: 6px;
-  box-shadow: none !important;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 }
 
 /* No tinted icon tile on stat blocks: plain alignment */
@@ -129,7 +129,7 @@
   justify-content: center;
 }
 
-/* Editorial Pills: 6px radius, calm hairline contrast */
+/* Modern High-Contrast Pills */
 .ship-pill,
 .ship-pill-success,
 .ship-pill-danger,
@@ -150,26 +150,30 @@
 }
 
 .ship-pill-success {
-  border-color: rgba(63, 107, 79, 0.35);
-  color: var(--semantic-success);
+  border-color: rgba(5, 150, 105, 0.3);
+  background-color: #ECFDF5;
+  color: #047857;
 }
 
 .ship-pill-danger {
-  border-color: rgba(156, 61, 42, 0.35);
-  color: var(--semantic-danger);
+  border-color: rgba(225, 29, 72, 0.3);
+  background-color: #FFF1F2;
+  color: #BE123C;
 }
 
 .ship-pill-accent {
-  border-color: rgba(45, 74, 107, 0.35);
-  color: #2D4A6B;
+  border-color: rgba(37, 99, 235, 0.3);
+  background-color: #EFF6FF;
+  color: #1D4ED8;
 }
 
 .ship-pill-neutral {
   border-color: var(--border-hairline);
+  background-color: #F1F5F9;
   color: var(--text-muted);
 }
 
-/* Primary Action Button: Solid Ink with Light Text, 6px radius, no icons on text buttons */
+/* Primary Action Button: Solid Modern Slate with Clean Text */
 .ship-btn-primary, .editorial-btn-primary {
   background-color: var(--btn-primary-bg) !important;
   color: var(--btn-primary-text) !important;
@@ -178,8 +182,8 @@
   padding: 6px 14px;
   font-size: 13px;
   border: 1px solid var(--btn-primary-bg);
-  box-shadow: none !important;
-  transition: background-color 0.15s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -188,19 +192,20 @@
 
 .ship-btn-primary:hover, .editorial-btn-primary:hover {
   background-color: var(--btn-primary-hover) !important;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Secondary Action Button: Outlined */
+/* Secondary Action Button: Outlined Modern */
 .ship-btn-secondary, .editorial-btn-secondary {
-  background-color: transparent !important;
+  background-color: #FFFFFF !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border-hairline) !important;
   border-radius: 6px !important;
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  box-shadow: none !important;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -209,7 +214,7 @@
 
 .ship-btn-secondary:hover, .editorial-btn-secondary:hover {
   background-color: var(--bg-page) !important;
-  border-color: #D5CEBF !important;
+  border-color: #CBD5E1 !important;
 }
 
 /* Input / Field styling */
