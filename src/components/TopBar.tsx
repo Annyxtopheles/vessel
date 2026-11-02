@@ -189,11 +189,13 @@ export const TopBar: React.FC<TopBarProps> = ({
 
   return (
     <header className="bg-[#FBF9F4] border-b border-[#E4DED2] px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
-      {/* Left: Editorial Page Title (32px serif) */}
+      {/* Left: Editorial Page Title (32px serif, omitted on overview to maintain clean editorial date lead) */}
       <div>
-        <h1 className="font-serif text-[32px] leading-tight font-normal text-[#1F1B16] tracking-tight">
-          {currentTitle}
-        </h1>
+        {activeTab !== 'overview' && (
+          <h1 className="font-serif text-[32px] leading-tight font-normal text-[#1F1B16] tracking-tight">
+            {currentTitle}
+          </h1>
+        )}
       </div>
 
       {/* Right: Search + Date Selector + Settings + Primary Action */}
