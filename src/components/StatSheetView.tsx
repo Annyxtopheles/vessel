@@ -86,11 +86,11 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   onUpdateAppearance,
   onAddPaletteColor,
   onUpdatePaletteColor: _onUpdatePaletteColor,
-  onDeletePaletteColor,
+  onDeletePaletteColor: _onDeletePaletteColor,
   onAddPersonality,
-  onDeletePersonality,
+  onDeletePersonality: _onDeletePersonality,
   onAddTrait,
-  onDeleteTrait,
+  onDeleteTrait: _onDeleteTrait,
 }) => {
   // Active chart metric type
   const [activeChartType, setActiveChartType] = useState<ExtendedMetricType>('weight');
@@ -1065,17 +1065,9 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
             <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Color Palette</h3>
-
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setIsAddColorOpen(true);
-              }}
-              className="editorial-btn-primary"
-            >
-              Add Swatch
-            </button>
+            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+              Wardrobe Alignment
+            </span>
           </div>
 
           {/* Verdict Groups Navigation Summary at Top of Section */}
@@ -1137,15 +1129,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                                 </span>
                               </div>
                             </div>
-
-                            <button
-                              type="button"
-                              onClick={() => onDeletePaletteColor(item.id)}
-                              className="p-1 rounded text-[#6B645A] hover:text-[#9C3D2A] transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                              title="Delete color"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
                           </div>
 
                           {warning && (
@@ -1165,23 +1148,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         </div>
       </section>
 
-      {/* 4. PERSONALITY & 5. TRAITS */}
+      {/* 4. PERSONALITY & 5. TRAITS (Immutable Character Codex) */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start pt-6 border-t border-[#E4DED2]">
         {/* Personality Profiling */}
         <div className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
             <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Personality</h3>
-
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setIsAddPersonalityOpen(true);
-              }}
-              className="editorial-btn-primary"
-            >
-              Add Assessment
-            </button>
+            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+              Psychological Typology
+            </span>
           </div>
 
           <div className="space-y-2.5">
@@ -1205,15 +1180,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                     </span>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => onDeletePersonality(p.id)}
-                  className="p-1 rounded text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
-                  title="Delete entry"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
               </div>
             ))}
           </div>
@@ -1223,17 +1189,9 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#E4DED2]">
             <h3 className="font-serif text-[18px] font-normal text-[#1F1B16]">Character Traits</h3>
-
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setIsAddTraitOpen(true);
-              }}
-              className="editorial-btn-primary"
-            >
-              Add Trait
-            </button>
+            <span className="text-[11px] text-[#6B645A] uppercase tracking-wider font-medium">
+              Core Axioms
+            </span>
           </div>
 
           <div className="space-y-2.5">
@@ -1275,15 +1233,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                         />
                       ))}
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => onDeleteTrait(t.id)}
-                      className="p-1 rounded text-[#6B645A] hover:text-[#9C3D2A] transition-colors cursor-pointer"
-                      title="Delete trait"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
               );

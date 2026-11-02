@@ -437,20 +437,41 @@ export async function initDatabase(): Promise<void> {
       }
     }
 
-    if ((await db.palette.count()) === 0) {
-      const raw = localStorage.getItem('vessel_color_palette_v1');
-      const seed: PaletteColor[] = raw ? JSON.parse(raw) : INITIAL_COLOR_PALETTE;
-      await paletteRepo.batchPut(seed.map((p) => normalizeRecord(p)));
+    // Ensure immutable character codex (traits, personality, palette) are restored and never missing
+    const allTraits = await traitRepo.list();
+    for (const t of allTraits) {
+      if ((t as any).deletedAt || t.deleted_at) {
+        await traitRepo.update(t.id, { deleted_at: null, deletedAt: undefined } as any);
+      }
     }
-    if ((await db.personality.count()) === 0) {
-      const raw = localStorage.getItem('vessel_personality_v1');
-      const seed: PersonalityEntry[] = raw ? JSON.parse(raw) : INITIAL_PERSONALITY;
-      await personalityRepo.batchPut(seed.map((p) => normalizeRecord(p)));
+    const existingTraitIds = new Set(allTraits.map((t) => t.id));
+    const missingTraits = INITIAL_TRAITS.filter((t) => !existingTraitIds.has(t.id));
+    if (missingTraits.length > 0) {
+      await traitRepo.batchPut(missingTraits.map((t) => normalizeRecord(t)));
     }
-    if ((await db.traits.count()) === 0) {
-      const raw = localStorage.getItem('vessel_character_traits_v1');
-      const seed: CharacterTrait[] = raw ? JSON.parse(raw) : INITIAL_TRAITS;
-      await traitRepo.batchPut(seed.map((t) => normalizeRecord(t)));
+
+    const allPersonality = await personalityRepo.list();
+    for (const p of allPersonality) {
+      if ((p as any).deletedAt || p.deleted_at) {
+        await personalityRepo.update(p.id, { deleted_at: null, deletedAt: undefined } as any);
+      }
+    }
+    const existingPersIds = new Set(allPersonality.map((p) => p.id));
+    const missingPers = INITIAL_PERSONALITY.filter((p) => !existingPersIds.has(p.id));
+    if (missingPers.length > 0) {
+      await personalityRepo.batchPut(missingPers.map((p) => normalizeRecord(p)));
+    }
+
+    const allPalette = await paletteRepo.list();
+    for (const pal of allPalette) {
+      if ((pal as any).deletedAt || pal.deleted_at) {
+        await paletteRepo.update(pal.id, { deleted_at: null, deletedAt: undefined } as any);
+      }
+    }
+    const existingPalIds = new Set(allPalette.map((pal) => pal.id));
+    const missingPalette = INITIAL_COLOR_PALETTE.filter((pal) => !existingPalIds.has(pal.id));
+    if (missingPalette.length > 0) {
+      await paletteRepo.batchPut(missingPalette.map((pal) => normalizeRecord(pal)));
     }
     if ((await db.appearance.count()) === 0) {
       const raw = localStorage.getItem('vessel_character_appearance_v1');
