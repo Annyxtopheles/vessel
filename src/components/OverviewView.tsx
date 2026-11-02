@@ -696,8 +696,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                       }}
                       className="p-2.5 rounded-[6px] border border-[#E4DED2] bg-[#FBF9F4] hover:border-[#1F1B16] transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      {/* Photo Thumbnail with wide horizontal ratio */}
-                      <div className="w-14 h-9 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] overflow-hidden flex items-center justify-center shrink-0">
+                      {/* Photo Thumbnail with standard 16:9 ratio */}
+                      <div className="w-16 h-9 rounded-[4px] bg-[#EFEAE0] border border-[#E4DED2] overflow-hidden flex items-center justify-center shrink-0">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
