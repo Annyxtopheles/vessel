@@ -2,8 +2,8 @@
 
 @layer base {
   :root {
-    --font-serif: 'Source Serif 4', 'Newsreader', Georgia, 'Noto Serif Bengali', serif;
-    --font-sans: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
+    --font-serif: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
 
     /* Warm Neutrals (High Contrast) */
     --bg-page: #F6F2EA;
@@ -71,9 +71,10 @@
   }
 }
 
-/* Typography Utility Classes */
+/* Typography Utility Classes (Modern Standard Sans-Serif) */
 .font-serif {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
 }
 
 .font-sans {
@@ -81,29 +82,29 @@
 }
 
 .editorial-title {
-  font-family: var(--font-serif);
-  font-size: 32px;
-  line-height: 1.15;
-  font-weight: 400;
-  letter-spacing: -0.015em;
+  font-family: var(--font-sans);
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
 }
 
 .editorial-heading {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  line-height: 1.25;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
 }
 
 .editorial-stat-num {
-  font-family: var(--font-serif);
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
