@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type {
   InventoryItem,
   CharacterProfile,
@@ -12,6 +12,7 @@ import type {
   AppSettings,
   AttributeType,
   Quest,
+  QuestStatus,
   QuestEvidence,
   EvidenceType,
   BodyMeasurement,
@@ -685,10 +686,10 @@ export const App: React.FC = () => {
   };
 
   // Task Reopen from Done with Negative Append-Only XP Event
-  const handleReopenTask = async (task: Quest) => {
+  const handleReopenTask = async (task: Quest, targetStatus: QuestStatus = 'todo') => {
     const updated: Quest = {
       ...task,
-      status: 'todo',
+      status: targetStatus,
       completedAt: undefined,
     };
     await handleUpdateTask(updated);

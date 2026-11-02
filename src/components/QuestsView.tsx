@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import type {
   Quest,
   QuestEvidence,
@@ -64,7 +64,7 @@ interface QuestsViewProps {
   onAddEvidence: (questId: string, type: EvidenceType, content: string) => void;
   onDeleteEvidence: (evidenceId: string) => void;
   onCompleteQuest: (quest: Quest) => void;
-  onReopenQuest: (quest: Quest) => void;
+  onReopenQuest: (quest: Quest, targetStatus?: QuestStatus) => void;
   isAddModalOpen?: boolean;
   onCloseAddModal?: () => void;
 }
@@ -198,7 +198,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
     if (targetStatus === 'done') {
       onCompleteQuest(quest);
     } else if (quest.status === 'done') {
-      onReopenQuest(quest);
+      onReopenQuest(quest, targetStatus);
     } else {
       onUpdateQuest({
         ...quest,
@@ -210,7 +210,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
 
   const handleToggleDone = (quest: Quest) => {
     if (quest.status === 'done') {
-      onReopenQuest(quest);
+      onReopenQuest(quest, 'todo');
     } else {
       // Evidence check
       if (quest.evidenceRequired) {
@@ -763,7 +763,7 @@ export const QuestsView: React.FC<QuestsViewProps> = ({
                         onCompleteQuest(selectedQuest);
                         setSelectedQuest({ ...selectedQuest, status: 'done', completedAt: todayStr });
                       } else if (selectedQuest.status === 'done') {
-                        onReopenQuest(selectedQuest);
+                        onReopenQuest(selectedQuest, nextStatus);
                         setSelectedQuest({ ...selectedQuest, status: nextStatus, completedAt: undefined });
                       } else {
                         const updated = { ...selectedQuest, status: nextStatus };
