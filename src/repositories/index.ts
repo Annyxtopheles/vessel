@@ -451,7 +451,18 @@ export async function initDatabase(): Promise<void> {
 
   const itemsCount = await db.items.count();
   if (itemsCount > 0) {
-    // Already populated
+    // Backfill any missing initial items (e.g. newly ingested real items)
+    try {
+      const existingItems = await itemRepo.list();
+      const existingIds = new Set(existingItems.map((i) => i.id));
+      const missing = INITIAL_ITEMS.filter((i) => !existingIds.has(i.id));
+      if (missing.length > 0) {
+        console.log(`[Vessel DB] Backfilling ${missing.length} missing initial items...`);
+        await itemRepo.batchPut(missing.map((m) => normalizeRecord(m)));
+      }
+    } catch (err) {
+      console.warn('[Vessel DB] Could not backfill initial items:', err);
+    }
     return;
   }
 
