@@ -1,10 +1,9 @@
-﻿import React, { useState } from 'react';
+import React from 'react';
 import type { DayRecord, SalahStatus, CustomHabit, AttributeType, XpEvent, Quest, Reminder } from '../types';
-import { Check, Trash2, RotateCcw, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
+import { Check, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr, getRelativeDayStrip } from '../utils/date';
 import { XP_DISCIPLINE_REWARDS, getQuestXp } from '../data/xpConfig';
-import { CustomSelect } from './CustomSelect';
 import { RemindersBlock } from './RemindersBlock';
 import {
   getActiveNonNegotiableItems,
@@ -13,22 +12,15 @@ import {
   ALL_PRAYER_KEYS,
 } from '../utils/nonNegotiables';
 
-const HABIT_ATTR_OPTIONS = [
-  { id: 'STR', label: 'Strength (Body)' },
-  { id: 'INT', label: 'Intellect (Craft)' },
-  { id: 'WIS', label: 'Wisdom (Soul)' },
-  { id: 'CHA', label: 'Charisma (Community)' },
-];
-
 interface DailyRitualsProps {
   dayRecords: Record<string, DayRecord>;
   habits: CustomHabit[];
   selectedDate: string;
   setSelectedDate: (date: string) => void;
   onUpdateDayRecord: (record: DayRecord, xpGained?: { attr: 'STR' | 'INT' | 'WIS' | 'CHA'; xp: number }) => void;
-  onAddHabit: (habit: CustomHabit) => void;
+  onAddHabit?: (habit: CustomHabit) => void;
   onUpdateHabit?: (habit: CustomHabit) => void;
-  onDeleteHabit: (habitId: string) => void;
+  onDeleteHabit?: (habitId: string) => void;
   onRestoreHabit?: (habitId: string) => void;
   onPermanentDeleteHabit?: (habitId: string) => void;
   onRecordXpEvent?: (event: Omit<XpEvent, 'id'>) => void;
@@ -65,33 +57,20 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
   selectedDate,
   setSelectedDate,
   onUpdateDayRecord,
-  onAddHabit,
-  onUpdateHabit,
-  onDeleteHabit,
-  onRestoreHabit,
-  onPermanentDeleteHabit,
   onRecordXpEvent,
   quests = [],
   onNavigateToQuests,
   onCompleteQuest: _onCompleteQuest,
   nonNegotiablePrayers = ALL_PRAYER_KEYS,
-  onTogglePrayerNonNegotiable,
   reminders = [],
   onAddReminder,
   onUpdateReminder,
   onDeleteReminder,
   onReorderReminders,
 }) => {
-  const [isAddingHabit, setIsAddingHabit] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
-  const [newHabitName, setNewHabitName] = useState('');
-  const [newHabitAttr, setNewHabitAttr] = useState<AttributeType>('WIS');
-  const [newHabitNonNeg, setNewHabitNonNeg] = useState(true);
-
   const todayStr = getTodayLocalDateStr();
 
   const activeHabits = habits.filter((h) => !h.isArchived);
-  const archivedHabits = habits.filter((h) => h.isArchived);
 
   // Non-negotiables & Log-derived Streak
   const nonNegotiables = getActiveNonNegotiableItems(habits, nonNegotiablePrayers);
@@ -323,24 +302,6 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
     }
   };
 
-  const handleCreateHabit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newHabitName.trim()) return;
-
-    const newHabit: CustomHabit = {
-      id: `habit-${Date.now()}`,
-      name: newHabitName.trim(),
-      attribute: newHabitAttr,
-      non_negotiable: newHabitNonNeg,
-    };
-
-    onAddHabit(newHabit);
-    setNewHabitName('');
-    setNewHabitNonNeg(true);
-    setIsAddingHabit(false);
-    sfx.playClick();
-  };
-
   return (
     <div className="space-y-8">
       {/* Editable Reminders Block */}
@@ -526,24 +487,15 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                 >
                   <div className="flex items-center justify-between w-full text-[11px] mb-1">
                     <span className="text-[#64748B]">{timeOfDay}</span>
-                    {onTogglePrayerNonNegotiable && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          sfx.playClick();
-                          onTogglePrayerNonNegotiable(key);
-                        }}
-                        className={`text-[9px] px-1 py-0.5 rounded-[3px] border cursor-pointer font-medium transition-colors ${
-                          isNonNeg
-                            ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
-                            : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
-                        }`}
-                        title="Toggle whether this prayer is non-negotiable"
-                      >
-                        {isNonNeg ? 'Required' : 'Optional'}
-                      </button>
-                    )}
+                    <span
+                      className={`text-[9px] px-1 py-0.5 rounded-[3px] border font-medium select-none ${
+                        isNonNeg
+                          ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
+                          : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
+                      }`}
+                    >
+                      {isNonNeg ? 'Required' : 'Optional'}
+                    </span>
                   </div>
                   <div className="font-serif text-[16px] font-normal text-[#0F172A] mb-3">{name}</div>
 
@@ -569,73 +521,21 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
       {/* 2. Habits Checklist */}
       <section className="space-y-4 pt-4 border-t border-[#E2E8F0]">
         <div className="flex items-center justify-between">
-          <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
-            Habits
-          </h3>
-
-          <button
-            type="button"
-            onClick={() => setIsAddingHabit(!isAddingHabit)}
-            className="editorial-btn-primary"
-          >
-            New Habit
-          </button>
+          <div>
+            <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">
+              Habits & Disciplines
+            </h3>
+            <p className="text-[12px] text-[#64748B]">
+              Daily operating protocols from Mind Vault
+            </p>
+          </div>
         </div>
-
-        {/* Add Habit Form */}
-        {isAddingHabit && (
-          <form onSubmit={handleCreateHabit} className="p-4 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <input
-              type="text"
-              required
-              value={newHabitName}
-              onChange={(e) => setNewHabitName(e.target.value)}
-              placeholder="e.g. Read 20 pages, Cold shower, Zero sugar, 10k steps..."
-              className="ship-input flex-1 text-[13px]"
-            />
-
-            <div className="w-full sm:w-48">
-              <CustomSelect
-                value={newHabitAttr}
-                options={HABIT_ATTR_OPTIONS}
-                onChange={(val) => setNewHabitAttr(val as AttributeType)}
-                buttonClassName="py-1.5 text-[13px]"
-              />
-            </div>
-
-            <label className="flex items-center gap-1.5 text-[12px] text-[#0F172A] cursor-pointer shrink-0 px-1">
-              <input
-                type="checkbox"
-                checked={newHabitNonNeg}
-                onChange={(e) => setNewHabitNonNeg(e.target.checked)}
-                className="w-3.5 h-3.5 rounded-[3px] accent-[#0F172A]"
-              />
-              <span>Non-negotiable</span>
-            </label>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                className="editorial-btn-primary"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsAddingHabit(false)}
-                className="editorial-btn-secondary"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
 
         {/* Active Habits List */}
         <div className="space-y-2">
           {activeHabits.length === 0 ? (
             <div className="py-6 text-center text-[13px] text-[#64748B]">
-              No active disciplines. Add a new discipline above or restore from archive below.
+              No active disciplines found in system.
             </div>
           ) : (
             activeHabits.map((habit) => {
@@ -677,114 +577,25 @@ export const DailyRituals: React.FC<DailyRitualsProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2.5">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        sfx.playClick();
-                        if (onUpdateHabit) {
-                          onUpdateHabit({
-                            ...habit,
-                            non_negotiable: !habit.non_negotiable,
-                          });
-                        }
-                      }}
-                      className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium transition-colors cursor-pointer ${
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium select-none ${
                         habit.non_negotiable
                           ? 'bg-[#0F172A] text-[#FFFFFF] border-[#0F172A]'
-                          : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0] hover:text-[#0F172A]'
+                          : 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]'
                       }`}
-                      title="Click to toggle non-negotiable status"
                     >
                       {habit.non_negotiable ? 'Non-negotiable' : 'Optional'}
-                    </button>
-
-                    <span className={`text-[11px] px-2 py-0.5 rounded-[4px] border font-medium ${HABIT_ATTR_BADGES[habit.attribute]}`}>
-                      {habit.attribute}
                     </span>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        sfx.playClick();
-                        onDeleteHabit(habit.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-[#64748B] hover:text-[#E11D48] transition-opacity cursor-pointer"
-                      title="Archive discipline"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-[4px] border font-medium select-none ${HABIT_ATTR_BADGES[habit.attribute]}`}>
+                      {habit.attribute}
+                    </span>
                   </div>
                 </div>
               );
             })
           )}
         </div>
-
-        {/* Archived Disciplines Drawer */}
-        {archivedHabits.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-[#E2E8F0]">
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setShowArchived(!showArchived);
-              }}
-              className="flex items-center justify-between w-full text-[12px] font-medium text-[#64748B] hover:text-[#0F172A] py-1 cursor-pointer transition-colors"
-            >
-              <span>Archived Disciplines ({archivedHabits.length})</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${showArchived ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showArchived && (
-              <div className="mt-2.5 space-y-2">
-                {archivedHabits.map((habit) => (
-                  <div
-                    key={habit.id}
-                    className="px-3.5 py-2.5 rounded-[6px] border border-dashed border-[#E2E8F0] bg-[#FFFFFF] flex items-center justify-between text-[13px]"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] border font-medium ${HABIT_ATTR_BADGES[habit.attribute]}`}>
-                        {habit.attribute}
-                      </span>
-                      <span className="text-[#64748B] line-through">{habit.name}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {onRestoreHabit && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            sfx.playClick();
-                            onRestoreHabit(habit.id);
-                          }}
-                          className="editorial-btn-secondary py-1 px-2.5 text-[12px]"
-                          title="Restore discipline to active list"
-                        >
-                          Restore
-                        </button>
-                      )}
-
-                      {onPermanentDeleteHabit && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            sfx.playClick();
-                            onPermanentDeleteHabit(habit.id);
-                          }}
-                          className="p-1 text-[#64748B] hover:text-[#E11D48] transition-colors cursor-pointer"
-                          title="Permanently remove"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </section>
 
       {/* 3. Physical Training Volume & Deep Work */}

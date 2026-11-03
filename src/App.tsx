@@ -22,7 +22,6 @@ import type {
   CharacterTrait,
   Reminder,
   BucketListEntry,
-  SalahStatus,
   Account,
   FinanceCategory,
   Transaction,
@@ -775,29 +774,6 @@ export const App: React.FC = () => {
     }));
   };
 
-  const handleAddHabit = async (newHabit: CustomHabit) => {
-    const created = await habitRepo.create(newHabit);
-    setHabits((prev) => [...prev, created]);
-  };
-
-  const handleUpdateHabit = async (updated: CustomHabit) => {
-    await habitRepo.update(updated.id, updated);
-    setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)));
-  };
-
-  const handleTogglePrayerNonNegotiable = async (prayerKey: keyof SalahStatus) => {
-    const currentList = settings.nonNegotiablePrayers || ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    const nextList = currentList.includes(prayerKey)
-      ? currentList.filter((k) => k !== prayerKey)
-      : [...currentList, prayerKey];
-    const updatedSettings: AppSettings = {
-      ...settings,
-      nonNegotiablePrayers: nextList,
-    };
-    await settingsRepo.saveSettings(updatedSettings);
-    setSettings(updatedSettings);
-  };
-
   // Reminders handlers
   const handleAddReminder = async (text: string) => {
     const newReminder: Reminder = {
@@ -872,28 +848,6 @@ export const App: React.FC = () => {
     await bucketListRepo.update(entry.id, updatedEntry);
     setBucketListEntries((prev) => prev.map((b) => (b.id === entry.id ? updatedEntry : b)));
     sfx.playEquip();
-  };
-
-  const handleArchiveHabit = async (habitId: string) => {
-    await habitRepo.softDelete(habitId);
-    setHabits((prev) =>
-      prev.map((h) => (h.id === habitId ? { ...h, isArchived: true, archivedAt: new Date().toISOString() } : h))
-    );
-  };
-
-  const handleRestoreHabit = async (habitId: string) => {
-    const updated = await habitRepo.update(habitId, {
-      isArchived: false,
-      archivedAt: undefined,
-      deleted_at: null,
-      deletedAt: undefined,
-    } as any);
-    setHabits((prev) => prev.map((h) => (h.id === habitId ? updated : h)));
-  };
-
-  const handlePermanentDeleteHabit = async (habitId: string) => {
-    await habitRepo.hardDelete(habitId);
-    setHabits((prev) => prev.filter((h) => h.id !== habitId));
   };
 
   // Unlock Milestone
@@ -1065,17 +1019,11 @@ export const App: React.FC = () => {
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
                 onUpdateDayRecord={handleUpdateDayRecord}
-                onAddHabit={handleAddHabit}
-                onUpdateHabit={handleUpdateHabit}
-                onDeleteHabit={handleArchiveHabit}
-                onRestoreHabit={handleRestoreHabit}
-                onPermanentDeleteHabit={handlePermanentDeleteHabit}
                 onRecordXpEvent={handleRecordXpEvent}
                 quests={quests}
                 onNavigateToQuests={() => setActiveTab('tasks')}
                 onCompleteQuest={handleCompleteTask}
                 nonNegotiablePrayers={settings.nonNegotiablePrayers}
-                onTogglePrayerNonNegotiable={handleTogglePrayerNonNegotiable}
                 reminders={reminders}
                 onAddReminder={handleAddReminder}
                 onUpdateReminder={handleUpdateReminder}

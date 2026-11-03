@@ -408,6 +408,7 @@ export async function initDatabase(): Promise<void> {
 
   // Synchronize habits with canonical Mind Vault daily operating system
   try {
+    const canonicalHabitIds = new Set(INITIAL_HABITS.map((h) => h.id));
     for (const h of INITIAL_HABITS) {
       const existing = await habitRepo.get(h.id);
       if (existing) {
@@ -416,10 +417,21 @@ export async function initDatabase(): Promise<void> {
           attribute: h.attribute,
           description: h.description,
           non_negotiable: h.non_negotiable,
+          isArchived: false,
+          archivedAt: undefined,
           deleted_at: null,
-        });
+          deletedAt: undefined,
+        } as any);
       } else {
         await habitRepo.batchPut([normalizeRecord(h)]);
+      }
+    }
+
+    // Purge any rogue user-added habits that are not part of the canonical operating system
+    const allHabits = await habitRepo.list();
+    for (const h of allHabits) {
+      if (!canonicalHabitIds.has(h.id)) {
+        await habitRepo.hardDelete(h.id);
       }
     }
   } catch (err) {
