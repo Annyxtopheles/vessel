@@ -564,8 +564,31 @@ export async function initDatabase(): Promise<void> {
         console.log(`[Vessel DB] Backfilling ${missing.length} missing initial items...`);
         await itemRepo.batchPut(missing.map((m) => normalizeRecord(m)));
       }
+
+      // Backfill and synchronize quests from Mind Vault
+      const existingQuests = await questRepo.list();
+      const existingQuestIds = new Set(existingQuests.map((q) => q.id));
+      const missingQuests = INITIAL_QUESTS.filter((q) => !existingQuestIds.has(q.id));
+      if (missingQuests.length > 0) {
+        await questRepo.batchPut(missingQuests.map((q) => normalizeRecord(q)));
+      }
+      const q1 = await questRepo.get('quest-1');
+      if (q1 && q1.title.includes('Benchpress')) {
+        const canonicalQ1 = INITIAL_QUESTS.find((q) => q.id === 'quest-1');
+        if (canonicalQ1) await questRepo.update('quest-1', canonicalQ1);
+      }
+      const q2 = await questRepo.get('quest-2');
+      if (q2 && q2.title.includes('Event Bus')) {
+        const canonicalQ2 = INITIAL_QUESTS.find((q) => q.id === 'quest-2');
+        if (canonicalQ2) await questRepo.update('quest-2', canonicalQ2);
+      }
+      const qEvidence = await questEvidenceRepo.get('ev-1');
+      if (qEvidence && qEvidence.content.includes('70kg')) {
+        const canonicalEv = INITIAL_QUEST_EVIDENCE.find((e) => e.id === 'ev-1');
+        if (canonicalEv) await questEvidenceRepo.update('ev-1', canonicalEv);
+      }
     } catch (err) {
-      console.warn('[Vessel DB] Could not backfill initial items:', err);
+      console.warn('[Vessel DB] Could not backfill initial items/quests:', err);
     }
     return;
   }
