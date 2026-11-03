@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import type {
   BodyMeasurement,
   CharacterAppearance,
@@ -53,6 +53,104 @@ const TRAIT_LEVEL_OPTIONS = [
 type ExtendedMetricType = MeasurementType | 'ratio';
 type ChartRange = '30d' | '90d' | '1y' | 'all';
 
+export interface NormalizedMeasurement extends BodyMeasurement {
+  normalizedValue: number;
+  displayUnit: string;
+  originalValue: number;
+  originalUnit: string;
+  isConverted: boolean;
+}
+
+// Canonical unit based on unitSystem preference
+export const getCanonicalUnitForMetric = (metric: ExtendedMetricType, unitSystem: string = 'hybrid'): string => {
+  if (metric === 'weight') return unitSystem === 'imperial' ? 'lbs' : 'kg';
+  if (metric === 'height' || metric === 'waist' || metric === 'chest') {
+    return unitSystem === 'metric' ? 'cm' : 'in';
+  }
+  return '';
+};
+
+// Normalize any measurement to canonical unit
+export const normalizeMeasurement = (
+  m: BodyMeasurement,
+  unitSystem: string = 'hybrid'
+): NormalizedMeasurement => {
+  const origVal = m.value;
+  const origUnit = (m.unit || '').toLowerCase().trim();
+  const canonicalUnit = getCanonicalUnitForMetric(m.type, unitSystem);
+
+  let normVal = origVal;
+  let dispUnit = m.unit;
+
+  if (canonicalUnit) {
+    dispUnit = canonicalUnit;
+    if (m.type === 'weight') {
+      if ((origUnit === 'lbs' || origUnit === 'pounds') && canonicalUnit === 'kg') {
+        normVal = origVal / 2.20462;
+      } else if ((origUnit === 'kg' || origUnit === 'kilograms') && canonicalUnit === 'lbs') {
+        normVal = origVal * 2.20462;
+      }
+    } else if (m.type === 'height' || m.type === 'waist' || m.type === 'chest') {
+      if ((origUnit === 'cm' || origUnit === 'centimeters') && canonicalUnit === 'in') {
+        normVal = origVal / 2.54;
+      } else if ((origUnit === 'in' || origUnit === 'inches') && canonicalUnit === 'cm') {
+        normVal = origVal * 2.54;
+      }
+    }
+  }
+
+  const rounded = parseFloat(normVal.toFixed(1));
+  const isConverted = Math.abs(rounded - origVal) > 0.05 || (origUnit !== '' && origUnit !== dispUnit.toLowerCase());
+
+  return {
+    ...m,
+    value: rounded,
+    unit: dispUnit,
+    normalizedValue: rounded,
+    displayUnit: dispUnit,
+    originalValue: origVal,
+    originalUnit: m.unit,
+    isConverted,
+  };
+};
+
+// Beautiful, human-friendly Y-axis scale calculator
+export function getNiceScale(minVal: number, maxVal: number, targetTicks = 4) {
+  let rawSpan = maxVal - minVal;
+  if (rawSpan <= 0.0001) rawSpan = 1;
+
+  const roughStep = rawSpan / targetTicks;
+  const exponent = Math.floor(Math.log10(roughStep));
+  const fraction = roughStep / Math.pow(10, exponent);
+
+  let niceFraction: number;
+  if (fraction <= 1.5) niceFraction = 1;
+  else if (fraction <= 3) niceFraction = 2;
+  else if (fraction <= 7) niceFraction = 5;
+  else niceFraction = 10;
+
+  const step = niceFraction * Math.pow(10, exponent);
+
+  const pad = Math.max(step * 0.25, 0.4);
+  const niceMin = Math.floor((minVal - pad) / step) * step;
+  const niceMax = Math.ceil((maxVal + pad) / step) * step;
+
+  const ticks: number[] = [];
+  const count = Math.round((niceMax - niceMin) / step);
+  for (let i = 0; i <= count; i++) {
+    const val = parseFloat((niceMin + i * step).toFixed(3));
+    ticks.push(val);
+  }
+
+  return {
+    min: niceMin,
+    max: niceMax,
+    span: niceMax - niceMin || 1,
+    step,
+    ticks,
+  };
+}
+
 interface StatSheetViewProps {
   measurements: BodyMeasurement[];
   appearance: CharacterAppearance;
@@ -95,6 +193,23 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   // Active chart metric type
   const [activeChartType, setActiveChartType] = useState<ExtendedMetricType>('weight');
   const [chartRange, setChartRange] = useState<ChartRange>('all');
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState(800);
+
+  useEffect(() => {
+    const el = chartContainerRef.current;
+    if (!el) return;
+    const update = () => {
+      if (el.clientWidth > 0) {
+        setChartWidth(el.clientWidth);
+      }
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
     y: number;
@@ -103,6 +218,9 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     movingAvg: number;
     unit: string;
     note?: string;
+    originalVal?: number;
+    originalUnit?: string;
+    isConverted?: boolean;
   } | null>(null);
 
   // Modals
@@ -159,71 +277,65 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   );
   const activeTraits = useMemo(() => traits.filter((t) => !t.deletedAt), [traits]);
 
-  // Unit preference conversion helper (supports 'hybrid' [kg & in], 'metric' [kg & cm], 'imperial' [lbs & in])
-  const formatMeasurementValue = (val: number, unit: string) => {
-    if (settings.unitSystem === 'imperial') {
-      if (unit === 'kg') return { val: (val * 2.20462).toFixed(1), unit: 'lbs' };
-      if (unit === 'cm') return { val: (val / 2.54).toFixed(1), unit: 'in' };
-      return { val: val.toFixed(1), unit };
-    }
-    if (settings.unitSystem === 'metric') {
-      if (unit === 'lbs') return { val: (val / 2.20462).toFixed(1), unit: 'kg' };
-      if (unit === 'in') return { val: (val * 2.54).toFixed(1), unit: 'cm' };
-      return { val: val.toFixed(1), unit };
-    }
-    // Hybrid (default): weight in kg, lengths and circumferences in inches
-    if (unit === 'lbs') return { val: (val / 2.20462).toFixed(1), unit: 'kg' };
-    if (unit === 'cm') return { val: (val / 2.54).toFixed(1), unit: 'in' };
-    return { val: val.toFixed(1), unit };
-  };
+  // Normalized measurements collection
+  const normalizedMeasurements = useMemo(
+    () => activeMeasurements.map((m) => normalizeMeasurement(m, settings.unitSystem)),
+    [activeMeasurements, settings.unitSystem]
+  );
 
-  // Grouped measurements by type
+  // Grouped normalized measurements by type
   const weightEntries = useMemo(
     () =>
-      activeMeasurements
+      normalizedMeasurements
         .filter((m) => m.type === 'weight')
         .sort((a, b) => a.date.localeCompare(b.date)),
-    [activeMeasurements]
+    [normalizedMeasurements]
   );
 
   const heightEntries = useMemo(
     () =>
-      activeMeasurements
+      normalizedMeasurements
         .filter((m) => m.type === 'height')
         .sort((a, b) => a.date.localeCompare(b.date)),
-    [activeMeasurements]
+    [normalizedMeasurements]
   );
 
   const waistEntries = useMemo(
     () =>
-      activeMeasurements
+      normalizedMeasurements
         .filter((m) => m.type === 'waist')
         .sort((a, b) => a.date.localeCompare(b.date)),
-    [activeMeasurements]
+    [normalizedMeasurements]
   );
 
   const chestEntries = useMemo(
     () =>
-      activeMeasurements
+      normalizedMeasurements
         .filter((m) => m.type === 'chest')
         .sort((a, b) => a.date.localeCompare(b.date)),
-    [activeMeasurements]
+    [normalizedMeasurements]
   );
 
-  // Derived waist-to-chest ratio computed across corresponding dates
+  // Derived waist-to-chest ratio computed across corresponding dates (both normalized)
   const ratioEntries = useMemo(() => {
-    const list: BodyMeasurement[] = [];
+    const list: NormalizedMeasurement[] = [];
     waistEntries.forEach((w) => {
       const matchingChest = chestEntries.find((c) => c.date === w.date);
-      if (matchingChest && matchingChest.value > 0) {
+      if (matchingChest && matchingChest.normalizedValue > 0) {
+        const ratio = parseFloat((w.normalizedValue / matchingChest.normalizedValue).toFixed(3));
         list.push({
           id: `ratio-${w.id}`,
           type: 'custom',
           customLabel: 'Waist-to-Chest Ratio',
-          value: parseFloat((w.value / matchingChest.value).toFixed(3)),
+          value: ratio,
           unit: 'ratio',
           date: w.date,
-          note: `Waist: ${w.value}${w.unit} / Chest: ${matchingChest.value}${matchingChest.unit}`,
+          note: `Waist: ${w.normalizedValue}${w.displayUnit} / Chest: ${matchingChest.normalizedValue}${matchingChest.displayUnit}`,
+          normalizedValue: ratio,
+          displayUnit: 'ratio',
+          originalValue: ratio,
+          originalUnit: 'ratio',
+          isConverted: false,
         });
       }
     });
@@ -246,13 +358,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   const latestRatio = ratioEntries[ratioEntries.length - 1] || null;
   const prevRatio = ratioEntries.length > 1 ? ratioEntries[ratioEntries.length - 2] : null;
 
-  // Active chart raw dataset
+  // Active chart normalized dataset
   const activeDataset = useMemo(() => {
     if (activeChartType === 'ratio') return ratioEntries;
-    return activeMeasurements
+    return normalizedMeasurements
       .filter((m) => m.type === activeChartType)
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [activeMeasurements, activeChartType, ratioEntries]);
+  }, [normalizedMeasurements, activeChartType, ratioEntries]);
 
   // Apply Range filter (30d / 90d / 1y / all)
   const rangeFilteredData = useMemo(() => {
@@ -275,11 +387,11 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
       });
       const avg =
         windowPts.length > 0
-          ? windowPts.reduce((acc, curr) => acc + curr.value, 0) / windowPts.length
-          : pt.value;
+          ? windowPts.reduce((acc, curr) => acc + curr.normalizedValue, 0) / windowPts.length
+          : pt.normalizedValue;
       return {
         ...pt,
-        movingAvg: avg,
+        movingAvg: parseFloat(avg.toFixed(1)),
       };
     });
   }, [rangeFilteredData, activeDataset]);
@@ -520,15 +632,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               sfx.playClick();
               setActiveChartType('weight');
             }}
-            className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
+            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between ${
               activeChartType === 'weight'
-                ? 'bg-[#FFFFFF] border-[#0F172A]'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
+                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Weight</span>
-              {renderSparkline(weightEntries.map((e) => e.value))}
+              {renderSparkline(weightEntries.map((e) => e.normalizedValue))}
             </div>
             <div className="mt-2">
               <div
@@ -536,13 +648,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
                 }`}
               >
-                {latestWeight ? `${formatMeasurementValue(latestWeight.value, latestWeight.unit).val} ${formatMeasurementValue(latestWeight.value, latestWeight.unit).unit}` : '—'}
+                {latestWeight ? `${latestWeight.normalizedValue} ${latestWeight.displayUnit}` : '—'}
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {getDeltaBadge(
-                  latestWeight ? latestWeight.value : null,
-                  prevWeight ? prevWeight.value : null,
-                  latestWeight ? formatMeasurementValue(latestWeight.value, latestWeight.unit).unit : ''
+                  latestWeight ? latestWeight.normalizedValue : null,
+                  prevWeight ? prevWeight.normalizedValue : null,
+                  latestWeight ? latestWeight.displayUnit : 'kg'
                 )}
                 {settings.targetWeightKg && (
                   <span className="text-[11px] text-[#64748B] tabular-nums">
@@ -551,7 +663,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 )}
               </div>
               <div className="text-[10px] text-[#64748B]/80 mt-1 tabular-nums">
-                Current: {latestWeight ? latestWeight.value : 96}kg · Target: {settings.targetWeightKg ?? 85}kg · Peak: 106kg
+                Current: {latestWeight ? latestWeight.normalizedValue : 96}kg · Target: {settings.targetWeightKg ?? 85}kg · Peak: 106kg
               </div>
             </div>
           </div>
@@ -562,15 +674,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               sfx.playClick();
               setActiveChartType('height');
             }}
-            className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
+            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between ${
               activeChartType === 'height'
-                ? 'bg-[#FFFFFF] border-[#0F172A]'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
+                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Height</span>
-              {renderSparkline(heightEntries.map((e) => e.value))}
+              {renderSparkline(heightEntries.map((e) => e.normalizedValue))}
             </div>
             <div className="mt-2">
               <div
@@ -578,13 +690,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
                 }`}
               >
-                {latestHeight ? `${formatMeasurementValue(latestHeight.value, latestHeight.unit).val} ${formatMeasurementValue(latestHeight.value, latestHeight.unit).unit}` : '—'}
+                {latestHeight ? `${latestHeight.normalizedValue} ${latestHeight.displayUnit}` : '—'}
               </div>
               <div className="mt-1">
                 {getDeltaBadge(
-                  latestHeight ? latestHeight.value : null,
-                  prevHeight ? prevHeight.value : null,
-                  latestHeight ? formatMeasurementValue(latestHeight.value, latestHeight.unit).unit : ''
+                  latestHeight ? latestHeight.normalizedValue : null,
+                  prevHeight ? prevHeight.normalizedValue : null,
+                  latestHeight ? latestHeight.displayUnit : 'in'
                 )}
               </div>
             </div>
@@ -596,15 +708,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               sfx.playClick();
               setActiveChartType('waist');
             }}
-            className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
+            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between ${
               activeChartType === 'waist'
-                ? 'bg-[#FFFFFF] border-[#0F172A]'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
+                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Waist</span>
-              {renderSparkline(waistEntries.map((e) => e.value))}
+              {renderSparkline(waistEntries.map((e) => e.normalizedValue))}
             </div>
             <div className="mt-2">
               <div
@@ -612,13 +724,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
                 }`}
               >
-                {latestWaist ? `${formatMeasurementValue(latestWaist.value, latestWaist.unit).val} ${formatMeasurementValue(latestWaist.value, latestWaist.unit).unit}` : '—'}
+                {latestWaist ? `${latestWaist.normalizedValue} ${latestWaist.displayUnit}` : '—'}
               </div>
               <div className="mt-1">
                 {getDeltaBadge(
-                  latestWaist ? latestWaist.value : null,
-                  prevWaist ? prevWaist.value : null,
-                  latestWaist ? formatMeasurementValue(latestWaist.value, latestWaist.unit).unit : ''
+                  latestWaist ? latestWaist.normalizedValue : null,
+                  prevWaist ? prevWaist.normalizedValue : null,
+                  latestWaist ? latestWaist.displayUnit : 'in'
                 )}
               </div>
             </div>
@@ -630,15 +742,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               sfx.playClick();
               setActiveChartType('chest');
             }}
-            className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between ${
+            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between ${
               activeChartType === 'chest'
-                ? 'bg-[#FFFFFF] border-[#0F172A]'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
+                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Chest</span>
-              {renderSparkline(chestEntries.map((e) => e.value))}
+              {renderSparkline(chestEntries.map((e) => e.normalizedValue))}
             </div>
             <div className="mt-2">
               <div
@@ -646,13 +758,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
                 }`}
               >
-                {latestChest ? `${formatMeasurementValue(latestChest.value, latestChest.unit).val} ${formatMeasurementValue(latestChest.value, latestChest.unit).unit}` : '—'}
+                {latestChest ? `${latestChest.normalizedValue} ${latestChest.displayUnit}` : '—'}
               </div>
               <div className="mt-1">
                 {getDeltaBadge(
-                  latestChest ? latestChest.value : null,
-                  prevChest ? prevChest.value : null,
-                  latestChest ? formatMeasurementValue(latestChest.value, latestChest.unit).unit : ''
+                  latestChest ? latestChest.normalizedValue : null,
+                  prevChest ? prevChest.normalizedValue : null,
+                  latestChest ? latestChest.displayUnit : 'in'
                 )}
               </div>
             </div>
@@ -664,15 +776,15 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               sfx.playClick();
               setActiveChartType('ratio');
             }}
-            className={`p-3.5 rounded-[6px] border transition-colors cursor-pointer flex flex-col justify-between col-span-2 md:col-span-1 ${
+            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between col-span-2 md:col-span-1 ${
               activeChartType === 'ratio'
-                ? 'bg-[#FFFFFF] border-[#0F172A]'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#0F172A]'
+                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
+                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Waist / Chest</span>
-              {renderSparkline(ratioEntries.map((e) => e.value))}
+              {renderSparkline(ratioEntries.map((e) => e.normalizedValue))}
             </div>
             <div className="mt-2">
               <div
@@ -680,19 +792,19 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
                 }`}
               >
-                {latestRatio ? latestRatio.value.toFixed(2) : '—'}
+                {latestRatio ? latestRatio.normalizedValue.toFixed(2) : '—'}
               </div>
               <div className="mt-1">
                 {latestRatio && prevRatio ? (
                   <span className="text-[11px] tabular-nums text-[#64748B] font-medium flex items-center gap-1">
-                    {latestRatio.value > prevRatio.value ? (
+                    {latestRatio.normalizedValue > prevRatio.normalizedValue ? (
                       <TrendingUp className="w-3 h-3 text-[#64748B]" />
-                    ) : latestRatio.value < prevRatio.value ? (
+                    ) : latestRatio.normalizedValue < prevRatio.normalizedValue ? (
                       <TrendingDown className="w-3 h-3 text-[#64748B]" />
                     ) : null}
                     <span>
-                      {latestRatio.value >= prevRatio.value ? '+' : ''}
-                      {(latestRatio.value - prevRatio.value).toFixed(2)} ratio
+                      {latestRatio.normalizedValue >= prevRatio.normalizedValue ? '+' : ''}
+                      {(latestRatio.normalizedValue - prevRatio.normalizedValue).toFixed(2)} ratio
                     </span>
                   </span>
                 ) : (
@@ -704,6 +816,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         </div>
 
         {/* Dynamic Chart Container */}
+        {/* Dynamic Chart Container */}
         <div className="space-y-4 pt-2">
           {/* Chart Header Bar: Title, Legend, Delta & Range Selector */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E2E8F0]">
@@ -714,14 +827,16 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
 
               {/* Legend */}
               <div className="flex items-center gap-3 text-[11px] text-[#64748B]">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#0F172A]" />
-                  <span>Raw</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0F172A]" />
+                  <span>Recorded</span>
                 </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-0.5 border-t border-dashed border-[#2563EB]" />
-                  <span>7d Moving Avg</span>
-                </span>
+                {chartPointsWithMA.some((p) => Math.abs(p.normalizedValue - p.movingAvg) > 0.1) && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-0.5 border-t border-dashed border-[#2563EB]" />
+                    <span>7d Trend</span>
+                  </span>
+                )}
               </div>
 
               {/* Delta Badge */}
@@ -744,7 +859,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   }}
                   className={`px-2.5 py-0.5 rounded-[4px] text-[11px] font-medium transition-colors cursor-pointer ${
                     chartRange === r
-                      ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0]'
+                      ? 'bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] shadow-xs'
                       : 'text-[#64748B] hover:text-[#0F172A]'
                   }`}
                 >
@@ -765,55 +880,114 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                 privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
               }`}
             >
-              <div className="h-56 sm:h-64 w-full relative">
-                <svg
-                  className="w-full h-full overflow-visible"
-                  viewBox="0 0 600 200"
-                  preserveAspectRatio="none"
-                >
-                  {(() => {
-                    const allVals = chartPointsWithMA.flatMap((p) => [p.value, p.movingAvg]);
-                    const rawMin = Math.min(...allVals);
-                    const rawMax = Math.max(...allVals);
-                    const margin = (rawMax - rawMin) * 0.1 || 1;
-                    const min = rawMin - margin;
-                    const max = rawMax + margin;
-                    const span = max - min || 1;
+              <div ref={chartContainerRef} className="h-60 sm:h-64 w-full relative">
+                {(() => {
+                  const allVals = chartPointsWithMA.flatMap((p) => [p.normalizedValue, p.movingAvg]);
+                  const rawMin = Math.min(...allVals);
+                  const rawMax = Math.max(...allVals);
+                  
+                  const scale = getNiceScale(rawMin, rawMax, 4);
+                  const min = scale.min;
+                  const span = scale.span;
 
-                    const leftPad = 48;
-                    const rightPad = 590;
-                    const plotWidth = rightPad - leftPad;
-                    const topPad = 15;
-                    const bottomPad = 185;
-                    const plotHeight = bottomPad - topPad;
+                  const leftPad = 48;
+                  const rightPad = Math.max(leftPad + 120, chartWidth - 24);
+                  const plotWidth = rightPad - leftPad;
+                  const topPad = 20;
+                  const bottomPad = 200;
+                  const plotHeight = bottomPad - topPad;
 
-                    const gridSteps = [0, 0.33, 0.66, 1];
-                    const gridlines = gridSteps.map((fraction) => {
-                      const y = bottomPad - fraction * plotHeight;
-                      const val = min + fraction * span;
-                      return { y, val };
-                    });
+                  const gridlines = scale.ticks.map((val) => {
+                    const y = bottomPad - ((val - min) / span) * plotHeight;
+                    return { y, val };
+                  });
 
-                    const mapped = chartPointsWithMA.map((p, idx) => {
-                      const x =
-                        chartPointsWithMA.length === 1
-                          ? leftPad + plotWidth / 2
-                          : leftPad + (idx / (chartPointsWithMA.length - 1)) * plotWidth;
-                      const yRaw = bottomPad - ((p.value - min) / span) * plotHeight;
-                      const yMA = bottomPad - ((p.movingAvg - min) / span) * plotHeight;
-                      return { x, yRaw, yMA, ...p };
-                    });
+                  // Chronological X-axis spacing with collision prevention
+                  const firstTime = new Date(chartPointsWithMA[0].date).getTime();
+                  const lastTime = new Date(chartPointsWithMA[chartPointsWithMA.length - 1].date).getTime();
+                  const totalTimeSpan = lastTime - firstTime;
 
-                    const rawPathStr = mapped
-                      .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yRaw.toFixed(1)}`)
-                      .join(' ');
+                  const initialX = chartPointsWithMA.map((p, idx) => {
+                    if (chartPointsWithMA.length === 1) return leftPad + plotWidth / 2;
+                    if (totalTimeSpan <= 0) return leftPad + (idx / (chartPointsWithMA.length - 1)) * plotWidth;
+                    const t = new Date(p.date).getTime();
+                    return leftPad + ((t - firstTime) / totalTimeSpan) * plotWidth;
+                  });
 
-                    const maPathStr = mapped
-                      .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yMA.toFixed(1)}`)
-                      .join(' ');
+                  // Ensure minimum 24px between consecutive points
+                  const xPositions = [...initialX];
+                  for (let i = 1; i < xPositions.length; i++) {
+                    if (xPositions[i] - xPositions[i - 1] < 24) {
+                      xPositions[i] = xPositions[i - 1] + 24;
+                    }
+                  }
+                  // Normalize back into [leftPad, rightPad]
+                  const maxX = xPositions[xPositions.length - 1];
+                  if (maxX > rightPad) {
+                    const rescale = plotWidth / (maxX - leftPad);
+                    for (let i = 0; i < xPositions.length; i++) {
+                      xPositions[i] = leftPad + (xPositions[i] - leftPad) * rescale;
+                    }
+                  }
 
-                    return (
-                      <g>
+                  const mapped = chartPointsWithMA.map((p, idx) => {
+                    const x = xPositions[idx];
+                    const yRaw = bottomPad - ((p.normalizedValue - min) / span) * plotHeight;
+                    const yMA = bottomPad - ((p.movingAvg - min) / span) * plotHeight;
+                    return { ...p, x, yRaw, yMA };
+                  });
+
+                  const linePathStr = mapped
+                    .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yRaw.toFixed(1)}`)
+                    .join(' ');
+
+                  const areaPathStr = mapped.length > 1
+                    ? `${linePathStr} L ${mapped[mapped.length - 1].x.toFixed(1)} ${bottomPad} L ${mapped[0].x.toFixed(1)} ${bottomPad} Z`
+                    : '';
+
+                  const showMA = mapped.some((p) => Math.abs(p.normalizedValue - p.movingAvg) > 0.1);
+                  const maPathStr = showMA
+                    ? mapped
+                        .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yMA.toFixed(1)}`)
+                        .join(' ')
+                    : '';
+
+                  // Visible date markers on X axis (avoid overlapping text)
+                  const dateMarkers: { id: string; x: number; text: string }[] = [];
+                  let prevLabelX = -100;
+                  if (mapped.length > 0) {
+                    dateMarkers.push({ id: mapped[0].id, x: mapped[0].x, text: mapped[0].date });
+                    prevLabelX = mapped[0].x;
+                  }
+                  for (let i = 1; i < mapped.length - 1; i++) {
+                    const pt = mapped[i];
+                    const distEnd = mapped[mapped.length - 1].x - pt.x;
+                    if (pt.x - prevLabelX >= 75 && distEnd >= 75) {
+                      dateMarkers.push({ id: pt.id, x: pt.x, text: pt.date });
+                      prevLabelX = pt.x;
+                    }
+                  }
+                  if (mapped.length > 1) {
+                    const lastPt = mapped[mapped.length - 1];
+                    if (lastPt.x - prevLabelX >= 55) {
+                      dateMarkers.push({ id: lastPt.id, x: lastPt.x, text: lastPt.date });
+                    }
+                  }
+
+                  return (
+                    <>
+                      <svg
+                        className="w-full h-full overflow-visible"
+                        viewBox={`0 0 ${chartWidth} 240`}
+                      >
+                        <defs>
+                          <linearGradient id="metricChartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#0F172A" stopOpacity="0.07" />
+                            <stop offset="100%" stopColor="#0F172A" stopOpacity="0.00" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Grid lines and Y-axis scale */}
                         {gridlines.map((gl, i) => (
                           <g key={i}>
                             <line
@@ -823,32 +997,45 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                               y2={gl.y}
                               stroke="#E2E8F0"
                               strokeWidth="1"
-                              strokeDasharray="2 2"
+                              strokeDasharray="3 3"
                             />
                             <text
                               x={leftPad - 8}
                               y={gl.y + 3.5}
                               textAnchor="end"
-                              fontSize="10"
+                              fontSize="11"
                               fill="#64748B"
                               fontFamily="sans-serif"
+                              className="tabular-nums"
                             >
-                              {gl.val.toFixed(1)}
+                              {gl.val}
                             </text>
                           </g>
                         ))}
 
-                        <path
-                          d={maPathStr}
-                          fill="none"
-                          stroke="#2563EB"
-                          strokeWidth="1.5"
-                          strokeDasharray="3 3"
-                          strokeLinecap="round"
-                        />
+                        {/* Soft Area fill under curve */}
+                        {areaPathStr && (
+                          <path
+                            d={areaPathStr}
+                            fill="url(#metricChartGrad)"
+                          />
+                        )}
 
+                        {/* 7-day Moving Average (if different from raw) */}
+                        {showMA && (
+                          <path
+                            d={maPathStr}
+                            fill="none"
+                            stroke="#2563EB"
+                            strokeWidth="1.5"
+                            strokeDasharray="4 4"
+                            strokeLinecap="round"
+                          />
+                        )}
+
+                        {/* Main Trend Line */}
                         <path
-                          d={rawPathStr}
+                          d={linePathStr}
                           fill="none"
                           stroke="#0F172A"
                           strokeWidth="2"
@@ -856,85 +1043,110 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                           strokeLinejoin="round"
                         />
 
-                        {mapped.map((p) => (
-                          <g key={p.id}>
-                            <circle
-                              cx={p.x}
-                              cy={p.yRaw}
-                              r="3.5"
-                              fill="#FFFFFF"
-                              stroke="#0F172A"
-                              strokeWidth="1.5"
-                            />
-                            <circle
-                              cx={p.x}
-                              cy={p.yRaw}
-                              r="14"
-                              fill="transparent"
-                              className="cursor-pointer"
-                              onMouseEnter={(e) => {
-                                const rect = e.currentTarget.ownerSVGElement?.getBoundingClientRect();
-                                if (rect) {
-                                  const pctX = (p.x / 600) * rect.width;
-                                  const pctY = (p.yRaw / 200) * rect.height;
+                        {/* Point Circles */}
+                        {mapped.map((p) => {
+                          const isHovered = hoveredPoint?.date === p.date;
+                          return (
+                            <g key={p.id}>
+                              {/* Outer white ring */}
+                              <circle
+                                cx={p.x}
+                                cy={p.yRaw}
+                                r={isHovered ? 5.5 : 4}
+                                fill="#FFFFFF"
+                                stroke="#0F172A"
+                                strokeWidth={isHovered ? 2.5 : 2}
+                                className="transition-all duration-150"
+                              />
+                              {/* Inner dark center */}
+                              <circle
+                                cx={p.x}
+                                cy={p.yRaw}
+                                r={isHovered ? 2.5 : 1.5}
+                                fill="#0F172A"
+                              />
+                              {/* Invisible hit area */}
+                              <circle
+                                cx={p.x}
+                                cy={p.yRaw}
+                                r="16"
+                                fill="transparent"
+                                className="cursor-pointer"
+                                onMouseEnter={() => {
                                   setHoveredPoint({
-                                    x: pctX,
-                                    y: pctY,
+                                    x: p.x,
+                                    y: p.yRaw,
                                     date: p.date,
-                                    rawVal: p.value,
+                                    rawVal: p.normalizedValue,
                                     movingAvg: p.movingAvg,
-                                    unit: p.unit,
+                                    unit: p.displayUnit,
                                     note: p.note,
+                                    originalVal: p.originalValue,
+                                    originalUnit: p.originalUnit,
+                                    isConverted: p.isConverted,
                                   });
-                                }
-                              }}
-                              onMouseLeave={() => setHoveredPoint(null)}
-                            />
-                          </g>
+                                }}
+                                onMouseLeave={() => setHoveredPoint(null)}
+                              />
+                            </g>
+                          );
+                        })}
+                      </svg>
+
+                      {/* Tooltip */}
+                      {hoveredPoint && (
+                        <div
+                          style={{
+                            left: `${hoveredPoint.x}px`,
+                            top: `${Math.max(10, hoveredPoint.y - 82)}px`,
+                          }}
+                          className="absolute -translate-x-1/2 pointer-events-none z-30 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] p-2.5 rounded-[6px] text-xs shadow-md space-y-1 min-w-[145px]"
+                        >
+                          <div className="font-medium text-[#0F172A] border-b border-[#E2E8F0] pb-1 tabular-nums flex items-center justify-between">
+                            <span>{hoveredPoint.date}</span>
+                            {hoveredPoint.isConverted && (
+                              <span className="text-[9px] font-mono uppercase bg-[#F1F5F9] px-1 py-0.5 rounded text-[#64748B]">
+                                {hoveredPoint.originalVal} {hoveredPoint.originalUnit}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
+                            <span className="text-[#64748B]">Recorded:</span>
+                            <span className="font-semibold text-[#0F172A]">
+                              {hoveredPoint.rawVal} {hoveredPoint.unit}
+                            </span>
+                          </div>
+                          {showMA && (
+                            <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
+                              <span className="text-[#2563EB]">7d Trend:</span>
+                              <span className="font-medium text-[#2563EB]">
+                                {hoveredPoint.movingAvg} {hoveredPoint.unit}
+                              </span>
+                            </div>
+                          )}
+                          {hoveredPoint.note && (
+                            <div className="text-[10px] text-[#64748B] italic pt-0.5 border-t border-[#E2E8F0] truncate max-w-[200px]">
+                              "{hoveredPoint.note}"
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Aligned Chronological Date Labels */}
+                      <div className="relative h-6 text-[11px] tabular-nums text-[#64748B] mt-1.5 overflow-hidden">
+                        {dateMarkers.map((m) => (
+                          <div
+                            key={m.id}
+                            style={{ left: `${m.x}px` }}
+                            className="absolute -translate-x-1/2 whitespace-nowrap"
+                          >
+                            <span>{m.text}</span>
+                          </div>
                         ))}
-                      </g>
-                    );
-                  })()}
-                </svg>
-
-                {hoveredPoint && (
-                  <div
-                    style={{
-                      left: `${hoveredPoint.x}px`,
-                      top: `${Math.max(10, hoveredPoint.y - 70)}px`,
-                    }}
-                    className="absolute -translate-x-1/2 pointer-events-none z-30 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] p-2.5 rounded-[6px] text-xs space-y-1 min-w-[140px]"
-                  >
-                    <div className="font-medium text-[#0F172A] border-b border-[#E2E8F0] pb-1 tabular-nums">
-                      {hoveredPoint.date}
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
-                      <span className="text-[#64748B]">Raw:</span>
-                      <span className="font-medium">
-                        {hoveredPoint.rawVal.toFixed(1)} {hoveredPoint.unit}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] gap-2 tabular-nums">
-                      <span className="text-[#2563EB]">7d Avg:</span>
-                      <span className="font-medium">
-                        {hoveredPoint.movingAvg.toFixed(1)} {hoveredPoint.unit}
-                      </span>
-                    </div>
-                    {hoveredPoint.note && (
-                      <div className="text-[10px] text-[#64748B] italic pt-0.5 border-t border-[#E2E8F0]">
-                        "{hoveredPoint.note}"
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] tabular-nums text-[#64748B] mt-2 px-12">
-                <span>{chartPointsWithMA[0].date}</span>
-                {chartPointsWithMA.length > 2 && (
-                  <span>{chartPointsWithMA[Math.floor(chartPointsWithMA.length / 2)].date}</span>
-                )}
-                <span>{chartPointsWithMA[chartPointsWithMA.length - 1].date}</span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -948,7 +1160,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
               <span className="text-[11px] text-[#64748B]">Latest records</span>
             </div>
 
-            <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
+            <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
               {activeDataset.slice(-6).reverse().map((entry) => (
                 <div
                   key={entry.id}
@@ -958,6 +1170,11 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                     <span className="font-medium tabular-nums text-[#0F172A]">
                       {entry.value} {entry.unit}
                     </span>
+                    {entry.isConverted && (
+                      <span className="text-[10px] text-[#64748B] bg-[#F1F5F9] px-1.5 py-0.5 rounded font-mono">
+                        logged {entry.originalValue} {entry.originalUnit}
+                      </span>
+                    )}
                     {entry.note && (
                       <span className="text-[#64748B] text-[11px] truncate max-w-[200px] sm:max-w-xs">
                         ({entry.note})
