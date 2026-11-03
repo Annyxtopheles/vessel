@@ -1192,11 +1192,55 @@ export const INITIAL_ITEMS: InventoryItem[] = [
 ];
 
 export const INITIAL_HABITS: CustomHabit[] = [
-  { id: 'h-1', name: 'Morning Adhkar & Quran reading', attribute: 'WIS', non_negotiable: true, description: 'At least 15 minutes of recitation before starting the work day.' },
-  { id: 'h-2', name: 'Ship code commit / client milestone', attribute: 'INT', non_negotiable: true, description: 'Meaningful engineering contribution pushed and reviewed.' },
-  { id: 'h-3', name: 'Daily posture & mobility stretch', attribute: 'STR', non_negotiable: false, description: 'Spinal decompression, dead-hangs, and hip openers.' },
-  { id: 'h-4', name: 'No mindless phone before 10 AM', attribute: 'WIS', non_negotiable: false, description: 'Protect early morning mental clarity from notification overload.' },
-  { id: 'h-5', name: 'Check in with peer or team member', attribute: 'CHA', non_negotiable: false, description: 'Active mentorship or collaborative unblocking.' },
+  {
+    id: 'h-1',
+    name: '19-Hour Workday Fasting Protocol',
+    attribute: 'WIS',
+    non_negotiable: true,
+    description: 'Fast broken only at 2:00 PM lunch (Mon–Fri); protein & veggies first; zero evening/night snacking.',
+  },
+  {
+    id: 'h-2',
+    name: 'Dawn BP PT & 105kg Calisthenics',
+    attribute: 'STR',
+    non_negotiable: true,
+    description: 'Baden-Powell 6 morning bed movements + pushup/squat circuits & 60-min morning park movement.',
+  },
+  {
+    id: 'h-3',
+    name: 'Zad Academy Islamic Curriculum',
+    attribute: 'WIS',
+    non_negotiable: true,
+    description: '75-min rotating deep study: Aqeedah, Tafsir, Hadith, Seerah, Fiqh, Tarbiyah, Arabic.',
+  },
+  {
+    id: 'h-4',
+    name: 'Quran Recitation & IELTS Foundations',
+    attribute: 'WIS',
+    non_negotiable: false,
+    description: '20m tajweed recitation + 20m vocabulary & drills toward future instructor mastery.',
+  },
+  {
+    id: 'h-5',
+    name: 'Ship Corporate Design Deliverable',
+    attribute: 'INT',
+    non_negotiable: true,
+    description: 'Core SJI client deliverable or UI architecture milestone completed and reviewed.',
+  },
+  {
+    id: 'h-6',
+    name: 'Daily Vector & Design Sprints',
+    attribute: 'INT',
+    non_negotiable: false,
+    description: '1 Vector Art asset for stock sites + 1 T-Shirt vector design for Tesnova/personal archive.',
+  },
+  {
+    id: 'h-7',
+    name: 'Ascetic Wind-Down & Evening Journaling',
+    attribute: 'WIS',
+    non_negotiable: false,
+    description: '30-min self-interrogation journal, accountability review, and sleep preparation at 10 PM.',
+  },
 ];
 
 export const INITIAL_SKILLS: SkillNode[] = [

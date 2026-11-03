@@ -406,17 +406,24 @@ export async function initDatabase(): Promise<void> {
     console.warn('[Vessel DB] Could not seed net worth snapshots:', err);
   }
 
-  // Ensure habits have default non_negotiable values if undefined
+  // Synchronize habits with canonical Mind Vault daily operating system
   try {
-    const habits = await db.habits.toArray();
-    for (const habit of habits) {
-      if (typeof habit.non_negotiable !== 'boolean') {
-        const isDefaultNonNeg = habit.id === 'h-1' || habit.id === 'h-2';
-        await db.habits.update(habit.id, { non_negotiable: isDefaultNonNeg });
+    for (const h of INITIAL_HABITS) {
+      const existing = await habitRepo.get(h.id);
+      if (existing) {
+        await habitRepo.update(h.id, {
+          name: h.name,
+          attribute: h.attribute,
+          description: h.description,
+          non_negotiable: h.non_negotiable,
+          deleted_at: null,
+        });
+      } else {
+        await habitRepo.batchPut([normalizeRecord(h)]);
       }
     }
   } catch (err) {
-    console.warn('[Vessel DB] Could not migrate habits non_negotiable:', err);
+    console.warn('[Vessel DB] Could not sync canonical habits:', err);
   }
 
   // Ensure Stat Sheet & event tables are populated if empty
