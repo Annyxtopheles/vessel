@@ -565,6 +565,69 @@ export async function initDatabase(): Promise<void> {
         await itemRepo.batchPut(missing.map((m) => normalizeRecord(m)));
       }
 
+      // Synchronize canonical item details (pricing, clean names, quantities, notes, lore)
+      const canonicalItemsToSync = [
+        'item-bottom-jeans-janna-black',
+        'item-panjabi-1',
+        'item-panjabi-2',
+        'item-panjabi-3',
+        'item-panjabi-4',
+        'item-panjabi-5',
+        'item-apparel-overcoat-huaxi-heavy',
+        'item-apparel-shirt-arvind-chocolate',
+        'item-apparel-shirt-textured-slate-blue',
+        'item-bottom-jeans-1',
+        'item-bottom-jogger-1',
+        'item-bottom-jogger-london-black',
+        'item-apparel-trouser-tahari-black',
+        'item-apparel-trouser-lowemc-slim',
+        'item-apparel-shirt-forest-green',
+        'item-apparel-shirt-mpi-cyan',
+        'item-apparel-lungi-manikganj',
+        'item-edc-towel-1',
+        'item-apparel-polo-european-it',
+        'item-apparel-shirt-rover-uniform',
+        'item-apparel-shirt-dad-striped',
+        'item-apparel-sweatshirt-retired-red',
+        'item-apparel-panjabi-coral-red',
+        'item-apparel-overcoat-1',
+        'item-apparel-jacket-1',
+        'item-apparel-tshirt-1',
+        'item-apparel-shirt-1',
+        'item-apparel-tshirt-xios-black',
+        'item-apparel-sweater-school-navy',
+        'item-apparel-hoodie-blaze-grey',
+        'item-apparel-sweater-striped-badol',
+        'item-rover-moot-jacket',
+        'item-rover-moot-trousers',
+        'item-apparel-tshirt-ocean-white',
+        'item-apparel-sweater-glitch-stripe',
+        'item-apparel-trouser-black-relaxed',
+        'item-apparel-hoodie-diploma-black',
+        'item-apparel-jeans-indigo-dark',
+        'item-apparel-polo-biman-optimizers',
+        'item-apparel-trouser-school-rover-navy',
+        'item-apparel-shirt-school-white',
+        'item-apparel-1',
+        'item-apparel-2',
+        'item-apparel-3',
+        'item-apparel-4',
+        'item-apparel-5',
+      ];
+      for (const id of canonicalItemsToSync) {
+        const canonical = INITIAL_ITEMS.find((i) => i.id === id);
+        if (canonical && existingIds.has(id)) {
+          await itemRepo.update(id, {
+            name: canonical.name,
+            goldValue: canonical.goldValue,
+            quantity: canonical.quantity,
+            notes: canonical.notes,
+            lore: canonical.lore,
+            tags: canonical.tags,
+          });
+        }
+      }
+
       // Backfill and synchronize quests from Mind Vault
       const existingQuests = await questRepo.list();
       const existingQuestIds = new Set(existingQuests.map((q) => q.id));
