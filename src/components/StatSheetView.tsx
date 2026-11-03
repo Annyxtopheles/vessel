@@ -50,7 +50,6 @@ const TRAIT_LEVEL_OPTIONS = [
   { id: '5', label: 'Level 5 (Mastered)' },
 ];
 
-type ExtendedMetricType = MeasurementType | 'ratio';
 type ChartRange = '30d' | '90d' | '1y' | 'all';
 
 interface NormalizedMeasurement extends BodyMeasurement {
@@ -62,7 +61,7 @@ interface NormalizedMeasurement extends BodyMeasurement {
 }
 
 // Canonical unit based on unitSystem preference
-const getCanonicalUnitForMetric = (metric: ExtendedMetricType, unitSystem: string = 'hybrid'): string => {
+const getCanonicalUnitForMetric = (metric: MeasurementType, unitSystem: string = 'hybrid'): string => {
   if (metric === 'weight') return unitSystem === 'imperial' ? 'lbs' : 'kg';
   if (metric === 'height' || metric === 'waist' || metric === 'chest') {
     return unitSystem === 'metric' ? 'cm' : 'in';
@@ -191,7 +190,7 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   onDeleteTrait: _onDeleteTrait,
 }) => {
   // Active chart metric type
-  const [activeChartType, setActiveChartType] = useState<ExtendedMetricType>('weight');
+  const [activeChartType, setActiveChartType] = useState<MeasurementType>('weight');
   const [chartRange, setChartRange] = useState<ChartRange>('all');
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [chartWidth, setChartWidth] = useState(800);
@@ -316,32 +315,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     [normalizedMeasurements]
   );
 
-  // Derived waist-to-chest ratio computed across corresponding dates (both normalized)
-  const ratioEntries = useMemo(() => {
-    const list: NormalizedMeasurement[] = [];
-    waistEntries.forEach((w) => {
-      const matchingChest = chestEntries.find((c) => c.date === w.date);
-      if (matchingChest && matchingChest.normalizedValue > 0) {
-        const ratio = parseFloat((w.normalizedValue / matchingChest.normalizedValue).toFixed(3));
-        list.push({
-          id: `ratio-${w.id}`,
-          type: 'custom',
-          customLabel: 'Waist-to-Chest Ratio',
-          value: ratio,
-          unit: 'ratio',
-          date: w.date,
-          note: `Waist: ${w.normalizedValue}${w.displayUnit} / Chest: ${matchingChest.normalizedValue}${matchingChest.displayUnit}`,
-          normalizedValue: ratio,
-          displayUnit: 'ratio',
-          originalValue: ratio,
-          originalUnit: 'ratio',
-          isConverted: false,
-        });
-      }
-    });
-    return list;
-  }, [waistEntries, chestEntries]);
-
   // Latest measurements
   const latestWeight = weightEntries[weightEntries.length - 1] || null;
   const prevWeight = weightEntries.length > 1 ? weightEntries[weightEntries.length - 2] : null;
@@ -355,16 +328,12 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   const latestChest = chestEntries[chestEntries.length - 1] || null;
   const prevChest = chestEntries.length > 1 ? chestEntries[chestEntries.length - 2] : null;
 
-  const latestRatio = ratioEntries[ratioEntries.length - 1] || null;
-  const prevRatio = ratioEntries.length > 1 ? ratioEntries[ratioEntries.length - 2] : null;
-
   // Active chart normalized dataset
   const activeDataset = useMemo(() => {
-    if (activeChartType === 'ratio') return ratioEntries;
     return normalizedMeasurements
       .filter((m) => m.type === activeChartType)
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [normalizedMeasurements, activeChartType, ratioEntries]);
+  }, [normalizedMeasurements, activeChartType]);
 
   // Apply Range filter (30d / 90d / 1y / all)
   const rangeFilteredData = useMemo(() => {
@@ -501,7 +470,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     if (activeChartType === 'height') return 'Height';
     if (activeChartType === 'waist') return 'Waist';
     if (activeChartType === 'chest') return 'Chest';
-    if (activeChartType === 'ratio') return 'Waist-to-Chest Ratio';
     return 'Custom Metric';
   }, [activeChartType]);
 
@@ -624,8 +592,8 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
           </button>
         </div>
 
-        {/* 5 Stat Cards (Weight, Height, Waist, Chest, Waist-to-Chest Ratio) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {/* 4 Stat Cards (Weight, Height, Waist, Chest) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           {/* Card 1: Weight */}
           <div
             onClick={() => {
@@ -765,50 +733,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   latestChest ? latestChest.normalizedValue : null,
                   prevChest ? prevChest.normalizedValue : null,
                   latestChest ? latestChest.displayUnit : 'in'
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Card 5: Derived Waist-to-Chest Ratio */}
-          <div
-            onClick={() => {
-              sfx.playClick();
-              setActiveChartType('ratio');
-            }}
-            className={`p-3.5 rounded-[6px] border transition-all cursor-pointer flex flex-col justify-between col-span-2 md:col-span-1 ${
-              activeChartType === 'ratio'
-                ? 'bg-[#FFFFFF] border-[#0F172A] ring-1 ring-[#0F172A]/20 shadow-xs'
-                : 'bg-[#FFFFFF] border-[#E2E8F0] hover:border-[#94A3B8]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Waist / Chest</span>
-              {renderSparkline(ratioEntries.map((e) => e.normalizedValue))}
-            </div>
-            <div className="mt-2">
-              <div
-                className={`editorial-stat-num text-[22px] ${
-                  privacyMode ? 'filter blur-[6px] hover:filter-none transition-all' : ''
-                }`}
-              >
-                {latestRatio ? latestRatio.normalizedValue.toFixed(2) : '—'}
-              </div>
-              <div className="mt-1">
-                {latestRatio && prevRatio ? (
-                  <span className="text-[11px] tabular-nums text-[#64748B] font-medium flex items-center gap-1">
-                    {latestRatio.normalizedValue > prevRatio.normalizedValue ? (
-                      <TrendingUp className="w-3 h-3 text-[#64748B]" />
-                    ) : latestRatio.normalizedValue < prevRatio.normalizedValue ? (
-                      <TrendingDown className="w-3 h-3 text-[#64748B]" />
-                    ) : null}
-                    <span>
-                      {latestRatio.normalizedValue >= prevRatio.normalizedValue ? '+' : ''}
-                      {(latestRatio.normalizedValue - prevRatio.normalizedValue).toFixed(2)} ratio
-                    </span>
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-[#64748B]">Computed</span>
                 )}
               </div>
             </div>
@@ -1183,19 +1107,17 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   </div>
                   <div className="flex items-center gap-2.5 text-[#64748B] text-[11px] tabular-nums">
                     <span>{entry.date}</span>
-                    {activeChartType !== 'ratio' && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          sfx.playClick();
-                          onDeleteMeasurement(entry.id);
-                        }}
-                        className="hover:text-[#E11D48] transition-colors p-0.5 cursor-pointer"
-                        title="Delete entry"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sfx.playClick();
+                        onDeleteMeasurement(entry.id);
+                      }}
+                      className="hover:text-[#E11D48] transition-colors p-0.5 cursor-pointer"
+                      title="Delete entry"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
