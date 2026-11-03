@@ -476,13 +476,22 @@ export async function initDatabase(): Promise<void> {
       await traitRepo.batchPut(missingTraits.map((t) => normalizeRecord(t)));
     }
 
+    // Clean up stale mock personality entries (INTJ-A, 5w6) and ensure canonical Mind Vault typology is active
     const allPersonality = await personalityRepo.list();
     for (const p of allPersonality) {
-      if ((p as any).deletedAt || p.deleted_at) {
+      if (
+        p.id === 'pers-1' ||
+        p.id === 'pers-2' ||
+        p.id === 'pers-3' ||
+        (p.system === 'MBTI' && p.result.includes('INTJ'))
+      ) {
+        await personalityRepo.hardDelete(p.id);
+      } else if ((p as any).deletedAt || p.deleted_at) {
         await personalityRepo.update(p.id, { deleted_at: null, deletedAt: undefined } as any);
       }
     }
-    const existingPersIds = new Set(allPersonality.map((p) => p.id));
+    const currentPers = await personalityRepo.list();
+    const existingPersIds = new Set(currentPers.map((p) => p.id));
     const missingPers = INITIAL_PERSONALITY.filter((p) => !existingPersIds.has(p.id));
     if (missingPers.length > 0) {
       await personalityRepo.batchPut(missingPers.map((p) => normalizeRecord(p)));
@@ -507,11 +516,20 @@ export async function initDatabase(): Promise<void> {
         ...seed,
         shoeSize: INITIAL_APPEARANCE.shoeSize,
         opticalPrescription: INITIAL_APPEARANCE.opticalPrescription,
+        geneticHardware: INITIAL_APPEARANCE.geneticHardware,
+        neurotype: INITIAL_APPEARANCE.neurotype,
       }, 'default_appearance')]);
-    } else if (!existingAppearance.shoeSize || !existingAppearance.opticalPrescription) {
+    } else if (
+      !existingAppearance.shoeSize ||
+      !existingAppearance.opticalPrescription ||
+      !existingAppearance.geneticHardware ||
+      !existingAppearance.neurotype
+    ) {
       await appearanceRepo.update('default_appearance', {
         shoeSize: INITIAL_APPEARANCE.shoeSize,
         opticalPrescription: INITIAL_APPEARANCE.opticalPrescription,
+        geneticHardware: INITIAL_APPEARANCE.geneticHardware,
+        neurotype: INITIAL_APPEARANCE.neurotype,
       });
     }
     if ((await db.xpEvents.count()) === 0) {

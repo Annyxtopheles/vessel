@@ -1604,7 +1604,9 @@ export const INITIAL_APPEARANCE: CharacterAppearance = {
     od: '+3.00',
     os: '+2.75',
   },
-  updatedAt: '2026-10-28',
+  geneticHardware: 'Klinefelter’s Syndrome (XXY Karyotype)',
+  neurotype: 'Mild Autism Spectrum (deep pattern recognition, hyper-focus, sensory fatigue)',
+  updatedAt: '2026-11-03',
 };
 
 export const INITIAL_COLOR_PALETTE: PaletteColor[] = [
@@ -1623,26 +1625,52 @@ export const INITIAL_COLOR_PALETTE: PaletteColor[] = [
 
 export const INITIAL_PERSONALITY: PersonalityEntry[] = [
   {
-    id: 'pers-1',
+    id: 'pers-mbti',
     system: 'MBTI',
-    result: 'INTJ-A (The Architect)',
-    dateTaken: '2026-05-12',
-    source: '16Personalities',
-    notes: 'Strategic long-range synthesis with pragmatic execution and high independence.',
+    result: 'INFJ (Ni-Fe-Ti-Se)',
+    dateTaken: '2026-10-01',
+    source: 'Mind Vault Canonical Typology',
+    notes: 'The Counselor / Mystic. Internal visionary systems paired with sharp moral diagnostics and chronic alienation.',
   },
   {
-    id: 'pers-2',
+    id: 'pers-enneagram',
     system: 'Enneagram',
-    result: 'Type 5w6 (The Investigator with Loyalist Wing)',
-    dateTaken: '2026-06-20',
-    notes: 'Analytical observer focused on mastery, intellectual competence, and clarity.',
+    result: 'Core 5 (100%), 8 (50%), 2 (25%) | Tritype 582 (5w8)',
+    dateTaken: '2026-10-01',
+    source: 'Enneagram Depth & The 5-8-2 Dialectic',
+    notes: 'Dominant Type 5 mastery and boundary preservation, with Type 8 assertiveness/integration and Type 2 guardian empathy.',
   },
   {
-    id: 'pers-3',
-    system: 'Big Five',
-    result: 'High Conscientiousness (91%), High Openness (86%), Low Neuroticism (22%)',
-    dateTaken: '2026-07-15',
-    notes: 'Strong executive function, intellectual curiosity, high emotional stability.',
+    id: 'pers-disc',
+    system: 'DISC',
+    result: 'CSD (Cautious, Supportive, Dominant)',
+    dateTaken: '2026-10-01',
+    source: 'Behavioral & Leadership Archetype',
+    notes: 'Analytical precision and skepticism first (C), empathetic brotherhood loyalty second (S), assertive decisive command when required (D).',
+  },
+  {
+    id: 'pers-iq',
+    system: 'Cognitive Metric',
+    result: 'IQ ~120 (High Working Memory & Pattern Recognition)',
+    dateTaken: '2026-10-01',
+    source: 'Psychometric Assessment',
+    notes: 'Rapid abstract pattern recognition, structural mental models, and multi-domain problem solving.',
+  },
+  {
+    id: 'pers-alignment',
+    system: 'Moral Alignment',
+    result: 'True Neutral',
+    dateTaken: '2026-10-01',
+    source: 'Philosophical Axioms',
+    notes: 'Operates outside legalistic moral dogmas and chaotic rebellion; driven by balance, pragmatism, and self-preservation.',
+  },
+  {
+    id: 'pers-archetypes',
+    system: 'Subconscious Archetypes',
+    result: 'Color: Celeste | Animal: Grizzly Bear | Water: Liquid Water',
+    dateTaken: '2026-10-01',
+    source: 'The Three Questions Codex',
+    notes: 'A dark dismal metallic shade of celeste (#0891B2); grizzly bear (deceptive mass concealing ferocious strength); liquid water (deep still lake).',
   },
 ];
 

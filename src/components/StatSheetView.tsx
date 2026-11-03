@@ -1033,6 +1033,30 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Biological Hardware: Genetic Profile & Neurotype */}
+              <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider block">
+                    Biological Hardware
+                  </span>
+                  <span className="text-[10px] text-[#64748B] font-mono">Endocrine / Somatic</span>
+                </div>
+                <div className="space-y-1.5 text-[12px]">
+                  <div>
+                    <span className="text-[10px] text-[#64748B] block font-mono">Genetic Profile</span>
+                    <span className="text-[13px] font-medium text-[#0F172A] block">
+                      {appearance.geneticHardware || 'Klinefelter’s Syndrome (XXY Karyotype)'}
+                    </span>
+                  </div>
+                  <div className="pt-1 border-t border-[#F1F5F9]">
+                    <span className="text-[10px] text-[#64748B] block font-mono">Neurotype</span>
+                    <span className="text-[12px] text-[#0F172A] block">
+                      {appearance.neurotype || 'Mild Autism Spectrum (pattern recognition, hyperfocus)'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

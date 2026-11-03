@@ -237,6 +237,8 @@ export interface CharacterAppearance extends BaseEntity {
   photoUrl?: string;
   shoeSize?: string; // e.g. "EU 45 (44 works but tight)"
   opticalPrescription?: OpticalPrescription;
+  geneticHardware?: string; // e.g. "Klinefelter’s Syndrome (XXY)"
+  neurotype?: string; // e.g. "Mild Autism Spectrum (pattern recognition, hyperfocus)"
   updatedAt?: string;
 }
 
