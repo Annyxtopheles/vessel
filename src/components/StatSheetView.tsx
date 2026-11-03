@@ -7,48 +7,15 @@ import type {
   CharacterTrait,
   MeasurementType,
   PaletteVerdict,
-  TraitKind,
   AppSettings,
 } from '../types';
 import {
-  Trash2,
-  Edit2,
-  X,
   TrendingDown,
   TrendingUp,
   AlertTriangle,
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
-import { getTodayLocalDateStr } from '../utils/date';
 import { getColorDistance } from '../utils/color';
-import { CustomSelect } from './CustomSelect';
-
-const MEASUREMENT_TYPE_OPTIONS = [
-  { id: 'weight', label: 'Weight' },
-  { id: 'height', label: 'Height' },
-  { id: 'waist', label: 'Waist' },
-  { id: 'chest', label: 'Chest' },
-  { id: 'custom', label: 'Custom' },
-];
-
-const PALETTE_VERDICT_OPTIONS = [
-  { id: 'suits', label: 'Suits You' },
-  { id: 'neutral', label: 'Neutral' },
-  { id: 'avoid', label: 'Avoid' },
-];
-
-const TRAIT_KIND_OPTIONS = [
-  { id: 'strength', label: 'Core Strength' },
-  { id: 'working_on', label: 'Working On' },
-];
-
-const TRAIT_LEVEL_OPTIONS = [
-  { id: '1', label: 'Level 1 (Initiate)' },
-  { id: '2', label: 'Level 2 (Developing)' },
-  { id: '3', label: 'Level 3 (Competent)' },
-  { id: '4', label: 'Level 4 (Strong)' },
-  { id: '5', label: 'Level 5 (Mastered)' },
-];
 
 type ChartRange = '30d' | '90d' | '1y' | 'all';
 
@@ -158,16 +125,16 @@ interface StatSheetViewProps {
   traits: CharacterTrait[];
   settings: AppSettings;
   privacyMode?: boolean;
-  onAddMeasurement: (m: Omit<BodyMeasurement, 'id'>) => void;
-  onDeleteMeasurement: (id: string) => void;
-  onUpdateAppearance: (app: CharacterAppearance) => void;
-  onAddPaletteColor: (p: Omit<PaletteColor, 'id'>) => void;
-  onUpdatePaletteColor: (p: PaletteColor) => void;
-  onDeletePaletteColor: (id: string) => void;
-  onAddPersonality: (p: Omit<PersonalityEntry, 'id'>) => void;
-  onDeletePersonality: (id: string) => void;
-  onAddTrait: (t: Omit<CharacterTrait, 'id'>) => void;
-  onDeleteTrait: (id: string) => void;
+  onAddMeasurement?: (m: Omit<BodyMeasurement, 'id'>) => void;
+  onDeleteMeasurement?: (id: string) => void;
+  onUpdateAppearance?: (app: CharacterAppearance) => void;
+  onAddPaletteColor?: (p: Omit<PaletteColor, 'id'>) => void;
+  onUpdatePaletteColor?: (p: PaletteColor) => void;
+  onDeletePaletteColor?: (id: string) => void;
+  onAddPersonality?: (p: Omit<PersonalityEntry, 'id'>) => void;
+  onDeletePersonality?: (id: string) => void;
+  onAddTrait?: (t: Omit<CharacterTrait, 'id'>) => void;
+  onDeleteTrait?: (id: string) => void;
 }
 
 export const StatSheetView: React.FC<StatSheetViewProps> = ({
@@ -178,16 +145,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
   traits,
   settings,
   privacyMode = false,
-  onAddMeasurement,
-  onDeleteMeasurement,
-  onUpdateAppearance,
-  onAddPaletteColor,
-  onUpdatePaletteColor: _onUpdatePaletteColor,
-  onDeletePaletteColor: _onDeletePaletteColor,
-  onAddPersonality,
-  onDeletePersonality: _onDeletePersonality,
-  onAddTrait,
-  onDeleteTrait: _onDeleteTrait,
 }) => {
   // Active chart metric type
   const [activeChartType, setActiveChartType] = useState<MeasurementType>('weight');
@@ -221,48 +178,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     originalUnit?: string;
     isConverted?: boolean;
   } | null>(null);
-
-  // Modals
-  const [isAddMeasurementOpen, setIsAddMeasurementOpen] = useState(false);
-  const [isEditAppearanceOpen, setIsEditAppearanceOpen] = useState(false);
-  const [isAddColorOpen, setIsAddColorOpen] = useState(false);
-  const [isAddPersonalityOpen, setIsAddPersonalityOpen] = useState(false);
-  const [isAddTraitOpen, setIsAddTraitOpen] = useState(false);
-
-  // Form states - Measurement
-  const [mType, setMType] = useState<MeasurementType>('weight');
-  const [mCustomLabel, setMCustomLabel] = useState('');
-  const [mValue, setMValue] = useState('');
-  const [mUnit, setMUnit] = useState('kg');
-  const [mDate, setMDate] = useState(getTodayLocalDateStr());
-  const [mNote, setMNote] = useState('');
-
-  // Form states - Appearance
-  const [appSkinHex, setAppSkinHex] = useState(appearance.skinToneHex);
-  const [appSkinNote, setAppSkinNote] = useState(appearance.skinToneNote || '');
-  const [appHair, setAppHair] = useState(appearance.hair);
-  const [appEye, setAppEye] = useState(appearance.eyeColor);
-  const [appPhoto, setAppPhoto] = useState(appearance.photoUrl || '');
-  const photoInputRef = useRef<HTMLInputElement>(null);
-
-  // Form states - Palette Color
-  const [colorHex, setColorHex] = useState('#0F172A');
-  const [colorLabel, setColorLabel] = useState('');
-  const [colorVerdict, setColorVerdict] = useState<PaletteVerdict>('suits');
-  const [colorNote, setColorNote] = useState('');
-
-  // Form states - Personality
-  const [persSystem, setPersSystem] = useState('MBTI');
-  const [persResult, setPersResult] = useState('');
-  const [persDate, setPersDate] = useState(getTodayLocalDateStr());
-  const [persSource, setPersSource] = useState('');
-  const [persNotes, setPersNotes] = useState('');
-
-  // Form states - Traits
-  const [traitName, setTraitName] = useState('');
-  const [traitKind, setTraitKind] = useState<TraitKind>('strength');
-  const [traitLevel, setTraitLevel] = useState<number>(3);
-  const [traitNote, setTraitNote] = useState('');
 
   // Soft-deleted items are filtered out in active collections
   const activeMeasurements = useMemo(
@@ -473,123 +388,20 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
     return 'Custom Metric';
   }, [activeChartType]);
 
-  const handleSaveMeasurement = (e: React.FormEvent) => {
-    e.preventDefault();
-    const val = parseFloat(mValue);
-    if (isNaN(val)) return;
-
-    onAddMeasurement({
-      type: mType,
-      customLabel: mType === 'custom' ? mCustomLabel.trim() : undefined,
-      value: val,
-      unit: mUnit.trim() || (mType === 'weight' ? 'kg' : 'cm'),
-      date: mDate,
-      note: mNote.trim() || undefined,
-    });
-
-    setMValue('');
-    setMNote('');
-    setIsAddMeasurementOpen(false);
-    sfx.playClick();
-  };
-
-  const handleSaveAppearance = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdateAppearance({
-      ...appearance,
-      skinToneHex: appSkinHex,
-      skinToneNote: appSkinNote.trim() || undefined,
-      hair: appHair.trim(),
-      eyeColor: appEye.trim(),
-      photoUrl: appPhoto || undefined,
-      updatedAt: getTodayLocalDateStr(),
-    });
-    setIsEditAppearanceOpen(false);
-    sfx.playClick();
-  };
-
-  const handleSaveColor = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!colorLabel.trim()) return;
-
-    onAddPaletteColor({
-      colorHex,
-      label: colorLabel.trim(),
-      verdict: colorVerdict,
-      note: colorNote.trim() || undefined,
-    });
-
-    setColorLabel('');
-    setColorNote('');
-    setIsAddColorOpen(false);
-    sfx.playClick();
-  };
-
-  const handleSavePersonality = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!persResult.trim()) return;
-
-    onAddPersonality({
-      system: persSystem.trim(),
-      result: persResult.trim(),
-      dateTaken: persDate,
-      source: persSource.trim() || undefined,
-      notes: persNotes.trim() || undefined,
-    });
-
-    setPersResult('');
-    setPersNotes('');
-    setPersSource('');
-    setIsAddPersonalityOpen(false);
-    sfx.playClick();
-  };
-
-  const handleSaveTrait = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!traitName.trim()) return;
-
-    onAddTrait({
-      name: traitName.trim(),
-      kind: traitKind,
-      level: traitLevel,
-      note: traitNote.trim() || undefined,
-    });
-
-    setTraitName('');
-    setTraitNote('');
-    setIsAddTraitOpen(false);
-    sfx.playClick();
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setAppPhoto(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <div className="space-y-10">
       {/* 1. MEASUREMENTS & DYNAMIC CHART */}
       <section className="space-y-6">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
-          <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Measurements</h3>
+          <div>
+            <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Measurements</h3>
+            <p className="text-[12px] text-[#64748B] mt-0.5">Biometric telemetry & historical longitudinal tracking</p>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              sfx.playClick();
-              setIsAddMeasurementOpen(true);
-            }}
-            className="editorial-btn-primary"
-          >
-            Add Measurement
-          </button>
+          <span className="px-2.5 py-1 rounded-[4px] text-[11px] font-medium text-[#64748B] bg-[#F8FAFC] border border-[#E2E8F0] tracking-wide uppercase">
+            Codex Observatory
+          </span>
         </div>
 
         {/* 4 Stat Cards (Weight, Height, Waist, Chest) */}
@@ -1107,17 +919,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   </div>
                   <div className="flex items-center gap-2.5 text-[#64748B] text-[11px] tabular-nums">
                     <span>{entry.date}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        sfx.playClick();
-                        onDeleteMeasurement(entry.id);
-                      }}
-                      className="hover:text-[#E11D48] transition-colors p-0.5 cursor-pointer"
-                      title="Delete entry"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
               ))}
@@ -1131,18 +932,13 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
         {/* Appearance Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-            <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Appearance</h3>
-            <button
-              type="button"
-              onClick={() => {
-                sfx.playClick();
-                setIsEditAppearanceOpen(true);
-              }}
-              className="p-1 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
-              title="Edit Appearance"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-            </button>
+            <div>
+              <h3 className="font-serif text-[18px] font-normal text-[#0F172A]">Appearance & Specs</h3>
+              <p className="text-[11px] text-[#64748B]">Physical profile & visual calibration</p>
+            </div>
+            <span className="text-[10px] font-mono text-[#64748B] uppercase tracking-wider bg-[#F8FAFC] border border-[#E2E8F0] px-2 py-0.5 rounded">
+              Immutable
+            </span>
           </div>
 
           <div className="space-y-4">
@@ -1195,6 +991,47 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
                   Eye Color
                 </span>
                 <span className="font-normal text-[#0F172A] block truncate">{appearance.eyeColor}</span>
+              </div>
+            </div>
+
+            {/* Physical Specs: Shoe Size & Eyeglasses Power */}
+            <div className="space-y-3 pt-1">
+              <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0]">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider block">
+                    Shoe Size
+                  </span>
+                  <span className="text-[10px] text-[#64748B] font-mono">EU</span>
+                </div>
+                <div className="text-[14px] font-medium text-[#0F172A]">
+                  {appearance.shoeSize || 'EU 45 (44 works but tight)'}
+                </div>
+                <div className="text-[11px] text-[#64748B] mt-0.5">
+                  EU 45 standard · 44 fits but is tight
+                </div>
+              </div>
+
+              <div className="p-3 rounded-[6px] bg-[#FFFFFF] border border-[#E2E8F0]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider block">
+                    Eyeglasses Power
+                  </span>
+                  <span className="text-[10px] text-[#64748B] font-mono">Prescription</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] p-2">
+                    <span className="text-[10px] text-[#64748B] block font-mono">OD (Right Eye)</span>
+                    <span className="text-[15px] font-semibold text-[#0F172A] tabular-nums">
+                      {appearance.opticalPrescription?.od || '+3.00'}
+                    </span>
+                  </div>
+                  <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[4px] p-2">
+                    <span className="text-[10px] text-[#64748B] block font-mono">OS (Left Eye)</span>
+                    <span className="text-[15px] font-semibold text-[#0F172A] tabular-nums">
+                      {appearance.opticalPrescription?.os || '+2.75'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1379,548 +1216,6 @@ export const StatSheetView: React.FC<StatSheetViewProps> = ({
           </div>
         </div>
       </section>
-
-      {/* MODALS */}
-
-      {/* Modal: Add Measurement */}
-      {isAddMeasurementOpen && (
-        <div
-          onClick={() => setIsAddMeasurementOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Measurement</h3>
-              <button type="button" onClick={() => setIsAddMeasurementOpen(false)}>
-                <X className="w-4 h-4 text-[#64748B]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveMeasurement} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Metric Type
-                </label>
-                <CustomSelect
-                  value={mType}
-                  options={MEASUREMENT_TYPE_OPTIONS}
-                  onChange={(val) => {
-                    const t = val as MeasurementType;
-                    setMType(t);
-                    if (t === 'weight') setMUnit('kg');
-                    else setMUnit('cm');
-                  }}
-                />
-              </div>
-
-              {mType === 'custom' && (
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Custom Metric Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={mCustomLabel}
-                    onChange={(e) => setMCustomLabel(e.target.value)}
-                    placeholder="e.g. Neck, Bicep, Resting Heart Rate"
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Value
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={mValue}
-                    onChange={(e) => setMValue(e.target.value)}
-                    placeholder="e.g. 74.5"
-                    className="ship-input w-full px-3 py-2 text-xs font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Unit
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={mUnit}
-                    onChange={(e) => setMUnit(e.target.value)}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={mDate}
-                  onChange={(e) => setMDate(e.target.value)}
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Note (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={mNote}
-                  onChange={(e) => setMNote(e.target.value)}
-                  placeholder="e.g. Morning fasted, post hydration"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddMeasurementOpen(false)}
-                  className="editorial-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="editorial-btn-primary"
-                >
-                  Save Measurement
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Edit Appearance */}
-      {isEditAppearanceOpen && (
-        <div
-          onClick={() => setIsEditAppearanceOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Edit Appearance</h3>
-              <button type="button" onClick={() => setIsEditAppearanceOpen(false)}>
-                <X className="w-4 h-4 text-[#64748B]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveAppearance} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Portrait Photo URL
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={appPhoto}
-                    onChange={(e) => setAppPhoto(e.target.value)}
-                    placeholder="https://... URL or upload"
-                    className="ship-input flex-1 px-3 py-2 text-xs"
-                  />
-                  <input
-                    type="file"
-                    ref={photoInputRef}
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => photoInputRef.current?.click()}
-                    className="editorial-btn-secondary py-1 px-3 text-xs"
-                  >
-                    Upload
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Skin Tone Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={appSkinHex}
-                    onChange={(e) => setAppSkinHex(e.target.value)}
-                    className="w-8 h-8 rounded-[4px] border border-[#E2E8F0] cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={appSkinNote}
-                    onChange={(e) => setAppSkinNote(e.target.value)}
-                    placeholder="e.g. Warm olive undertones"
-                    className="ship-input flex-1 px-3 py-2 text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Hair Style & Color
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={appHair}
-                  onChange={(e) => setAppHair(e.target.value)}
-                  placeholder="e.g. Dark Espresso Brown, crop cut"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Eye Color
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={appEye}
-                  onChange={(e) => setAppEye(e.target.value)}
-                  placeholder="e.g. Deep Hazel / Amber"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditAppearanceOpen(false)}
-                  className="editorial-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="editorial-btn-primary"
-                >
-                  Save Appearance
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Color Swatch */}
-      {isAddColorOpen && (
-        <div
-          onClick={() => setIsAddColorOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Color Swatch</h3>
-              <button type="button" onClick={() => setIsAddColorOpen(false)}>
-                <X className="w-4 h-4 text-[#64748B]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveColor} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Color Picker
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={colorHex}
-                    onChange={(e) => setColorHex(e.target.value)}
-                    className="w-9 h-9 rounded-[4px] border border-[#E2E8F0] cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={colorHex}
-                    onChange={(e) => setColorHex(e.target.value)}
-                    className="ship-input font-mono w-28 px-3 py-2 text-xs uppercase"
-                  />
-                  <div
-                    className="flex-1 h-8 rounded-[4px] border border-black/10"
-                    style={{ backgroundColor: colorHex }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Color Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={colorLabel}
-                  onChange={(e) => setColorLabel(e.target.value)}
-                  placeholder="e.g. Deep Olive, Burnt Copper, Forest Pine"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Verdict
-                </label>
-                <CustomSelect
-                  value={colorVerdict}
-                  options={PALETTE_VERDICT_OPTIONS}
-                  onChange={(val) => setColorVerdict(val as PaletteVerdict)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Styling Notes (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={colorNote}
-                  onChange={(e) => setColorNote(e.target.value)}
-                  placeholder="e.g. Excellent for outerwear and knits"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddColorOpen(false)}
-                  className="editorial-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="editorial-btn-primary"
-                >
-                  Save Swatch
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Personality */}
-      {isAddPersonalityOpen && (
-        <div
-          onClick={() => setIsAddPersonalityOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Personality Entry</h3>
-              <button type="button" onClick={() => setIsAddPersonalityOpen(false)}>
-                <X className="w-4 h-4 text-[#64748B]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSavePersonality} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    System
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={persSystem}
-                    onChange={(e) => setPersSystem(e.target.value)}
-                    placeholder="e.g. MBTI, Enneagram"
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Result
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={persResult}
-                    onChange={(e) => setPersResult(e.target.value)}
-                    placeholder="e.g. INTJ, 5w4, Type 1"
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Date Taken
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={persDate}
-                    onChange={(e) => setPersDate(e.target.value)}
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Source
-                  </label>
-                  <input
-                    type="text"
-                    value={persSource}
-                    onChange={(e) => setPersSource(e.target.value)}
-                    placeholder="e.g. 16personalities"
-                    className="ship-input w-full px-3 py-2 text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Notes
-                </label>
-                <textarea
-                  rows={2}
-                  value={persNotes}
-                  onChange={(e) => setPersNotes(e.target.value)}
-                  placeholder="Key traits or reflection..."
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddPersonalityOpen(false)}
-                  className="editorial-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="editorial-btn-primary"
-                >
-                  Save Entry
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Trait */}
-      {isAddTraitOpen && (
-        <div
-          onClick={() => setIsAddTraitOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-6 cursor-default"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-4">
-              <h3 className="font-serif text-[20px] font-normal text-[#0F172A]">Add Character Trait</h3>
-              <button type="button" onClick={() => setIsAddTraitOpen(false)}>
-                <X className="w-4 h-4 text-[#64748B]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveTrait} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Trait Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={traitName}
-                  onChange={(e) => setTraitName(e.target.value)}
-                  placeholder="e.g. Deep Focus, Verbal Articulation, Mobility"
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Classification
-                  </label>
-                  <CustomSelect
-                    value={traitKind}
-                    options={TRAIT_KIND_OPTIONS}
-                    onChange={(val) => setTraitKind(val as TraitKind)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Mastery Level (1 - 5)
-                  </label>
-                  <CustomSelect
-                    value={String(traitLevel)}
-                    options={TRAIT_LEVEL_OPTIONS}
-                    onChange={(val) => setTraitLevel(parseInt(val, 10))}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                  Behavioral Note
-                </label>
-                <textarea
-                  rows={2}
-                  value={traitNote}
-                  onChange={(e) => setTraitNote(e.target.value)}
-                  placeholder="Specific contexts or real-world manifestation..."
-                  className="ship-input w-full px-3 py-2 text-xs"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddTraitOpen(false)}
-                  className="editorial-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="editorial-btn-primary"
-                >
-                  Save Trait
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
