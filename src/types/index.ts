@@ -224,12 +224,19 @@ export interface BodyMeasurement extends BaseEntity {
   deletedAt?: string;
 }
 
+export interface OpticalPrescription {
+  od: string; // Right eye (e.g. "+3.00")
+  os: string; // Left eye (e.g. "+2.75")
+}
+
 export interface CharacterAppearance extends BaseEntity {
   skinToneHex: string;
   skinToneNote?: string;
   hair: string;
   eyeColor: string;
   photoUrl?: string;
+  shoeSize?: string; // e.g. "EU 45 (44 works but tight)"
+  opticalPrescription?: OpticalPrescription;
   updatedAt?: string;
 }
 

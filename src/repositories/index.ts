@@ -427,6 +427,32 @@ export async function initDatabase(): Promise<void> {
       await measurementRepo.batchPut(INITIAL_BODY_MEASUREMENTS.map((m) => normalizeRecord(m)));
     }
 
+    // Purge any rogue 74.5 kg measurement and restore any accidentally deleted baseline measurements
+    const allMeasurements = await measurementRepo.list();
+    for (const m of allMeasurements) {
+      if (m.type === 'weight' && m.value === 74.5) {
+        await measurementRepo.hardDelete(m.id);
+      } else if ((m as any).deletedAt || m.deleted_at) {
+        await measurementRepo.update(m.id, { deleted_at: null, deletedAt: undefined } as any);
+      }
+    }
+    const currentMeasurements = await measurementRepo.list();
+    const currentIds = new Set(currentMeasurements.map((m) => m.id));
+    const missingMeasurements = INITIAL_BODY_MEASUREMENTS.filter((m) => !currentIds.has(m.id));
+    if (missingMeasurements.length > 0) {
+      await measurementRepo.batchPut(missingMeasurements.map((m) => normalizeRecord(m)));
+    }
+
+    // Update height to exact measured value (67.5 in = 5ft 7.5in)
+    const heightRecord = (await measurementRepo.list()).find((m) => m.type === 'height' || m.id === 'bm-height');
+    if (heightRecord && (heightRecord.value !== 67.5 || heightRecord.unit !== 'in')) {
+      await measurementRepo.update(heightRecord.id, {
+        value: 67.5,
+        unit: 'in',
+        note: 'Measured height (5ft 7.5in / ~171.5cm)',
+      });
+    }
+
     const currentSettings = await settingsRepo.get('default_settings');
     if (currentSettings) {
       if (currentSettings.unitSystem !== 'hybrid' || currentSettings.targetWeightKg !== 85) {
@@ -473,10 +499,20 @@ export async function initDatabase(): Promise<void> {
     if (missingPalette.length > 0) {
       await paletteRepo.batchPut(missingPalette.map((pal) => normalizeRecord(pal)));
     }
-    if ((await db.appearance.count()) === 0) {
+    const existingAppearance = await appearanceRepo.get('default_appearance');
+    if (!existingAppearance) {
       const raw = localStorage.getItem('vessel_character_appearance_v1');
       const seed: CharacterAppearance = raw ? JSON.parse(raw) : INITIAL_APPEARANCE;
-      await appearanceRepo.batchPut([normalizeRecord(seed, 'default_appearance')]);
+      await appearanceRepo.batchPut([normalizeRecord({
+        ...seed,
+        shoeSize: INITIAL_APPEARANCE.shoeSize,
+        opticalPrescription: INITIAL_APPEARANCE.opticalPrescription,
+      }, 'default_appearance')]);
+    } else if (!existingAppearance.shoeSize || !existingAppearance.opticalPrescription) {
+      await appearanceRepo.update('default_appearance', {
+        shoeSize: INITIAL_APPEARANCE.shoeSize,
+        opticalPrescription: INITIAL_APPEARANCE.opticalPrescription,
+      });
     }
     if ((await db.xpEvents.count()) === 0) {
       const rawXp = localStorage.getItem('vessel_xp_events_v1');

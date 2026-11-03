@@ -1590,7 +1590,7 @@ export const INITIAL_BODY_MEASUREMENTS: BodyMeasurement[] = [
   { id: 'bm-2026-01-max', type: 'weight', value: 106.0, unit: 'kg', date: '2026-01-15', note: 'All-time peak weight (106kg turning point)' },
   { id: 'bm-2026-10-current', type: 'weight', value: 96.0, unit: 'kg', date: '2026-10-28', note: 'Current baseline (-10kg from peak, targeting 85kg)' },
   { id: 'bm-2026-10-waist', type: 'waist', value: 39.0, unit: 'in', date: '2026-10-28', note: 'Current waist' },
-  { id: 'bm-height', type: 'height', value: 70.0, unit: 'in', date: '2026-09-01', note: 'Measured height (5ft 10in)' },
+  { id: 'bm-height', type: 'height', value: 67.5, unit: 'in', date: '2026-10-28', note: 'Measured height (5ft 7.5in / ~171.5cm)' },
 ];
 
 export const INITIAL_APPEARANCE: CharacterAppearance = {
@@ -1599,6 +1599,11 @@ export const INITIAL_APPEARANCE: CharacterAppearance = {
   hair: 'Dark Espresso Brown, medium textured crop',
   eyeColor: 'Deep Hazel / Amber',
   photoUrl: undefined,
+  shoeSize: 'EU 45 (44 works but tight)',
+  opticalPrescription: {
+    od: '+3.00',
+    os: '+2.75',
+  },
   updatedAt: '2026-10-28',
 };
 
