@@ -53,7 +53,7 @@ const TRAIT_LEVEL_OPTIONS = [
 type ExtendedMetricType = MeasurementType | 'ratio';
 type ChartRange = '30d' | '90d' | '1y' | 'all';
 
-export interface NormalizedMeasurement extends BodyMeasurement {
+interface NormalizedMeasurement extends BodyMeasurement {
   normalizedValue: number;
   displayUnit: string;
   originalValue: number;
@@ -62,7 +62,7 @@ export interface NormalizedMeasurement extends BodyMeasurement {
 }
 
 // Canonical unit based on unitSystem preference
-export const getCanonicalUnitForMetric = (metric: ExtendedMetricType, unitSystem: string = 'hybrid'): string => {
+const getCanonicalUnitForMetric = (metric: ExtendedMetricType, unitSystem: string = 'hybrid'): string => {
   if (metric === 'weight') return unitSystem === 'imperial' ? 'lbs' : 'kg';
   if (metric === 'height' || metric === 'waist' || metric === 'chest') {
     return unitSystem === 'metric' ? 'cm' : 'in';
@@ -71,7 +71,7 @@ export const getCanonicalUnitForMetric = (metric: ExtendedMetricType, unitSystem
 };
 
 // Normalize any measurement to canonical unit
-export const normalizeMeasurement = (
+const normalizeMeasurement = (
   m: BodyMeasurement,
   unitSystem: string = 'hybrid'
 ): NormalizedMeasurement => {
@@ -115,7 +115,7 @@ export const normalizeMeasurement = (
 };
 
 // Beautiful, human-friendly Y-axis scale calculator
-export function getNiceScale(minVal: number, maxVal: number, targetTicks = 4) {
+function getNiceScale(minVal: number, maxVal: number, targetTicks = 4) {
   let rawSpan = maxVal - minVal;
   if (rawSpan <= 0.0001) rawSpan = 1;
 
