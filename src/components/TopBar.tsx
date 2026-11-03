@@ -24,7 +24,7 @@ interface TopBarProps {
   selectedDate: string;
   onShiftDate: (delta: number) => void;
   onResetToday: () => void;
-  onOpenAddItem: () => void;
+  onOpenAddItem?: () => void;
   onOpenAddTask?: () => void;
   onOpenImportItems?: () => void;
   onOpenBackup?: () => void;
@@ -50,9 +50,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   selectedDate,
   onShiftDate,
   onResetToday,
-  onOpenAddItem,
   onOpenAddTask,
-  onOpenImportItems,
   onOpenBackup,
   searchQuery,
   onSearchChange,
@@ -493,32 +491,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <Settings className="w-4 h-4" />
         </button>
 
-        {/* Primary and Secondary Text Action Buttons (NO ICONS ON TEXT BUTTONS) */}
-        {activeTab === 'inventory' && (
-          <div className="flex items-center gap-2">
-            {onOpenImportItems && (
-              <button
-                onClick={() => {
-                  sfx.playClick();
-                  onOpenImportItems();
-                }}
-                className="px-3.5 py-1.5 rounded-[6px] bg-transparent border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0F172A] text-[13px] font-medium transition-colors cursor-pointer"
-                title="Import Items (JSON / CSV)"
-              >
-                Import
-              </button>
-            )}
-            <button
-              onClick={() => {
-                sfx.playClick();
-                onOpenAddItem();
-              }}
-              className="px-3.5 py-1.5 rounded-[6px] bg-[#0F172A] hover:bg-[#342F29] text-[#FFFFFF] text-[13px] font-medium transition-colors cursor-pointer"
-            >
-              Add Item
-            </button>
-          </div>
-        )}
+
 
         {activeTab === 'tasks' && onOpenAddTask && (
           <button

@@ -17,7 +17,7 @@ import { sfx } from '../utils/audio';
 interface InventoryGridProps {
   items: InventoryItem[];
   onInspectItem: (item: InventoryItem) => void;
-  onOpenAddItem: () => void;
+  onOpenAddItem?: () => void;
   onOpenImport?: () => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
@@ -48,7 +48,6 @@ const RARITY_LABELS: Record<ItemRarity, string> = {
 export const InventoryGrid: React.FC<InventoryGridProps> = ({
   items,
   onInspectItem,
-  onOpenImport,
   searchQuery: externalSearchQuery,
   onSearchChange: externalOnSearchChange,
   currencySymbol = '৳',
@@ -327,15 +326,6 @@ export const InventoryGrid: React.FC<InventoryGridProps> = ({
         <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[6px] p-12 text-center">
           <p className="font-serif text-[18px] text-[#0F172A]">No possessions found</p>
           <p className="text-[13px] text-[#64748B] mt-1">Try selecting another sidebar node or clearing search filters.</p>
-          {onOpenImport && (
-            <button
-              type="button"
-              onClick={onOpenImport}
-              className="editorial-btn-secondary mt-3"
-            >
-              Import from JSON or CSV
-            </button>
-          )}
         </div>
       ) : viewMode === 'table' ? (
         /* DENSE TABLE VIEW WITH SORTABLE COLUMNS */

@@ -21,8 +21,7 @@ import {
   MapPin, 
   Volume2, 
   VolumeX, 
-  Download, 
-  Upload 
+  Download 
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { getTodayLocalDateStr } from '../utils/date';
@@ -56,7 +55,7 @@ interface SidebarProps {
   isMuted: boolean;
   setIsMuted: (muted: boolean) => void;
   onExport: () => void;
-  onImport: () => void;
+  onImport?: () => void;
   lastBackupAt?: string;
   nonNegotiablePrayers?: (keyof SalahStatus)[];
 }
@@ -82,7 +81,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMuted,
   setIsMuted,
   onExport,
-  onImport,
   lastBackupAt,
   nonNegotiablePrayers = ALL_PRAYER_KEYS,
 }) => {
@@ -539,16 +537,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </button>
 
-            <button
-              onClick={() => {
-                sfx.playClick();
-                onImport();
-              }}
-              className="p-1.5 rounded-[6px] bg-[#FFFFFF] text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-              title="Import Items (JSON / CSV)"
-            >
-              <Upload className="w-3.5 h-3.5" />
-            </button>
+
           </div>
 
           <span className="text-[12px] font-serif text-[#64748B] tracking-tight">

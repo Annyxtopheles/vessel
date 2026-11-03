@@ -4,17 +4,12 @@ import type {
   ItemCondition,
   OwnershipStatus,
   PastReason,
-  ItemCategory,
-  ItemSeason,
   NumberGroupingOption,
   Transaction,
   PaletteColor,
 } from '../types';
 import { 
   X, 
-  Trash2, 
-  Edit3, 
-  Copy, 
   MapPin, 
   Maximize2, 
   ZoomIn, 
@@ -30,30 +25,8 @@ import {
 } from 'lucide-react';
 import { sfx } from '../utils/audio';
 import { CustomSelect } from './CustomSelect';
-import { processAndStorePhoto, getPhotoBlobUrl } from '../services/photoService';
 import { formatCurrency } from '../utils/numberFormat';
 import { matchColorPalette } from '../utils/color';
-
-const CATEGORY_OPTIONS = [
-  { id: 'apparel', label: 'Apparel & Wardrobe' },
-  { id: 'tech', label: 'Tech & Hardware' },
-  { id: 'tomes', label: 'Book / Tome' },
-  { id: 'edc', label: 'Everyday Carry (EDC)' },
-];
-
-const CONDITION_OPTIONS = [
-  { id: 'pristine', label: 'Pristine' },
-  { id: 'seasoned', label: 'Seasoned' },
-  { id: 'worn', label: 'Worn' },
-  { id: 'needs_repair', label: 'Needs Repair' },
-];
-
-const SEASON_OPTIONS = [
-  { id: 'all', label: 'All Seasons' },
-  { id: 'summer', label: 'Summer' },
-  { id: 'winter', label: 'Winter' },
-  { id: 'transitional', label: 'Transitional' },
-];
 
 const PAST_REASON_OPTIONS = [
   { id: 'sold', label: 'Sold' },
@@ -67,7 +40,7 @@ interface ItemInspectModalProps {
   item: InventoryItem | null;
   onClose: () => void;
   onChangeStatus: (item: InventoryItem, newStatus: OwnershipStatus, pastReason?: PastReason, pastDate?: string) => void;
-  onDeleteItem: (itemId: string) => void;
+  onDeleteItem?: (itemId: string) => void;
   onUpdateItem?: (updated: InventoryItem) => void;
   onDuplicateItem?: (item: InventoryItem) => void;
   onLogWear?: (itemId: string) => void;
@@ -90,9 +63,6 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   item,
   onClose,
   onChangeStatus,
-  onDeleteItem,
-  onUpdateItem,
-  onDuplicateItem,
   onLogWear,
   currencySymbol = '৳',
   numberGrouping = 'bangladeshi',
@@ -101,29 +71,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
   privacyMode = false,
   palette = [],
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [selectedPastReason, setSelectedPastReason] = useState<PastReason>('sold');
   const [isChoosingPastReason, setIsChoosingPastReason] = useState(false);
   const [isPhotoExpanded, setIsPhotoExpanded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isSpecsExpanded, setIsSpecsExpanded] = useState(true);
-
-  // Editable fields
-  const [editName, setEditName] = useState('');
-  const [editCategory, setEditCategory] = useState<ItemCategory>('apparel');
-  const [editSubCategory, setEditSubCategory] = useState('');
-  const [editBrand, setEditBrand] = useState('');
-  const [editSize, setEditSize] = useState('');
-  const [editSeason, setEditSeason] = useState<ItemSeason>('all');
-  const [editDateAcquired, setEditDateAcquired] = useState('');
-  const [editGoldValue, setEditGoldValue] = useState('100');
-  const [editTargetPrice, setEditTargetPrice] = useState('100');
-  const [editLocation, setEditLocation] = useState('Closet');
-  const [editCondition, setEditCondition] = useState<ItemCondition>('pristine');
-  const [editImageUrl, setEditImageUrl] = useState('');
-  const [editPhotoId, setEditPhotoId] = useState<string | undefined>(undefined);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [editLore, setEditLore] = useState('');
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageFitMode, setImageFitMode] = useState<'contain' | 'cover'>('contain');
 
@@ -135,27 +87,12 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     return [];
   }, [item]);
 
-  const activeImageUrl = isEditing ? editImageUrl : (itemImages[selectedImageIndex] || item?.imageUrl || '');
+  const activeImageUrl = itemImages[selectedImageIndex] || item?.imageUrl || '';
 
-  // Sync edit state when item changes
+  // Reset view state when item changes
   useEffect(() => {
     if (item) {
-      setEditName(item.name);
-      setEditCategory(item.category);
-      setEditSubCategory(item.subCategory);
-      setEditBrand(item.brand || '');
-      setEditSize(item.size || '');
-      setEditSeason(item.season || 'all');
-      setEditDateAcquired(item.dateAcquired || item.acquired_date || '');
-      setEditGoldValue(item.goldValue.toString());
-      setEditTargetPrice((item.targetPrice || item.goldValue).toString());
-      setEditLocation(item.location || 'Closet');
-      setEditCondition(item.condition);
-      setEditImageUrl(item.imageUrl || '');
-      setEditPhotoId(item.photoId);
-      setEditLore(item.lore);
       setSelectedImageIndex(0);
-      setIsEditing(false);
       setIsChoosingPastReason(false);
       setIsPhotoExpanded(false);
       setZoomLevel(1);
@@ -199,56 +136,6 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
     setIsChoosingPastReason(false);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingPhoto(true);
-    try {
-      const record = await processAndStorePhoto(file, item.id);
-      setEditPhotoId(record.id);
-      const fullUrl = await getPhotoBlobUrl(record.id, 'full');
-      if (fullUrl) {
-        setEditImageUrl(fullUrl);
-      }
-    } catch (err: any) {
-      alert(`Photo upload failed: ${err.message}`);
-    } finally {
-      setIsUploadingPhoto(false);
-    }
-  };
-
-  const handleSaveEdits = () => {
-    if (!editName.trim()) return;
-    sfx.playClick();
-
-    const now = new Date().toISOString();
-    const updated: InventoryItem = {
-      ...item,
-      name: editName.trim(),
-      category: editCategory,
-      subCategory: editSubCategory.trim() || 'General',
-      brand: editBrand.trim() || undefined,
-      size: editSize.trim() || undefined,
-      season: editSeason,
-      dateAcquired: editDateAcquired.trim() || undefined,
-      goldValue: Math.max(0, parseInt(editGoldValue, 10) || 0),
-      targetPrice: Math.max(0, parseInt(editTargetPrice, 10) || 0),
-      location: editLocation.trim() || 'Closet',
-      condition: editCondition,
-      photoId: editPhotoId,
-      imageUrl: editImageUrl.trim() || undefined,
-      lore: editLore.trim() || 'Personal item in inventory.',
-      updated_at: now,
-      revision: (item.revision || 1) + 1,
-    };
-
-    if (onUpdateItem) {
-      onUpdateItem(updated);
-    }
-    setIsEditing(false);
-  };
-
   return (
     <>
       <div
@@ -272,43 +159,11 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            {onDuplicateItem && (
-              <button
-                type="button"
-                onClick={() => {
-                  sfx.playClick();
-                  const dup: InventoryItem = {
-                    ...item,
-                    id: `item-${Date.now()}`,
-                    name: `${item.name} (Copy)`,
-                  };
-                  onDuplicateItem(dup);
-                  onClose();
-                }}
-                className="p-1.5 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
-                title="Duplicate possession"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setIsEditing(!isEditing)}
-              className={`p-1.5 rounded-[4px] transition-colors ${
-                isEditing
-                  ? 'bg-[#F1F5F9] text-[#0F172A]'
-                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
-              }`}
-              title="Edit details"
-            >
-              <Edit3 className="w-4 h-4" />
-            </button>
-
             <button
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-[4px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+              title="Close inspection"
             >
               <X className="w-4 h-4" />
             </button>
@@ -325,21 +180,18 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                   src={activeImageUrl}
                   alt={item.name}
                   onClick={() => {
-                    if (!isEditing) {
-                      sfx.playClick();
-                      setIsPhotoExpanded(true);
-                      setZoomLevel(1);
-                    }
+                    sfx.playClick();
+                    setIsPhotoExpanded(true);
+                    setZoomLevel(1);
                   }}
                   className={`transition-all duration-200 ${
                     imageFitMode === 'contain'
                       ? 'w-full h-full object-contain p-2.5'
                       : 'w-full h-full object-cover object-[center_15%]'
-                  } ${!isEditing ? 'cursor-zoom-in' : ''}`}
+                  } cursor-zoom-in`}
                 />
 
-                {!isEditing && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => {
@@ -366,28 +218,14 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                       <span>Expand</span>
                     </button>
                   </div>
-                )}
               </>
             ) : (
               <span className="font-semibold text-2xl text-[#94A3B8]">{initialChar}</span>
             )}
-
-            {isEditing && (
-              <label className="absolute bottom-3 right-3 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] px-3 py-1 rounded-[4px] text-xs font-medium cursor-pointer transition-colors shadow-xs">
-                <span>{isUploadingPhoto ? 'Processing...' : 'Upload Photo'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  disabled={isUploadingPhoto}
-                  className="hidden"
-                />
-              </label>
-            )}
           </div>
 
           {/* Photo Gallery Selector Strip */}
-          {itemImages.length > 1 && !isEditing && (
+          {itemImages.length > 1 && (
             <div className="flex items-center gap-2 pt-0 pb-1 overflow-x-auto">
               <span className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
                 <ImageIcon className="w-3.5 h-3.5" />
@@ -424,180 +262,10 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
             </div>
           )}
 
-          {/* Form Content / View Content */}
+          {/* Item Content Dossier */}
           <div>
-            {isEditing ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="ship-input w-full text-[14px]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Category
-                    </label>
-                    <CustomSelect
-                      value={editCategory}
-                      options={CATEGORY_OPTIONS}
-                      onChange={(val) => setEditCategory(val as ItemCategory)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Sub-Category / Type
-                    </label>
-                    <input
-                      type="text"
-                      value={editSubCategory}
-                      onChange={(e) => setEditSubCategory(e.target.value)}
-                      className="ship-input w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Brand / Maker
-                    </label>
-                    <input
-                      type="text"
-                      value={editBrand}
-                      onChange={(e) => setEditBrand(e.target.value)}
-                      placeholder="e.g. Patagonia, Uniqlo, Citizen"
-                      className="ship-input w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Size / Dimensions
-                    </label>
-                    <input
-                      type="text"
-                      value={editSize}
-                      onChange={(e) => setEditSize(e.target.value)}
-                      placeholder="e.g. M, 32x30, 42mm"
-                      className="ship-input w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Season
-                    </label>
-                    <CustomSelect
-                      value={editSeason}
-                      options={SEASON_OPTIONS}
-                      onChange={(val) => setEditSeason(val as ItemSeason)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Date Acquired
-                    </label>
-                    <input
-                      type="date"
-                      value={editDateAcquired}
-                      onChange={(e) => setEditDateAcquired(e.target.value)}
-                      className="ship-input w-full text-[13px]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Value ({currencySymbol})
-                    </label>
-                    <input
-                      type="number"
-                      value={editGoldValue}
-                      onChange={(e) => setEditGoldValue(e.target.value)}
-                      className="ship-input w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Target Price ({currencySymbol})
-                    </label>
-                    <input
-                      type="number"
-                      value={editTargetPrice}
-                      onChange={(e) => setEditTargetPrice(e.target.value)}
-                      className="ship-input w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Storage Location
-                    </label>
-                    <input
-                      type="text"
-                      value={editLocation}
-                      onChange={(e) => setEditLocation(e.target.value)}
-                      placeholder="e.g. Closet, Desk"
-                      className="ship-input w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                      Condition
-                    </label>
-                    <CustomSelect
-                      value={editCondition}
-                      options={CONDITION_OPTIONS}
-                      onChange={(val) => setEditCondition(val as ItemCondition)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-[#64748B] mb-1">
-                    Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={editLore}
-                    onChange={(e) => setEditLore(e.target.value)}
-                    className="ship-input w-full text-[13px]"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="editorial-btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveEdits}
-                    className="editorial-btn-primary"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Title & Category Bar */}
-                <div className="flex items-start justify-between gap-4 mb-4">
+            {/* Title & Category Bar */}
+            <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
                     <h2 className="font-serif text-[24px] font-normal text-[#0F172A]">
                       {item.name}
@@ -906,8 +574,6 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
                     </div>
                   )}
                 </div>
-              </>
-            )}
           </div>
         </div>
 
@@ -934,21 +600,9 @@ export const ItemInspectModal: React.FC<ItemInspectModalProps> = ({
               </div>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              sfx.playClick();
-              if (confirm(`Completely delete "${item.name}" from your vault?`)) {
-                onDeleteItem(item.id);
-                onClose();
-              }
-            }}
-            title="Delete item permanently"
-            className="p-1.5 rounded-[4px] border border-[#E2E8F0] text-[#E11D48] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <span className="text-[11px] font-mono uppercase tracking-wider text-[#94A3B8]">
+            Archival Record
+          </span>
         </div>
       </div>
     </div>
