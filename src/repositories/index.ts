@@ -647,6 +647,24 @@ export async function initDatabase(): Promise<void> {
       if (missingQuests.length > 0) {
         await questRepo.batchPut(missingQuests.map((q) => normalizeRecord(q)));
       }
+
+      // Backfill missing skills from INITIAL_SKILLS
+      const existingSkills = await skillRepo.list();
+      const existingSkillIds = new Set(existingSkills.map((s) => s.id));
+      const missingSkills = INITIAL_SKILLS.filter((s) => !existingSkillIds.has(s.id));
+      if (missingSkills.length > 0) {
+        console.log(`[Vessel DB] Backfilling ${missingSkills.length} missing initial skills...`);
+        await skillRepo.batchPut(missingSkills.map((s) => normalizeRecord(s)));
+      }
+
+      // Backfill missing bucket list entries from INITIAL_BUCKET_LIST
+      const existingBucket = await bucketListRepo.list();
+      const existingBucketIds = new Set(existingBucket.map((b) => b.id));
+      const missingBucket = INITIAL_BUCKET_LIST.filter((b) => !existingBucketIds.has(b.id));
+      if (missingBucket.length > 0) {
+        console.log(`[Vessel DB] Backfilling ${missingBucket.length} missing initial bucket list items...`);
+        await bucketListRepo.batchPut(missingBucket.map((b) => normalizeRecord(b)));
+      }
       const q1 = await questRepo.get('quest-1');
       if (q1 && q1.title.includes('Benchpress')) {
         const canonicalQ1 = INITIAL_QUESTS.find((q) => q.id === 'quest-1');
